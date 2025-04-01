@@ -26,7 +26,7 @@ namespace Presentation.Controllers
 
         [HttpGet("{id}")]
         public async Task<IActionResult> FindOne(string id){
-            var user = await _userService.FindOne(id);
+            var user = await _userService.FindOne(Guid.Parse(id));
             var userDto = user.Adapt<GetUserDto>();
             return Ok(userDto);
         }

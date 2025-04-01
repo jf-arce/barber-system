@@ -21,7 +21,7 @@ public class UsersService : IUser
         return await _db.Users.ToListAsync();  
     }
 
-    public async Task<User> FindOne(string id)
+    public async Task<User> FindOne(Guid id)
     {
         var user = await _db.Users.FirstOrDefaultAsync(u => u.Id == id);
         if (user == null) throw new KeyNotFoundException("User not found.");
