@@ -14,7 +14,19 @@ public class AppDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<User>().ToTable("users");
+        foreach (var entity in modelBuilder.Model.GetEntityTypes())
+        {
+            foreach (var property in entity.GetProperties())
+            {
+                string columnName = ConvertToSnakeCase(property.Name);
+                property.SetColumnName(columnName);
+            }
+        }
+
+        modelBuilder.Entity<User>()
+            .ToTable("users")
+            .Property(u => u.CreatedAt)
+            .HasDefaultValueSql("CURRENT_TIMESTAMP");
     }
     // protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     // {
@@ -24,4 +36,11 @@ public class AppDbContext : DbContext
     //     }
 
     // }
+    // Función para convertir nombres a snake_case
+    private static string ConvertToSnakeCase(string input)
+    {
+        return string.Concat(input.Select((x, i) => 
+            i > 0 && char.IsUpper(x) ? "_" + x : x.ToString()
+        )).ToLower();
+    }
 }

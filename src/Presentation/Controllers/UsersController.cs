@@ -1,4 +1,7 @@
+using Application.Dtos.User;
+using Domain.Entities;
 using Domain.Interfaces;
+using Mapster;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Presentation.Controllers
@@ -15,9 +18,24 @@ namespace Presentation.Controllers
         }
 
         [HttpGet]
-        public IActionResult FindAll(){
-            var users = _userService.FindAll();
-            return Ok(users);
+        public async Task<IActionResult> FindAll(){
+            var users = await _userService.FindAll();
+            var usersDto = users.Adapt<List<GetUserDto>>();
+            return Ok(usersDto);
+        }
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> FindOne(string id){
+            var user = await _userService.FindOne(id);
+            var userDto = user.Adapt<GetUserDto>();
+            return Ok(userDto);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Create([FromBody] GetUserDto userDto){
+            var user = userDto.Adapt<User>();
+            await _userService.Create(user);
+            return CreatedAtAction(nameof(FindOne), new { id = user.Id }, userDto);
         }
     }
 }

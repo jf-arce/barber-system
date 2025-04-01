@@ -1,6 +1,7 @@
 using Domain.Entities;
 using Domain.Interfaces;
 using Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace Application.Services;
 
@@ -13,25 +14,48 @@ public class UsersService : IUser
         _db = db;
     }
 
-    public List<User> FindAll()
+    public async Task<List<User>> FindAll()
     {
-        var users = _db.Users.ToList();
-        if (users.Count == 0) throw new Exception("No users found.");
-        return users;
-        // var users = new List<User> {
-        //     new User { Name = "John", Surname = "Doe" },
-        //     new User { Name = "Jane", Surname = "Doe" },
-        //     new User { Name = "Jim", Surname = "Beam" },
-        //     new User { Name = "Jack", Surname = "Daniels" },
-        //     new User { Name = "Johnny", Surname = "Walker" },
-        //     new User { Name = "James", Surname = "Bond" },
-        //     new User { Name = "Bruce", Surname = "Wayne" },
-        //     new User { Name = "Clark", Surname = "Kent" },
-        //     new User { Name = "Peter", Surname = "Parker" },
-        //     new User { Name = "Tony", Surname = "Stark" }
-        // };
-        // if (users.Count == 0) throw new Exception("No users found.");
+        if (!await _db.Users.AnyAsync()) throw new Exception("No users found.");
 
-        // return users;
+        return await _db.Users.ToListAsync();  
+    }
+
+    public async Task<User> FindOne(string id)
+    {
+        var user = await _db.Users.FirstOrDefaultAsync(u => u.Id == id);
+        if (user == null) throw new KeyNotFoundException("User not found.");
+        return user;
+    }
+
+    public async Task Create(User user)
+    {
+        await _db.Users.AddAsync(user);
+        await _db.SaveChangesAsync();
+    }
+
+    public async Task Update(User user)
+    {
+        var existingUser = await _db.Users.FindAsync(user.Id);
+        if (existingUser == null) throw new KeyNotFoundException("User not found.");
+
+        existingUser.Name = user.Name;
+        existingUser.Surname = user.Surname;
+        existingUser.Email = user.Email;
+        existingUser.Phone = user.Phone;
+        existingUser.BirthDate = user.BirthDate;
+        existingUser.Gender = user.Gender;
+
+        _db.Users.Update(existingUser);
+        await _db.SaveChangesAsync();
+    }
+
+    public async Task Delete(string id)
+    {
+        var user = await _db.Users.FindAsync(id);
+        if (user == null) throw new KeyNotFoundException("User not found.");
+
+        _db.Users.Remove(user);
+        await _db.SaveChangesAsync();
     }
 }
