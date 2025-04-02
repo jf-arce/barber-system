@@ -7,7 +7,7 @@ public class AppDbContext : DbContext
 {
 
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
-    {}
+    { }
 
     public DbSet<User> Users { get; set; }
     public DbSet<Barber> Barbers { get; set; }
@@ -19,79 +19,101 @@ public class AppDbContext : DbContext
     public DbSet<SocialNetwork> SocialNetworks { get; set; }
     public DbSet<Work> Works { get; set; }
 
-
-    // protected override void OnModelCreating(ModelBuilder modelBuilder)
-    // {
-    //     foreach (var entity in modelBuilder.Model.GetEntityTypes())
-    //     {
-    //         foreach (var property in entity.GetProperties())
-    //         {
-    //             string columnName = ConvertToSnakeCase(property.Name);
-    //             property.SetColumnName(columnName);
-    //         }
-    //     }
-
-    //     modelBuilder.Entity<User>()
-    //         .ToTable("users")
-    //         .Property(u => u.CreatedAt)
-    //         .HasDefaultValueSql("CURRENT_TIMESTAMP");
-
-    //     modelBuilder.Entity<Barber>()
-    //         .ToTable("barbers");
-        
-    //     modelBuilder.Entity<Skill>()
-    //         .ToTable("skills");
-
-    //     modelBuilder.Entity<Language>()
-    //         .ToTable("languages");
-
-    //     modelBuilder.Entity<Service>()
-    //         .ToTable("services");
-        
-    //     modelBuilder.Entity<SocialNetwork>()
-    //         .ToTable("social_networks");
-
-    //     modelBuilder.Entity<Work>()
-    //         .ToTable("works")
-    //         .HasOne(w => w.Barber)
-    //         .WithMany(b => b.Works)
-    //         .HasForeignKey(w => w.BarberId)
-    //         .OnDelete(DeleteBehavior.Cascade);
-
-    //     // 🔹 Relación User → Review (quién escribe la review)
-    //     modelBuilder.Entity<Review>()
-    //         .ToTable("reviews")
-    //         .HasOne(r => r.User)
-    //         .WithMany(u => u.ReviewsWritten)
-    //         .HasForeignKey(r => r.UserId)
-    //         .OnDelete(DeleteBehavior.Cascade);
-
-    //     // 🔹 Relación Barber → Review (quién recibe la review, pero sigue siendo un UserId)
-    //     modelBuilder.Entity<Review>()
-    //         .HasOne(r => r.Barber)
-    //         .WithMany(b => b.ReviewsReceived)
-    //         .HasForeignKey(r => r.BarberId)
-    //         .OnDelete(DeleteBehavior.Cascade);
-
-    //     modelBuilder.Entity<Appointment>()
-    //         .ToTable("appointments")
-    //         .HasOne(a => a.Barber)
-    //         .WithMany(b => b.AppointmentsBarber)
-    //         .HasForeignKey(a => a.BarberId)
-    //         .OnDelete(DeleteBehavior.Cascade);
-
-    //     modelBuilder.Entity<Appointment>()
-    //         .HasOne(a => a.User)
-    //         .WithMany(u => u.AppointmentsUser)
-    //         .HasForeignKey(a => a.UserId)
-    //         .OnDelete(DeleteBehavior.Cascade);
-    // }
-
-    // Función para convertir nombres a snake_case
-    private static string ConvertToSnakeCase(string input)
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        return string.Concat(input.Select((x, i) => 
-            i > 0 && char.IsUpper(x) ? "_" + x : x.ToString()
-        )).ToLower();
+        modelBuilder.Entity<User>(entity =>
+        {
+            entity.Property(u => u.CreatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            entity.Property(u => u.UpdatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                .ValueGeneratedOnAddOrUpdate();
+
+            entity.Property(u => u.Name).HasMaxLength(50);
+            entity.Property(u => u.Surname).HasMaxLength(50);
+            entity.Property(u => u.Email).HasMaxLength(255);
+            entity.Property(u => u.Password).HasMaxLength(255);
+            entity.Property(u => u.Gender).HasMaxLength(10);
+            entity.Property(u => u.Role).HasMaxLength(10);
+        });
+
+        modelBuilder.Entity<Barber>(entity =>
+        {
+            entity.HasMany(b => b.Skills)
+             .WithMany(s => s.Barbers);
+
+            entity.HasMany(b => b.Languages)
+             .WithMany(l => l.Barbers);
+
+            entity.HasMany(b => b.SocialNetworks)
+             .WithMany(sn => sn.Barbers);
+        });
+
+        modelBuilder.Entity<Skill>(entity =>
+        {
+            entity.Property(s => s.Name).HasMaxLength(50);
+        });
+
+        modelBuilder.Entity<Service>(entity =>
+        {
+            entity.Property(s => s.Name).HasMaxLength(50);
+            entity.Property(s => s.Price).HasPrecision(10, 2);
+            entity.Property(s => s.Duration).HasDefaultValue(1);
+        });
+
+        modelBuilder.Entity<Language>(entity =>
+        {
+            entity.Property(l => l.Name).HasMaxLength(50);
+        });
+
+        modelBuilder.Entity<SocialNetwork>(entity =>
+        {
+            entity.Property(sn => sn.Name).HasMaxLength(50);
+        });
+
+        modelBuilder.Entity<Review>(entity =>
+        {
+            entity.Property(r => r.CreatedAt)
+            .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            entity.HasOne(r => r.User)
+             .WithMany(u => u.Reviews)
+             .HasForeignKey(r => r.UserId)
+             .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(r => r.Barber)
+             .WithMany(b => b.Reviews)
+             .HasForeignKey(r => r.BarberId)
+             .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<Work>(entity =>
+        {
+            entity.HasOne(w => w.Barber)
+             .WithMany(b => b.Works)
+             .HasForeignKey(w => w.BarberId)
+             .OnDelete(DeleteBehavior.Cascade);
+
+            entity.Property(w => w.Name).HasMaxLength(50);
+        });
+
+        modelBuilder.Entity<Appointment>(entity =>
+        {
+            entity.HasOne(a => a.User)
+             .WithMany(u => u.Appointments)
+             .HasForeignKey(a => a.UserId)
+             .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(a => a.Barber)
+             .WithMany(b => b.Appointments)
+             .HasForeignKey(a => a.BarberId)
+             .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(a => a.Service)
+             .WithMany(s => s.Appointments)
+             .HasForeignKey(a => a.ServiceId)
+             .OnDelete(DeleteBehavior.SetNull);
+        });
     }
 }

@@ -12,12 +12,34 @@ namespace Infrastructure.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
+                name: "Barbers",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
+                    Bio = table.Column<string>(type: "TEXT", nullable: true),
+                    Name = table.Column<string>(type: "TEXT", nullable: false),
+                    Surname = table.Column<string>(type: "TEXT", nullable: false),
+                    Email = table.Column<string>(type: "TEXT", nullable: false),
+                    Password = table.Column<string>(type: "TEXT", nullable: false),
+                    Gender = table.Column<string>(type: "TEXT", nullable: false),
+                    Role = table.Column<string>(type: "TEXT", nullable: false),
+                    Phone = table.Column<string>(type: "TEXT", nullable: true),
+                    BirthDate = table.Column<DateOnly>(type: "TEXT", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "TEXT", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Barbers", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Languages",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
-                    Name = table.Column<string>(type: "TEXT", nullable: false)
+                    Name = table.Column<string>(type: "TEXT", maxLength: 50, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -30,10 +52,10 @@ namespace Infrastructure.Migrations
                 {
                     Id = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
-                    Name = table.Column<string>(type: "TEXT", nullable: false),
+                    Name = table.Column<string>(type: "TEXT", maxLength: 50, nullable: false),
                     Description = table.Column<string>(type: "TEXT", nullable: false),
-                    Price = table.Column<decimal>(type: "TEXT", nullable: false),
-                    Duration = table.Column<int>(type: "INTEGER", nullable: false)
+                    Price = table.Column<float>(type: "REAL", precision: 10, scale: 2, nullable: false),
+                    Duration = table.Column<int>(type: "INTEGER", nullable: false, defaultValue: 1)
                 },
                 constraints: table =>
                 {
@@ -46,7 +68,7 @@ namespace Infrastructure.Migrations
                 {
                     Id = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
-                    Name = table.Column<string>(type: "TEXT", nullable: false),
+                    Name = table.Column<string>(type: "TEXT", maxLength: 50, nullable: false),
                     Description = table.Column<string>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
@@ -60,7 +82,7 @@ namespace Infrastructure.Migrations
                 {
                     Id = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
-                    Name = table.Column<string>(type: "TEXT", nullable: false),
+                    Name = table.Column<string>(type: "TEXT", maxLength: 50, nullable: false),
                     Url = table.Column<string>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
@@ -73,22 +95,90 @@ namespace Infrastructure.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    Name = table.Column<string>(type: "TEXT", nullable: false),
-                    Surname = table.Column<string>(type: "TEXT", nullable: false),
-                    Email = table.Column<string>(type: "TEXT", nullable: false),
-                    Password = table.Column<string>(type: "TEXT", nullable: false),
+                    Name = table.Column<string>(type: "TEXT", maxLength: 50, nullable: false),
+                    Surname = table.Column<string>(type: "TEXT", maxLength: 50, nullable: false),
+                    Email = table.Column<string>(type: "TEXT", maxLength: 255, nullable: false),
+                    Password = table.Column<string>(type: "TEXT", maxLength: 255, nullable: false),
+                    Gender = table.Column<string>(type: "TEXT", maxLength: 10, nullable: false),
+                    Role = table.Column<string>(type: "TEXT", maxLength: 10, nullable: false),
                     Phone = table.Column<string>(type: "TEXT", nullable: true),
-                    Gender = table.Column<string>(type: "TEXT", nullable: false),
-                    BirthDate = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    Role = table.Column<string>(type: "TEXT", nullable: false),
-                    Discriminator = table.Column<string>(type: "TEXT", maxLength: 8, nullable: false),
-                    Bio = table.Column<string>(type: "TEXT", nullable: true)
+                    BirthDate = table.Column<DateOnly>(type: "TEXT", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP"),
+                    UpdatedAt = table.Column<DateTime>(type: "TEXT", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP")
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Users", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Works",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    Name = table.Column<string>(type: "TEXT", maxLength: 50, nullable: false),
+                    Image = table.Column<string>(type: "TEXT", nullable: true),
+                    Description = table.Column<string>(type: "TEXT", nullable: true),
+                    BarberId = table.Column<Guid>(type: "TEXT", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Works", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Works_Barbers_BarberId",
+                        column: x => x.BarberId,
+                        principalTable: "Barbers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "BarberLanguage",
+                columns: table => new
+                {
+                    BarbersId = table.Column<Guid>(type: "TEXT", nullable: false),
+                    LanguagesId = table.Column<int>(type: "INTEGER", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_BarberLanguage", x => new { x.BarbersId, x.LanguagesId });
+                    table.ForeignKey(
+                        name: "FK_BarberLanguage_Barbers_BarbersId",
+                        column: x => x.BarbersId,
+                        principalTable: "Barbers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_BarberLanguage_Languages_LanguagesId",
+                        column: x => x.LanguagesId,
+                        principalTable: "Languages",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "BarberSkill",
+                columns: table => new
+                {
+                    BarbersId = table.Column<Guid>(type: "TEXT", nullable: false),
+                    SkillsId = table.Column<int>(type: "INTEGER", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_BarberSkill", x => new { x.BarbersId, x.SkillsId });
+                    table.ForeignKey(
+                        name: "FK_BarberSkill_Barbers_BarbersId",
+                        column: x => x.BarbersId,
+                        principalTable: "Barbers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_BarberSkill_Skills_SkillsId",
+                        column: x => x.SkillsId,
+                        principalTable: "Skills",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -116,90 +206,6 @@ namespace Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Appointments",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    DateTime = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    Status = table.Column<string>(type: "TEXT", nullable: false),
-                    BarberId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    UserId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    ServiceId = table.Column<int>(type: "INTEGER", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Appointments", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Appointments_Services_ServiceId",
-                        column: x => x.ServiceId,
-                        principalTable: "Services",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Appointments_Users_BarberId",
-                        column: x => x.BarberId,
-                        principalTable: "Users",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Appointments_Users_UserId",
-                        column: x => x.UserId,
-                        principalTable: "Users",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "BarberLanguage",
-                columns: table => new
-                {
-                    BarbersId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    LanguagesId = table.Column<int>(type: "INTEGER", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_BarberLanguage", x => new { x.BarbersId, x.LanguagesId });
-                    table.ForeignKey(
-                        name: "FK_BarberLanguage_Languages_LanguagesId",
-                        column: x => x.LanguagesId,
-                        principalTable: "Languages",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_BarberLanguage_Users_BarbersId",
-                        column: x => x.BarbersId,
-                        principalTable: "Users",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "BarberSkill",
-                columns: table => new
-                {
-                    BarbersId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    SkillsId = table.Column<int>(type: "INTEGER", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_BarberSkill", x => new { x.BarbersId, x.SkillsId });
-                    table.ForeignKey(
-                        name: "FK_BarberSkill_Skills_SkillsId",
-                        column: x => x.SkillsId,
-                        principalTable: "Skills",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_BarberSkill_Users_BarbersId",
-                        column: x => x.BarbersId,
-                        principalTable: "Users",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "BarberSocialNetwork",
                 columns: table => new
                 {
@@ -210,14 +216,50 @@ namespace Infrastructure.Migrations
                 {
                     table.PrimaryKey("PK_BarberSocialNetwork", x => new { x.BarbersId, x.SocialNetworksId });
                     table.ForeignKey(
+                        name: "FK_BarberSocialNetwork_Barbers_BarbersId",
+                        column: x => x.BarbersId,
+                        principalTable: "Barbers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
                         name: "FK_BarberSocialNetwork_SocialNetworks_SocialNetworksId",
                         column: x => x.SocialNetworksId,
                         principalTable: "SocialNetworks",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Appointments",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    DateTime = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    Status = table.Column<string>(type: "TEXT", nullable: false),
+                    UserId = table.Column<Guid>(type: "TEXT", nullable: false),
+                    BarberId = table.Column<Guid>(type: "TEXT", nullable: false),
+                    ServiceId = table.Column<int>(type: "INTEGER", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Appointments", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_BarberSocialNetwork_Users_BarbersId",
-                        column: x => x.BarbersId,
+                        name: "FK_Appointments_Barbers_BarberId",
+                        column: x => x.BarberId,
+                        principalTable: "Barbers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Appointments_Services_ServiceId",
+                        column: x => x.ServiceId,
+                        principalTable: "Services",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.SetNull);
+                    table.ForeignKey(
+                        name: "FK_Appointments_Users_UserId",
+                        column: x => x.UserId,
                         principalTable: "Users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -231,7 +273,7 @@ namespace Infrastructure.Migrations
                         .Annotation("Sqlite:Autoincrement", true),
                     Rating = table.Column<int>(type: "INTEGER", nullable: false),
                     Comment = table.Column<string>(type: "TEXT", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP"),
                     UserId = table.Column<Guid>(type: "TEXT", nullable: false),
                     BarberId = table.Column<Guid>(type: "TEXT", nullable: false)
                 },
@@ -239,36 +281,14 @@ namespace Infrastructure.Migrations
                 {
                     table.PrimaryKey("PK_Reviews", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Reviews_Users_BarberId",
+                        name: "FK_Reviews_Barbers_BarberId",
                         column: x => x.BarberId,
-                        principalTable: "Users",
+                        principalTable: "Barbers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Reviews_Users_UserId",
                         column: x => x.UserId,
-                        principalTable: "Users",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Works",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    Name = table.Column<string>(type: "TEXT", nullable: false),
-                    Image = table.Column<string>(type: "TEXT", nullable: true),
-                    Description = table.Column<string>(type: "TEXT", nullable: true),
-                    BarberId = table.Column<Guid>(type: "TEXT", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Works", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Works_Users_BarberId",
-                        column: x => x.BarberId,
                         principalTable: "Users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -356,13 +376,16 @@ namespace Infrastructure.Migrations
                 name: "SocialNetworks");
 
             migrationBuilder.DropTable(
+                name: "Users");
+
+            migrationBuilder.DropTable(
                 name: "Services");
 
             migrationBuilder.DropTable(
                 name: "Skills");
 
             migrationBuilder.DropTable(
-                name: "Users");
+                name: "Barbers");
         }
     }
 }
