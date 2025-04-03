@@ -1,15 +1,15 @@
+using Application.Interfaces;
 using Domain.Entities;
-using Domain.Interfaces;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
 namespace Application.Services;
 
-public class UsersService : IUser
+public class UserService : IUserService
 {
     private readonly AppDbContext _db;
 
-    public UsersService(AppDbContext db)
+    public UserService(AppDbContext db)
     {
         _db = db;
     }

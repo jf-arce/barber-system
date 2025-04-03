@@ -1,8 +1,8 @@
 using Domain.Entities;
 
-namespace Domain.Interfaces;
+namespace Application.Interfaces;
 
-public interface IUser
+public interface IUserService
 {
     Task<List<User>> FindAll();
     Task<User> FindOne(Guid id);

@@ -1,18 +1,18 @@
 using Application.Dtos.User;
 using Domain.Entities;
-using Domain.Interfaces;
+using Application.Interfaces;
 using Mapster;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Presentation.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/users")]
     [ApiController]
     public class UsersController : ControllerBase
     {
-        private readonly IUser _userService;
+        private readonly IUserService _userService;
 
-        public UsersController(IUser userService)
+        public UsersController(IUserService userService)
         {
             _userService = userService;
         }

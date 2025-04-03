@@ -1,7 +1,7 @@
-using Application.Services;
-using Domain.Interfaces;
-using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
+using Application.Interfaces;
+using Application.Services;
+using Infrastructure.Data;
 using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -17,7 +17,8 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 );
 
 // Dependency Injection
-builder.Services.AddScoped<IUser, UsersService>();
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
 
 var app = builder.Build();
 
