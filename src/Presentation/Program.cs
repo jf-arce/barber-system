@@ -3,6 +3,9 @@ using Application.Interfaces;
 using Application.Services;
 using Infrastructure.Data;
 using Scalar.AspNetCore;
+using Domain.Repositories;
+using Infrastructure.Data.Repositories;
+using Infrastructure.Auth;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,6 +22,8 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 // Dependency Injection
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IHashingService, BcryptService>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
 
 var app = builder.Build();
 

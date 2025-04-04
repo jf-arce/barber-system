@@ -1,28 +1,27 @@
 using Application.Dtos;
 using Application.Interfaces;
-using Infrastructure.Data;
-using Microsoft.EntityFrameworkCore;
+using Domain.Repositories;
 
 namespace Application.Services;
 
 public class AuthService : IAuthService
 {
-    private readonly AppDbContext _db;
-    private readonly IUserService _userService;
+    private readonly IUserRepository _userRepository;
+    private readonly IHashingService _hashingService;
 
-    public AuthService(AppDbContext db, IUserService userService)
+    public AuthService(IUserRepository userRepository, IHashingService hashingService)
     {
-        _db = db;
-        _userService = userService;
+        _userRepository = userRepository;
+        _hashingService = hashingService;
     }
 
     public async Task<string> Register(AuthDto authDto)
     {
-        var existingUser = await _db.Users.FirstOrDefaultAsync(u => u.Email == authDto.Email);
+        var existingUser = await _userRepository.FindByEmail(authDto.Email);
         if (existingUser != null) throw new Exception("User already exists.");
 
         // Hash password
-        authDto.Password = BCrypt.Net.BCrypt.HashPassword(authDto.Password);
+        authDto.Password = _hashingService.Hash(authDto.Password);
         // // Guardar usuario en la bd
         // await _db.Users.AddAsync(user);
         // await _db.SaveChangesAsync();
@@ -34,7 +33,7 @@ public class AuthService : IAuthService
 
     public async Task<string> Login(string email, string password)
     {
-        var user = await _db.Users.FirstOrDefaultAsync(u => u.Email == email);
+        var user = await _userRepository.FindByEmail(email);
         if (user == null) throw new KeyNotFoundException("User not found.");
 
         return "Access Token!";

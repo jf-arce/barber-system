@@ -1,42 +1,35 @@
 using Application.Interfaces;
 using Domain.Entities;
-using Infrastructure.Data;
-using Microsoft.EntityFrameworkCore;
+using Domain.Repositories;
 
 namespace Application.Services;
 
 public class UserService : IUserService
 {
-    private readonly AppDbContext _db;
+    private readonly IUserRepository _userRepository;
 
-    public UserService(AppDbContext db)
+    public UserService(IUserRepository userRepository)
     {
-        _db = db;
+        _userRepository = userRepository;
     }
 
     public async Task<List<User>> FindAll()
     {
-        if (!await _db.Users.AnyAsync()) throw new Exception("No users found.");
-
-        return await _db.Users.ToListAsync();  
+        var users = await _userRepository.FindAll();
+        if (users.Count == 0) throw new KeyNotFoundException("No users found.");
+        return users;
     }
 
     public async Task<User> FindOne(Guid id)
     {
-        var user = await _db.Users.FirstOrDefaultAsync(u => u.Id == id);
+        var user = await _userRepository.FindById(id);
         if (user == null) throw new KeyNotFoundException("User not found.");
         return user;
     }
 
-    public async Task Create(User user)
-    {
-        await _db.Users.AddAsync(user);
-        await _db.SaveChangesAsync();
-    }
-
     public async Task Update(User user)
     {
-        var existingUser = await _db.Users.FindAsync(user.Id);
+        var existingUser = await _userRepository.FindById(user.Id);
         if (existingUser == null) throw new KeyNotFoundException("User not found.");
 
         existingUser.Name = user.Name;
@@ -46,16 +39,14 @@ public class UserService : IUserService
         existingUser.BirthDate = user.BirthDate;
         existingUser.Gender = user.Gender;
 
-        _db.Users.Update(existingUser);
-        await _db.SaveChangesAsync();
+        await _userRepository.Update(existingUser);
     }
 
-    public async Task Delete(string id)
+    public async Task Delete(Guid id)
     {
-        var user = await _db.Users.FindAsync(id);
+        var user = await _userRepository.FindById(id);
         if (user == null) throw new KeyNotFoundException("User not found.");
 
-        _db.Users.Remove(user);
-        await _db.SaveChangesAsync();
+        await _userRepository.Delete(user);
     }
 }

@@ -6,7 +6,7 @@ if [ -z "$1" ]; then
     exit 1
 fi
 
-INFRASTRUCTURE_DIR="D:\Repositorios\SistemaPeluqueria\src\Infrastructure"
+INFRASTRUCTURE_DIR="D:\Repositorios\SistemaPeluqueria\src\Infrastructure\Data"
 PRESENTATION_DIR="D:\Repositorios\SistemaPeluqueria\src\Presentation"
 
 # Ejecutar la migración desde Infrastructure con el startup en Presentation
