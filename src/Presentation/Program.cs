@@ -23,6 +23,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IHashingService, BcryptService>();
+builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 
 var app = builder.Build();

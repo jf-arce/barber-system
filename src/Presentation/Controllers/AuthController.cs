@@ -1,7 +1,8 @@
-using Application.Dtos;
+using Application.Dtos.Auth;
 using Application.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Application.Validators;
+using Application.Validators.Auth;
 
 namespace Presentation.Controllers;
 
@@ -17,16 +18,41 @@ public class AuthController : ControllerBase
    }
 
    [HttpPost]
-   public async Task<IActionResult> Register([FromBody] AuthDto authDto)
+   [Route("register")]
+   public async Task<IActionResult> Register([FromBody] RegisterDto registerDto)
    {
-        var validator = new AuthValidator().Validate(authDto);
-        if (!validator.IsValid) {
-            return BadRequest(validator.Errors.Select(e => e.ErrorMessage));
-        }
-
         try {
-            var token = await _authService.Register(authDto); 
+            var validator = await new RegisterValidator().ValidateAsync(registerDto);
+            if (!validator.IsValid) {
+                return BadRequest(validator.Errors.Select(e => e.ErrorMessage));
+            }
+            await _authService.Register(registerDto); 
             return Ok("User registered successfully!");
+        }catch (Exception ex) {
+            return BadRequest(ex.Message);
+        }
+   }
+   
+   [HttpPost]
+   [Route("login")]
+   public async Task<IActionResult> Login([FromBody] LoginDto loginDto)
+   {
+        try
+        {
+            var validator = await new LoginValidator().ValidateAsync(loginDto);
+            if (!validator.IsValid) return BadRequest("Invalid credentials");
+            
+            var jwtToken = await _authService.Login(loginDto.Email, loginDto.Password);
+            
+            Response.Cookies.Append("token", jwtToken.token, new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.Strict,
+                Expires = DateTimeOffset.UtcNow.AddHours(1)
+            });
+            
+            return Ok(jwtToken.payload);
         }catch (Exception ex) {
             return BadRequest(ex.Message);
         }

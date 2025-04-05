@@ -1,31 +1,24 @@
-using Application.Dtos;
+using Application.Dtos.Auth;
 using Domain.Enums;
 using FluentValidation;
 
-namespace Application.Validators;
+namespace Application.Validators.Auth;
 
-public class AuthValidator : AbstractValidator<AuthDto>
+public class RegisterValidator : AbstractValidator<RegisterDto>
 {
-    public AuthValidator()
+    public RegisterValidator()
     {
+        Include(new LoginValidator());
+        
         RuleFor(x => x.Name)
             .NotEmpty()
             .Length(2, 50);
         RuleFor(x => x.Surname)
             .NotEmpty()
             .Length(2, 50);
-        RuleFor(x => x.Email)
-            .NotEmpty()
-            .EmailAddress()
-            .Length(5, 100);
-        RuleFor(x => x.Password)
-            .NotEmpty()
-            .MinimumLength(8)
-            .Matches(@"[A-Z]").WithMessage("The password must contain at least one uppercase letter")
-            .Matches(@"\d").WithMessage("The password must contain at least one number");
         RuleFor(x => x.Gender)
             .NotEmpty()
-            .Must(value => Enum.GetNames(typeof(GenderEnum)).Contains(value));
+            .Must(value => Enum.GetNames<GenderEnum>().Contains(value));
         RuleFor(x => x.Phone)
             .Matches(@"^\+?[0-9]{10,15}$").WithMessage("Phone number must be between 10 and 15 digits long and can start with a '+' sign");
         RuleFor(x => x.BirthDate)

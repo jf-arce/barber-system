@@ -14,9 +14,12 @@ public class JwtService : IJwtService
 
     public string GenerateToken(User user)
     {
-        var secretKey = _configuration["Jwt:SecretKey"] ?? throw new ArgumentNullException("SecretKey not found in configuration.");
-        var issuer = _configuration["Jwt:Issuer"];
-        var audience = _configuration["Jwt:Audience"];
+        // var secretKey = _configuration["Jwt:SecretKey"] ?? throw new ArgumentNullException("SecretKey not found in configuration.");
+        // var issuer = _configuration["Jwt:Issuer"];
+        // var audience = _configuration["Jwt:Audience"];
+        var secretKey = "EstaEsUnaClaveSuperSegura1234567890!!!";
+        var issuer = "Barber API";
+        var audience = "Barber clients";
         var expires = DateTime.UtcNow.AddHours(1); // 1 hour
 
         var claims = new []
@@ -25,7 +28,6 @@ public class JwtService : IJwtService
             new Claim(JwtRegisteredClaimNames.Name, user.FullName()),
             new Claim(JwtRegisteredClaimNames.Email, user.Email),
             new Claim(ClaimTypes.Role, user.Role),
-            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
         }; 
 
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));

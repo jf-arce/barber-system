@@ -16,7 +16,7 @@ namespace Presentation.Controllers
         {
             _userService = userService;
         }
-
+        
         [HttpGet]
         public async Task<IActionResult> FindAll(){
             var users = await _userService.FindAll();
@@ -29,13 +29,6 @@ namespace Presentation.Controllers
             var user = await _userService.FindOne(Guid.Parse(id));
             var userDto = user.Adapt<GetUserDto>();
             return Ok(userDto);
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> Create([FromBody] GetUserDto userDto){
-            var user = userDto.Adapt<User>();
-            await _userService.Create(user);
-            return CreatedAtAction(nameof(FindOne), new { id = user.Id }, userDto);
         }
     }
 }
