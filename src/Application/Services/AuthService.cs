@@ -41,7 +41,7 @@ public class AuthService : IAuthService
         await _userRepository.Create(newUser);
     } 
     
-    public async Task<(JwtPayload payload, string token)> Login(string email, string password)
+    public async Task<(TokenInfoDto payload, string token, string refreshToken)> Login(string email, string password)
     {
         var user = await _userRepository.FindByEmail(email);
         if (user == null) throw new KeyNotFoundException("User not found.");
@@ -50,22 +50,37 @@ public class AuthService : IAuthService
         if (!isPasswordValid) throw new Exception("Invalid password.");
         
         var token = _jwtService.GenerateToken(user);
-
-        var payload = new JwtPayload
+        var refreshToken = _jwtService.GenerateRefreshToken(user);
+        
+        var payload = new TokenInfoDto
         {
             Id = user.Id,
             Name = user.Name,
-            Surname = user.Surname,
             Email = user.Email,
             Role = user.Role
         };
 
-        return (payload, token);
+        return (payload, token, refreshToken);
     }
 
-    public async Task<string> RefreshToken()
+    public async Task<(TokenInfoDto payload, string token, string refreshToken)> RefreshToken(string refreshToken)
     {
-        await Task.Delay(1000); // Simulate some async work
-        return "Token refreshed!";
+        var tokenInfo = _jwtService.VerifyRefreshToken(refreshToken);
+        if (tokenInfo == null) throw new KeyNotFoundException("Invalid refresh token.");
+
+        var user = await _userRepository.FindByEmail(tokenInfo.Email);
+        if (user == null) throw new KeyNotFoundException("User not found.");
+
+        var token = _jwtService.GenerateToken(user);
+        
+        var payload = new TokenInfoDto
+        {
+            Id = user.Id,
+            Name = user.Name,
+            Email = user.Email,
+            Role = user.Role
+        };
+        
+        return (payload, token, refreshToken);
     }
 }

@@ -44,7 +44,7 @@ public class AuthController : ControllerBase
             
             var jwtToken = await _authService.Login(loginDto.Email, loginDto.Password);
             
-            Response.Cookies.Append("token", jwtToken.token, new CookieOptions
+            Response.Cookies.Append("access_token", jwtToken.token, new CookieOptions
             {
                 HttpOnly = true,
                 Secure = true,
@@ -52,10 +52,49 @@ public class AuthController : ControllerBase
                 Expires = DateTimeOffset.UtcNow.AddHours(1)
             });
             
+            Response.Cookies.Append("refresh_token", jwtToken.refreshToken, new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.Strict,
+                Expires = DateTimeOffset.UtcNow.AddDays(30)
+            });
+            
             return Ok(jwtToken.payload);
         }catch (Exception ex) {
             return BadRequest(ex.Message);
         }
    }
+   
+    [HttpPost]
+    [Route("refreshToken")]
+    public async Task<IActionResult> RefreshToken([FromBody] string refreshToken)
+    {
+        try
+        {
+            var newJwtToken = await _authService.RefreshToken(refreshToken);
+            
+            Response.Cookies.Append("access_token", newJwtToken.token, new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.Strict,
+                Expires = DateTimeOffset.UtcNow.AddHours(1)
+            });
+            
+            Response.Cookies.Append("refresh_token", newJwtToken.refreshToken, new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.Strict,
+                Expires = DateTimeOffset.UtcNow.AddDays(30)
+            });
+            
+            return Ok(newJwtToken.payload);
+        }catch (Exception ex) {
+            return BadRequest(ex.Message);
+        }
+    }
+    
 
 }

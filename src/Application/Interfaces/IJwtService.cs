@@ -1,3 +1,4 @@
+using Application.Dtos.Auth;
 using Domain.Entities;
 
 namespace Application.Interfaces;
@@ -5,6 +6,6 @@ namespace Application.Interfaces;
 public interface IJwtService
 {
     string GenerateToken(User user);
-    string GenerateRefreshToken();
-    bool ValidateToken(string token);
+    string GenerateRefreshToken(User user);
+    TokenInfoDto? VerifyRefreshToken(string refreshToken);
 }
