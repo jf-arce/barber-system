@@ -32,25 +32,7 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddJwtAuthentication(builder.Configuration);
 
 //Cors
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowAll",
-        policy =>
-        {
-            policy.AllowAnyOrigin()
-                .AllowAnyMethod()
-                .AllowAnyHeader();
-        });
-    
-    options.AddPolicy("AllowSpecificOrigin",
-        policy =>
-        {
-            policy.WithOrigins("http://localhost:3000")
-                .AllowAnyMethod()
-                .AllowAnyHeader()
-                .AllowCredentials();
-        });
-});
+builder.Services.AddCorsConfig();
 
 var app = builder.Build();
 
@@ -60,7 +42,7 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
     app.MapScalarApiReference(options => 
     {
-        options.Title = "Peluqueria API";
+        options.Title = "Barber API";
         options.Theme = ScalarTheme.BluePlanet;
         options.CustomCss = "";
     });
