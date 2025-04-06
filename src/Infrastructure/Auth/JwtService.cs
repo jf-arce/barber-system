@@ -11,23 +11,24 @@ namespace Infrastructure.Auth;
 
 public class JwtService : IJwtService
 {
-    private readonly IConfiguration _configuration;
-    
-    private readonly string tokenSecretKey = "EstaEsUnaClaveSuperSegura1234567890!!!";
-    private readonly string refreshTokenSecretKey = "EstaEsUnaClaveBastanteSegura1234567890!!!";
-    private readonly string issuer = "Barber API";
-    private readonly string audience = "Barber clients";
+    private readonly string _tokenSecretKey;
+    private readonly string _refreshTokenSecretKey;
+    private readonly string _issuer;
+    private readonly string _audience;
 
+    public JwtService(IConfiguration config)
+    {
+        _tokenSecretKey = config["JWT:TokenSecretKey"] 
+                          ?? throw new InvalidOperationException("JWT:TokenSecretKey is not configured");
+        _refreshTokenSecretKey = config["JWT:RefreshTokenSecretKey"] 
+                                 ?? throw new InvalidOperationException("JWT:RefreshTokenSecretKey is not configured");
+        _issuer = config["JWT:Issuer"] 
+                  ?? throw new InvalidOperationException("JWT:Issuer is not configured");
+        _audience = config["JWT:Audience"]
+                    ?? throw new InvalidOperationException("JWT:Audience is not configured");
+    }
     public string GenerateToken(User user)
     {
-        // var tokenSecretKey = _configuration["Jwt:SecretKey"] ?? throw new ArgumentNullException("SecretKey not found in configuration.");
-        // var issuer = _configuration["Jwt:Issuer"];
-        // var audience = _configuration["Jwt:Audience"];
-        // const string tokenSecretKey = "EstaEsUnaClaveSuperSegura1234567890!!!";
-        // const string issuer = "Barber API";
-        // const string audience = "Barber clients";
-        // var expires = DateTime.UtcNow.AddHours(1); // 1 hour
-
         var claims = new []
         {
             new Claim("sub", user.Id.ToString()),
@@ -36,12 +37,12 @@ public class JwtService : IJwtService
             new Claim("role", user.Role),
         }; 
 
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(tokenSecretKey));
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_tokenSecretKey));
         var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
         var token = new JwtSecurityToken(
-            issuer, 
-            audience,
+            _issuer, 
+            _audience,
             claims,
             expires: DateTime.UtcNow.AddHours(1),
             signingCredentials: credentials
@@ -60,14 +61,14 @@ public class JwtService : IJwtService
             new Claim("role", user.Role),
         }; 
 
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(refreshTokenSecretKey));
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_refreshTokenSecretKey));
         var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
         var token = new JwtSecurityToken(
-            issuer, 
-            audience,
+            _issuer, 
+            _audience,
             claims,
-            expires: DateTime.UtcNow.AddDays(30),
+            expires: DateTime.UtcNow.AddDays(7),
             signingCredentials: credentials
         );
 
@@ -81,7 +82,7 @@ public class JwtService : IJwtService
            MapInboundClaims = false
        };
        
-       var secretKey = Encoding.UTF8.GetBytes(refreshTokenSecretKey);
+       var secretKey = Encoding.UTF8.GetBytes(_refreshTokenSecretKey);
 
        try
        {
@@ -92,9 +93,9 @@ public class JwtService : IJwtService
               ValidateIssuerSigningKey = true, 
               IssuerSigningKey = new SymmetricSecurityKey(secretKey),
               ValidateIssuer = true,
-              ValidIssuer = issuer,
+              ValidIssuer = _issuer,
               ValidateAudience = true,
-              ValidAudience = audience,
+              ValidAudience = _audience,
               ClockSkew = TimeSpan.Zero,
            }, out var validatedToken);
            

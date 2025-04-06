@@ -18,6 +18,7 @@ public static class JwtAuthenticationExtension
             {
                 options.SaveToken = true;
                 options.RequireHttpsMetadata = false;
+                options.MapInboundClaims = false;
 
                 options.TokenValidationParameters = new TokenValidationParameters
                 {

@@ -38,16 +38,17 @@ builder.Services.AddCors(options =>
         policy =>
         {
             policy.AllowAnyOrigin()
-                   .AllowAnyMethod()
-                   .AllowAnyHeader();
+                .AllowAnyMethod()
+                .AllowAnyHeader();
         });
     
     options.AddPolicy("AllowSpecificOrigin",
         policy =>
         {
             policy.WithOrigins("http://localhost:3000")
-                   .AllowAnyMethod()
-                   .AllowAnyHeader();
+                .AllowAnyMethod()
+                .AllowAnyHeader()
+                .AllowCredentials();
         });
 });
 
@@ -65,7 +66,7 @@ if (app.Environment.IsDevelopment())
     });
 }
 
-app.UseCors("AllowAll");
+app.UseCors("AllowSpecificOrigin");
 
 app.UseHttpsRedirection();
 

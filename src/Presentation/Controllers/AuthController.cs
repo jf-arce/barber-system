@@ -11,10 +11,12 @@ namespace Presentation.Controllers;
 public class AuthController : ControllerBase
 {
    private readonly IAuthService _authService;
+   private readonly IWebHostEnvironment _env;
 
-   public AuthController(IAuthService authService)
+   public AuthController(IAuthService authService, IWebHostEnvironment env)
    {
         _authService = authService;
+        _env = env;
    }
 
    [HttpPost]
@@ -47,17 +49,17 @@ public class AuthController : ControllerBase
             Response.Cookies.Append("access_token", jwtToken.token, new CookieOptions
             {
                 HttpOnly = true,
-                Secure = true,
-                SameSite = SameSiteMode.Strict,
+                Secure = !_env.IsDevelopment(),
+                SameSite = SameSiteMode.None,
                 Expires = DateTimeOffset.UtcNow.AddHours(1)
             });
             
             Response.Cookies.Append("refresh_token", jwtToken.refreshToken, new CookieOptions
             {
                 HttpOnly = true,
-                Secure = true,
-                SameSite = SameSiteMode.Strict,
-                Expires = DateTimeOffset.UtcNow.AddDays(30)
+                Secure = !_env.IsDevelopment(),
+                SameSite = SameSiteMode.None,
+                Expires = DateTimeOffset.UtcNow.AddDays(7)
             });
             
             return Ok(jwtToken.payload);
@@ -83,16 +85,16 @@ public class AuthController : ControllerBase
             Response.Cookies.Append("access_token", newJwtToken.token, new CookieOptions
             {
                 HttpOnly = true,
-                Secure = true,
-                SameSite = SameSiteMode.Strict,
-                Expires = DateTimeOffset.UtcNow.AddHours(1)
+                Secure = !_env.IsDevelopment(),
+                SameSite = SameSiteMode.None,
+                Expires = DateTimeOffset.UtcNow.AddHours(7)
             });
             
             Response.Cookies.Append("refresh_token", newJwtToken.refreshToken, new CookieOptions
             {
                 HttpOnly = true,
-                Secure = true,
-                SameSite = SameSiteMode.Strict,
+                Secure = !_env.IsDevelopment(),
+                SameSite = SameSiteMode.None,
                 Expires = DateTimeOffset.UtcNow.AddDays(30)
             });
             
