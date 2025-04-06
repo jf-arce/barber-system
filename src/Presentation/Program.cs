@@ -1,4 +1,3 @@
-using System.Text;
 using Microsoft.EntityFrameworkCore;
 using Application.Interfaces;
 using Application.Services;
@@ -7,9 +6,6 @@ using Scalar.AspNetCore;
 using Domain.Repositories;
 using Infrastructure.Data.Repositories;
 using Infrastructure.Auth;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.JsonWebTokens;
-using Microsoft.IdentityModel.Tokens;
 using Presentation.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -35,6 +31,26 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 // JWT Authentication
 builder.Services.AddJwtAuthentication(builder.Configuration);
 
+//Cors
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll",
+        policy =>
+        {
+            policy.AllowAnyOrigin()
+                   .AllowAnyMethod()
+                   .AllowAnyHeader();
+        });
+    
+    options.AddPolicy("AllowSpecificOrigin",
+        policy =>
+        {
+            policy.WithOrigins("http://localhost:3000")
+                   .AllowAnyMethod()
+                   .AllowAnyHeader();
+        });
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -48,6 +64,8 @@ if (app.Environment.IsDevelopment())
         options.CustomCss = "";
     });
 }
+
+app.UseCors("AllowAll");
 
 app.UseHttpsRedirection();
 
