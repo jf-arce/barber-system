@@ -66,7 +66,7 @@ public class AuthService : IAuthService
     public async Task<(TokenInfoDto payload, string token, string refreshToken)> RefreshToken(string refreshToken)
     {
         var tokenInfo = _jwtService.VerifyRefreshToken(refreshToken);
-        if (tokenInfo == null) throw new KeyNotFoundException("Invalid refresh token.");
+        if (tokenInfo == null) throw new UnauthorizedAccessException("Invalid refresh token.");
 
         var user = await _userRepository.FindByEmail(tokenInfo.Email);
         if (user == null) throw new KeyNotFoundException("User not found.");

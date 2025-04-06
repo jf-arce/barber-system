@@ -2,10 +2,12 @@ using Application.Dtos.User;
 using Domain.Entities;
 using Application.Interfaces;
 using Mapster;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Presentation.Controllers
 {
+    [Authorize]
     [Route("api/users")]
     [ApiController]
     public class UsersController : ControllerBase

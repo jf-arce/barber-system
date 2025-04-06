@@ -8,7 +8,9 @@ using Domain.Repositories;
 using Infrastructure.Data.Repositories;
 using Infrastructure.Auth;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
+using Presentation.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,6 +20,7 @@ builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
+// BD connection
 builder.Services.AddDbContext<AppDbContext>(options => 
     options.UseSqlite(builder.Configuration.GetConnectionString("SqliteConnection"))
 );
@@ -30,44 +33,7 @@ builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 
 // JWT Authentication
-builder.Services.AddAuthentication(options =>
-    {
-        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-        options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-    })
-    .AddJwtBearer(options =>
-    {
-        options.SaveToken = true; // Guarda el token en la cookie
-        options.RequireHttpsMetadata = false; // Cambiar a true en producción
-
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuer = true,
-            ValidateAudience = true,
-            ValidAudience = builder.Configuration["JWT:Audience"],
-            ValidIssuer = builder.Configuration["JWT:Issuer"],
-            ClockSkew = TimeSpan.Zero, // Elimina el tiempo de espera de 5 minutos
-            IssuerSigningKey = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(builder.Configuration["JWT:TokenSecretKey"])
-            )
-        };
-        
-        options.Events = new JwtBearerEvents
-        {
-            OnMessageReceived = context =>
-            {
-                // Si el token está en la cookie, lo agrega al encabezado de autorización
-                var token = context.Request.Cookies["access_token"];
-                if (!string.IsNullOrEmpty(token))
-                {
-                    context.Token = token;
-                }
-                
-                return Task.CompletedTask;
-            }
-        };
-    });
+builder.Services.AddJwtAuthentication(builder.Configuration);
 
 var app = builder.Build();
 

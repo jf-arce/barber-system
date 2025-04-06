@@ -17,7 +17,6 @@ public class JwtService : IJwtService
     private readonly string refreshTokenSecretKey = "EstaEsUnaClaveBastanteSegura1234567890!!!";
     private readonly string issuer = "Barber API";
     private readonly string audience = "Barber clients";
-    private readonly DateTime expires = DateTime.UtcNow.AddHours(1);
 
     public string GenerateToken(User user)
     {
@@ -31,10 +30,10 @@ public class JwtService : IJwtService
 
         var claims = new []
         {
-            new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
-            new Claim(JwtRegisteredClaimNames.Name, user.FullName()),
-            new Claim(JwtRegisteredClaimNames.Email, user.Email),
-            new Claim(ClaimTypes.Role, user.Role),
+            new Claim("sub", user.Id.ToString()),
+            new Claim("name", user.FullName()),
+            new Claim("email", user.Email),
+            new Claim("role", user.Role),
         }; 
 
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(tokenSecretKey));
@@ -44,7 +43,7 @@ public class JwtService : IJwtService
             issuer, 
             audience,
             claims,
-            expires: expires,
+            expires: DateTime.UtcNow.AddHours(1),
             signingCredentials: credentials
         );
 
@@ -55,10 +54,10 @@ public class JwtService : IJwtService
     {
         var claims = new []
         {
-            new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
-            new Claim(JwtRegisteredClaimNames.Name, user.FullName()),
-            new Claim(JwtRegisteredClaimNames.Email, user.Email),
-            new Claim(ClaimTypes.Role, user.Role),
+            new Claim("sub", user.Id.ToString()),
+            new Claim("name", user.FullName()),
+            new Claim("email", user.Email),
+            new Claim("role", user.Role),
         }; 
 
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(refreshTokenSecretKey));
@@ -68,7 +67,7 @@ public class JwtService : IJwtService
             issuer, 
             audience,
             claims,
-            expires: expires,
+            expires: DateTime.UtcNow.AddDays(30),
             signingCredentials: credentials
         );
 
@@ -77,12 +76,18 @@ public class JwtService : IJwtService
 
     public TokenInfoDto? VerifyRefreshToken(string refreshToken)
     {
-       var tokenHandler = new JwtSecurityTokenHandler();
+       var tokenHandler = new JwtSecurityTokenHandler
+       {
+           MapInboundClaims = false
+       };
+       
        var secretKey = Encoding.UTF8.GetBytes(refreshTokenSecretKey);
 
        try
        {
-           var decoded = tokenHandler.ValidateToken(refreshToken, new TokenValidationParameters
+           var decoded = tokenHandler.ValidateToken(
+               refreshToken, 
+               new TokenValidationParameters
            {
               ValidateIssuerSigningKey = true, 
               IssuerSigningKey = new SymmetricSecurityKey(secretKey),
@@ -90,18 +95,20 @@ public class JwtService : IJwtService
               ValidIssuer = issuer,
               ValidateAudience = true,
               ValidAudience = audience,
-              ClockSkew = TimeSpan.Zero
-           }, out SecurityToken validatedToken);
-
-           return new TokenInfoDto
+              ClockSkew = TimeSpan.Zero,
+           }, out var validatedToken);
+           
+           var tokenInfo = new TokenInfoDto
            {
-              Id = Guid.Parse(decoded.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Sub)?.Value),
-              Name = decoded.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Name)?.Value,
-              Email = decoded.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Email)?.Value,
-              Role = decoded.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value
+                Id = Guid.Parse(decoded.Claims.FirstOrDefault(c => c.Type == "sub")?.Value ?? string.Empty),
+                Name = decoded.Claims.FirstOrDefault(c => c.Type == "name")?.Value ?? string.Empty,
+                Email = decoded.Claims.FirstOrDefault(c => c.Type == "email")?.Value ?? string.Empty,
+                Role = decoded.Claims.FirstOrDefault(c => c.Type == "role")?.Value ?? string.Empty
            };
+           
+           return tokenInfo;
        }
-       catch
+       catch (Exception ex)
        {
            return null;
        }

@@ -68,8 +68,14 @@ public class AuthController : ControllerBase
    
     [HttpPost]
     [Route("refreshToken")]
-    public async Task<IActionResult> RefreshToken([FromBody] string refreshToken)
+    public async Task<IActionResult> RefreshToken()
     {
+        var refreshToken = Request.Cookies["refresh_token"];
+        if (string.IsNullOrEmpty(refreshToken))
+        {
+            return Unauthorized("Refresh token is missing.");
+        }
+        
         try
         {
             var newJwtToken = await _authService.RefreshToken(refreshToken);
