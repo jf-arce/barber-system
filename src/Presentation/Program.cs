@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Application.Interfaces;
+using Application.Interfaces.Auth;
 using Application.Services;
 using Infrastructure.Data;
 using Scalar.AspNetCore;

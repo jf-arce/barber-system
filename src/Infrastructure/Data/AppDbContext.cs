@@ -29,25 +29,38 @@ public class AppDbContext : DbContext
             entity.Property(u => u.UpdatedAt)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .ValueGeneratedOnAddOrUpdate();
-
+            
+            entity.HasQueryFilter(u => !u.IsDeleted);
+            
             entity.Property(u => u.Name).HasMaxLength(50);
             entity.Property(u => u.Surname).HasMaxLength(50);
             entity.Property(u => u.Email).HasMaxLength(255);
             entity.Property(u => u.Password).HasMaxLength(255);
             entity.Property(u => u.Gender).HasMaxLength(10);
             entity.Property(u => u.Role).HasMaxLength(10);
+            entity.Property(u => u.IsDeleted).HasDefaultValue(false);
         });
 
         modelBuilder.Entity<Barber>(entity =>
         {
-            entity.HasMany(b => b.Skills)
-             .WithMany(s => s.Barbers);
+            entity.HasKey(b => b.UserId);
 
-            entity.HasMany(b => b.Languages)
-             .WithMany(l => l.Barbers);
+            entity
+                .HasOne(b => b.User)
+                .WithOne(u => u.Barber)
+                .HasForeignKey<Barber>(b => b.UserId);
+            
+            entity
+                .HasMany(b => b.Skills)
+                .WithMany(s => s.Barbers);
 
-            entity.HasMany(b => b.SocialNetworks)
-             .WithMany(sn => sn.Barbers);
+            entity
+                .HasMany(b => b.Languages)
+                .WithMany(l => l.Barbers);
+
+            entity
+                .HasMany(b => b.SocialNetworks)
+                .WithMany(sn => sn.Barbers);
         });
 
         modelBuilder.Entity<Skill>(entity =>

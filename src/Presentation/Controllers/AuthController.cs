@@ -1,5 +1,6 @@
 using Application.Dtos.Auth;
 using Application.Interfaces;
+using Application.Interfaces.Auth;
 using Microsoft.AspNetCore.Mvc;
 using Application.Validators;
 using Application.Validators.Auth;

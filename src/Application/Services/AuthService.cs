@@ -1,7 +1,8 @@
 using Application.Dtos.Auth;
-using Application.Interfaces;
+using Application.Interfaces.Auth;
 using Domain.Entities;
 using Domain.Enums;
+using Domain.Enums.User;
 using Domain.Repositories;
 
 namespace Application.Services;

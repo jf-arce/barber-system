@@ -1,5 +1,6 @@
 using Application.Dtos.Auth;
 using Domain.Enums;
+using Domain.Enums.User;
 using FluentValidation;
 
 namespace Application.Validators.Auth;
@@ -18,7 +19,7 @@ public class RegisterValidator : AbstractValidator<RegisterDto>
             .Length(2, 50);
         RuleFor(x => x.Gender)
             .NotEmpty()
-            .Must(value => Enum.GetNames<GenderEnum>().Contains(value));
+            .Must(value => Enum.GetNames<UserGenderEnum>().Contains(value));
         RuleFor(x => x.Phone)
             .Matches(@"^\+?[0-9]{10,15}$").WithMessage("Phone number must be between 10 and 15 digits long and can start with a '+' sign");
         RuleFor(x => x.BirthDate)

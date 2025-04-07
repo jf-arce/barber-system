@@ -47,6 +47,7 @@ public class UserService : IUserService
         var user = await _userRepository.FindById(id);
         if (user == null) throw new KeyNotFoundException("User not found.");
 
-        await _userRepository.Delete(user);
+        user.IsDeleted = true;
+        await _userRepository.Update(user);
     }
 }

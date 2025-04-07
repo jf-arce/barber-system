@@ -3,6 +3,7 @@ using System.Security.Claims;
 using System.Text;
 using Application.Dtos.Auth;
 using Application.Interfaces;
+using Application.Interfaces.Auth;
 using Domain.Entities;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
