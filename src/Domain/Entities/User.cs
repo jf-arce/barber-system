@@ -17,6 +17,7 @@ public class User
     public DateOnly BirthDate { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; } 
+    
     public virtual List<Review>? Reviews { get; set; }
     public virtual List<Appointment>? Appointments { get; set; } = [];
     public virtual Barber? Barber { get; set; }
