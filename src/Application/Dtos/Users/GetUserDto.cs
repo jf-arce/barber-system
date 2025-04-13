@@ -1,4 +1,4 @@
-namespace Application.Dtos.User;
+namespace Application.Dtos.Users;
 
 public class GetUserDto
 {

@@ -1,6 +1,6 @@
-using Application.Dtos.User;
+using Application.Dtos.Users;
 
-namespace Application.Dtos.Barber;
+namespace Application.Dtos.Barbers;
 
 public class GetBarberDto : GetUserDto
 {

@@ -1,5 +1,5 @@
 using System.Net;
-using Application.Dtos.User;
+using Application.Dtos.Users;
 using Application.Exceptions;
 using Application.Interfaces;
 using Domain.Entities;

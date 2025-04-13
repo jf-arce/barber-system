@@ -1,7 +1,6 @@
 using Application.Dtos.Auth;
-using Application.Dtos.User;
 
-namespace Application.Dtos.Barber;
+namespace Application.Dtos.Barbers;
 
 public class CreateBarberDto : RegisterDto
 {

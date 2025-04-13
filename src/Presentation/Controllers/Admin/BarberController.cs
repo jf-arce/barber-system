@@ -1,4 +1,4 @@
-using Application.Dtos.Barber;
+using Application.Dtos.Barbers;
 using Application.Exceptions;
 using Application.Interfaces;
 using Domain.Enums.User;

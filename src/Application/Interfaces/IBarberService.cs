@@ -1,4 +1,4 @@
-using Application.Dtos.Barber;
+using Application.Dtos.Barbers;
 using Domain.Entities;
 
 namespace Application.Interfaces;

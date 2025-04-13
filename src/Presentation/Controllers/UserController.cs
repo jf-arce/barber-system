@@ -1,4 +1,4 @@
-using Application.Dtos.User;
+using Application.Dtos.Users;
 using Application.Exceptions;
 using Domain.Entities;
 using Application.Interfaces;
