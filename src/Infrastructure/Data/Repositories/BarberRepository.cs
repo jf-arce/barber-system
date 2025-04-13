@@ -19,4 +19,10 @@ public class BarberRepository : GenericRepository<Barber>, IBarberRepository
     {
         return await _db.Barbers.Include(b => b.User).ToListAsync();
     }
+
+    public override async Task<Barber?> FindById(object id)
+    {
+        return await _db.Barbers.Include(b => b.User)
+            .FirstOrDefaultAsync(b => b.UserId == (Guid)id);
+    }
 }

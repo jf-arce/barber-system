@@ -1,4 +1,6 @@
+using System.Net;
 using Application.Dtos.Auth;
+using Application.Exceptions;
 using Application.Interfaces.Auth;
 using Domain.Entities;
 using Domain.Enums;
@@ -23,7 +25,7 @@ public class AuthService : IAuthService
     public async Task Register(RegisterDto registerDto)
     {
         var existingUser = await _userRepository.FindByEmail(registerDto.Email);
-        if (existingUser != null) throw new Exception("User already exists.");
+        if (existingUser != null) throw new CustomHttpException(HttpStatusCode.BadRequest, "Email already exists.");
 
         registerDto.Password = _hashingService.Hash(registerDto.Password);
         
@@ -42,13 +44,13 @@ public class AuthService : IAuthService
         await _userRepository.Create(newUser);
     } 
     
-    public async Task<(TokenInfoDto payload, string token, string refreshToken)> Login(string email, string password)
+    public async Task<(TokenInfoDto payload, string token, string refreshToken)> Login(LoginDto loginDto)
     {
-        var user = await _userRepository.FindByEmail(email);
-        if (user == null) throw new KeyNotFoundException("User not found.");
+        var user = await _userRepository.FindByEmail(loginDto.Email);
+        if (user == null) throw new CustomHttpException(HttpStatusCode.Unauthorized, "Invalid credentials.");
 
-        var isPasswordValid = _hashingService.Verify(password, user.Password);
-        if (!isPasswordValid) throw new Exception("Invalid password.");
+        var isPasswordValid = _hashingService.Verify(loginDto.Password, user.Password);
+        if (!isPasswordValid) throw new CustomHttpException(HttpStatusCode.Unauthorized, "Invalid credentials.");
         
         var token = _jwtService.GenerateToken(user);
         var refreshToken = _jwtService.GenerateRefreshToken(user);
@@ -67,10 +69,10 @@ public class AuthService : IAuthService
     public async Task<(TokenInfoDto payload, string token, string refreshToken)> RefreshToken(string refreshToken)
     {
         var tokenInfo = _jwtService.VerifyRefreshToken(refreshToken);
-        if (tokenInfo == null) throw new UnauthorizedAccessException("Invalid refresh token.");
+        if (tokenInfo == null) throw new CustomHttpException(HttpStatusCode.Unauthorized, "Invalid refresh token.");
 
         var user = await _userRepository.FindByEmail(tokenInfo.Email);
-        if (user == null) throw new KeyNotFoundException("User not found.");
+        if (user == null) throw new CustomHttpException(HttpStatusCode.Unauthorized, "Invalid refresh token.");
 
         var token = _jwtService.GenerateToken(user);
         

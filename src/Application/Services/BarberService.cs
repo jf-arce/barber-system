@@ -1,4 +1,6 @@
+using System.Net;
 using Application.Dtos.Barber;
+using Application.Exceptions;
 using Application.Interfaces;
 using Domain.Entities;
 using Domain.Enums.User;
@@ -20,15 +22,15 @@ public class BarberService : IBarberService
     public async Task<List<Barber>> FindAll()
     {
         var barbers = await _barberRepository.FindAll();
-        if (barbers.Count == 0) throw new Exception("No barbers found");
+        if (barbers.Count == 0) throw new CustomHttpException(HttpStatusCode.NotFound, "No barbers found");
         
         return barbers;
     }
 
-    public async Task<Barber?> FindById(int id)
+    public async Task<Barber?> FindById(Guid id)
     {
         var barber = await _barberRepository.FindById(id);
-        if (barber == null) throw new Exception("Barber not found");
+        if (barber == null) throw new CustomHttpException(HttpStatusCode.NotFound, "Barber not found");
         
         return barber;
     }
@@ -56,9 +58,21 @@ public class BarberService : IBarberService
         await _userRepository.Create(user);
         await _barberRepository.Create(barber);
     }
-
-    public Task Update(UpdateBarberDto updateBarberDto)
+    
+    public async Task Update(Guid id, UpdateBarberDto updateBarberDto)
     {
-        throw new NotImplementedException();
+        var barber = await _barberRepository.FindById(id);
+        if (barber == null) throw new CustomHttpException(HttpStatusCode.NotFound, "Barber not found");
+
+        barber.Bio = updateBarberDto.Bio ?? barber.Bio;
+        barber.User.Name = updateBarberDto.Name ?? barber.User.Name;
+        barber.User.Surname = updateBarberDto.Surname ?? barber.User.Surname;
+        barber.User.Email = updateBarberDto.Email ?? barber.User.Email;
+        barber.User.Gender = updateBarberDto.Gender ?? barber.User.Gender;
+        barber.User.Phone = updateBarberDto.Phone ?? barber.User.Phone;
+        barber.User.BirthDate = updateBarberDto.BirthDate ?? barber.User.BirthDate;
+        
+        await _barberRepository.Update(barber);
+        await _userRepository.Update(barber.User);
     }
 }

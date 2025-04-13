@@ -1,5 +1,9 @@
+using System.Net;
 using Application.Dtos.Barber;
+using Application.Exceptions;
 using Application.Interfaces;
+using Domain.Enums.User;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Presentation.Controllers;
@@ -14,7 +18,7 @@ public class BarberController : ControllerBase
     {
         _barberService = barberService;
     }
-
+    
     [HttpGet]
     public async Task<IActionResult> FindAll()
     {
@@ -25,18 +29,46 @@ public class BarberController : ControllerBase
             var barbersDto = barbers.Select(barber => GetBarberDto.Create(barber)).ToList();
             return Ok(barbersDto);
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
-            throw new Exception(e.Message);
+            var handleException = HandleException.Handle(ex);
+            return StatusCode(handleException.StatusCode, handleException.Body);
         }
     }
 
-    [HttpGet("{id:int}")]
-    public async Task<IActionResult> FindById(int id)
+    [HttpGet("{id:guid}")]
+    public async Task<IActionResult> FindById(Guid id)
     {
-        var barber = await _barberService.FindById(id);
-        if (barber == null) return NotFound("Barber not found");
-        
-        return Ok(barber);
+        try
+        {
+            var barber = await _barberService.FindById(id);
+            if (barber == null) throw new CustomHttpException(HttpStatusCode.NotFound, "Barber not found");
+            
+            return Ok(barber);
+        }
+        catch (Exception ex)
+        {
+            var handleException = HandleException.Handle(ex);
+            return StatusCode(handleException.StatusCode, handleException.Body);
+        }
+    }
+   
+    [Authorize(Roles = nameof(UserRolesEnum.Barber))]
+    [HttpPatch]
+    public async Task<IActionResult> Update(Guid id, [FromBody] UpdateBarberDto updateBarberDto)
+    {
+        try
+        {
+            var barber = await _barberService.FindById(id);
+            if (barber == null) throw new CustomHttpException(HttpStatusCode.NotFound, "Barber not found");
+            
+            await _barberService.Update(id, updateBarberDto);
+            return Ok("Barber updated successfully");
+        }
+        catch (Exception ex)
+        {
+            var handleException = HandleException.Handle(ex);
+            return StatusCode(handleException.StatusCode, handleException.Body);
+        }
     }
 }

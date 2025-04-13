@@ -1,4 +1,6 @@
+using System.Net;
 using Application.Dtos.Auth;
+using Application.Exceptions;
 using Application.Interfaces;
 using Application.Interfaces.Auth;
 using Microsoft.AspNetCore.Mvc;
@@ -26,13 +28,16 @@ public class AuthController : ControllerBase
    {
         try {
             var validator = await new RegisterValidator().ValidateAsync(registerDto);
-            if (!validator.IsValid) {
-                return BadRequest(validator.Errors.Select(e => e.ErrorMessage));
+            if (!validator.IsValid)
+            {
+                throw new CustomHttpException(HttpStatusCode.BadRequest, validator.Errors.Select(e => e.ErrorMessage));
+
             }
             await _authService.Register(registerDto); 
             return Ok("User registered successfully!");
         }catch (Exception ex) {
-            return BadRequest(ex.Message);
+            var handleException = HandleException.Handle(ex);
+            return StatusCode(handleException.StatusCode, handleException.Body);
         }
    }
    
@@ -43,14 +48,17 @@ public class AuthController : ControllerBase
         try
         {
             var validator = await new LoginValidator().ValidateAsync(loginDto);
-            if (!validator.IsValid) return BadRequest("Invalid credentials");
+            if (!validator.IsValid)
+            {
+                throw new CustomHttpException(HttpStatusCode.BadRequest, "Invalid credentials");
+            }
             
-            var jwtToken = await _authService.Login(loginDto.Email, loginDto.Password);
+            var jwtToken = await _authService.Login(loginDto);
             
             Response.Cookies.Append("access_token", jwtToken.token, new CookieOptions
             {
                 HttpOnly = true,
-                Secure = !_env.IsDevelopment(),
+                Secure = true,
                 SameSite = SameSiteMode.None,
                 Expires = DateTimeOffset.UtcNow.AddHours(1)
             });
@@ -58,14 +66,16 @@ public class AuthController : ControllerBase
             Response.Cookies.Append("refresh_token", jwtToken.refreshToken, new CookieOptions
             {
                 HttpOnly = true,
-                Secure = !_env.IsDevelopment(),
+                Secure = true,
                 SameSite = SameSiteMode.None,
                 Expires = DateTimeOffset.UtcNow.AddDays(7)
             });
             
             return Ok(jwtToken.payload);
-        }catch (Exception ex) {
-            return BadRequest(ex.Message);
+        }catch (Exception ex)
+        {
+            var handleException = HandleException.Handle(ex);
+            return StatusCode(handleException.StatusCode, handleException.Body);
         }
    }
    
@@ -86,7 +96,7 @@ public class AuthController : ControllerBase
             Response.Cookies.Append("access_token", newJwtToken.token, new CookieOptions
             {
                 HttpOnly = true,
-                Secure = !_env.IsDevelopment(),
+                Secure = true,
                 SameSite = SameSiteMode.None,
                 Expires = DateTimeOffset.UtcNow.AddHours(7)
             });
@@ -94,16 +104,15 @@ public class AuthController : ControllerBase
             Response.Cookies.Append("refresh_token", newJwtToken.refreshToken, new CookieOptions
             {
                 HttpOnly = true,
-                Secure = !_env.IsDevelopment(),
+                Secure = true,
                 SameSite = SameSiteMode.None,
                 Expires = DateTimeOffset.UtcNow.AddDays(30)
             });
             
             return Ok(newJwtToken.payload);
         }catch (Exception ex) {
-            return BadRequest(ex.Message);
+            var handleException = HandleException.Handle(ex);
+            return StatusCode(handleException.StatusCode, handleException.Body);
         }
     }
-    
-
 }

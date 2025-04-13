@@ -1,4 +1,5 @@
 using Application.Dtos.Barber;
+using Application.Exceptions;
 using Application.Interfaces;
 using Domain.Enums.User;
 using Microsoft.AspNetCore.Authorization;
@@ -28,7 +29,8 @@ public class BarberController : ControllerBase
         }
         catch (Exception ex)
         {
-            return BadRequest(ex.Message);
+            var handleException = HandleException.Handle(ex);
+            return StatusCode(handleException.StatusCode, handleException.Body);
         }
     }
 }

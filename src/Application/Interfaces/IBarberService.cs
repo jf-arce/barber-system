@@ -6,7 +6,7 @@ namespace Application.Interfaces;
 public interface IBarberService
 {
    Task<List<Barber>> FindAll();
-   Task<Barber?> FindById(int id);
+   Task<Barber?> FindById(Guid id);
    Task Create(CreateBarberDto createBarberDto);
-   Task Update(UpdateBarberDto updateBarberDto);
+   Task Update(Guid id, UpdateBarberDto updateBarberDto);
 }
