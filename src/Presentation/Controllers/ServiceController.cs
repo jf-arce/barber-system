@@ -1,6 +1,7 @@
 using Application.Dtos.Services;
 using Application.Exceptions;
 using Application.Interfaces;
+using Domain.Enums.User;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -18,6 +19,7 @@ public class ServiceController : ControllerBase
         _serviceService = serviceService;
     }
 
+    [Authorize(Roles = nameof(UserRolesEnum.Admin))]
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreateServiceDto createServiceDto)
     {
@@ -63,6 +65,7 @@ public class ServiceController : ControllerBase
         }
     }
     
+    [Authorize(Roles = nameof(UserRolesEnum.Admin))]
     [HttpPatch("{id:int}")]
     public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdateServiceDto updateServiceDto)
     {
@@ -78,6 +81,7 @@ public class ServiceController : ControllerBase
         }
     }
     
+    [Authorize(Roles = nameof(UserRolesEnum.Admin))]
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> Delete([FromRoute] int id)
     {

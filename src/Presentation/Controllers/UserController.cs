@@ -80,7 +80,8 @@ namespace Presentation.Controllers
                 return StatusCode(handleException.StatusCode, handleException.Body);
             }
         }
-
+        
+        [Authorize(Roles = nameof(UserRolesEnum.Admin))]
         [HttpDelete("{id:guid}")]
         public async Task<IActionResult> Delete(Guid id)
         {

@@ -3,6 +3,7 @@ using Application.Dtos.Users;
 using Application.Exceptions;
 using Application.Interfaces;
 using Domain.Entities;
+using Domain.Enums.User;
 using Domain.Repositories;
 
 namespace Application.Services;
@@ -56,7 +57,7 @@ public class UserService : IUserService
     {
         var user = await _userRepository.FindById(id);
         if (user == null) throw new CustomHttpException(HttpStatusCode.NotFound, "User not found.");
-
+        
         user.IsDeleted = true;
         await _userRepository.Update(user);
     }

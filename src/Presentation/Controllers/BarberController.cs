@@ -18,7 +18,23 @@ public class BarberController : ControllerBase
     {
         _barberService = barberService;
     }
-    
+
+    [Authorize(Roles = nameof(UserRolesEnum.Admin))]
+    [HttpPost]
+    public async Task<IActionResult> Create([FromBody] CreateBarberDto createBarberDto)
+    {
+        try
+        {
+            await _barberService.Create(createBarberDto);
+            return Ok("Barber created successfully");
+        }
+        catch (Exception ex)
+        {
+            var handleException = HandleException.Handle(ex);
+            return StatusCode(handleException.StatusCode, handleException.Body);
+        }
+    }
+
     [HttpGet]
     public async Task<IActionResult> FindAll()
     {
@@ -53,7 +69,7 @@ public class BarberController : ControllerBase
         }
     }
    
-    [Authorize(Roles = nameof(UserRolesEnum.Barber))]
+    [Authorize(Roles = $"{nameof(UserRolesEnum.Admin)},{nameof(UserRolesEnum.Barber)}")]
     [HttpPatch]
     public async Task<IActionResult> Update(Guid id, [FromBody] UpdateBarberDto updateBarberDto)
     {

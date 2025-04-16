@@ -1,10 +1,12 @@
 using Application.Dtos.Appointments;
 using Application.Exceptions;
 using Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Presentation.Controllers;
 
+[Authorize]
 [Route("api/appointments")]
 [ApiController]
 public class AppointmentController : ControllerBase
