@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Button } from "quick-ui-components";
 import { useState } from "react";
 import { AuthService } from "../auth.service";
+import { UserLogin } from "../auth.type";
 
 export const Login = () => {
     const [loading, setLoading] = useState(false);
@@ -19,17 +20,16 @@ export const Login = () => {
         
         setError("");
         setLoading(true);
-        await AuthService.login(formDataObj as { email: string; password: string })
+        await AuthService.login(formDataObj as UserLogin)
             .then((res) => {
-                console.log("Login response:", res);
                 setUserLogged(res);
+                setError("");
             })
-            .catch(() => {
-                setError("Error al iniciar sesión. Verifica tus credenciales.");
+            .catch((error) => {
+                setError(error.message);
             })
             .finally(() => {
                 setLoading(false);
-                console.log(userLogged);
             });
     };
 

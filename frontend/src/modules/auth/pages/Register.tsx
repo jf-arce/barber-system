@@ -8,14 +8,16 @@ import InputField from "../components/InputField";
 import SelectField from "../components/SelectField";
 import { Button } from "quick-ui-components";
 import { COLORS } from "@/constants/colors";
+import { AuthService } from "../auth.service";
+import { useState } from "react";
 
 const schema = z.object({
   name: z.string().min(1, "El nombre es obligatorio"),
   surname: z.string().min(1, "El apellido es obligatorio"),
   email: z.string().email("Email inválido"),
   password: z.string().min(6, "La contraseña debe tener al menos 6 caracteres"),
-  phone: z.string().min(1, "El teléfono es obligatorio"),
-  genre: z.string().min(1, "Selecciona un género"),
+  phone: z.string().optional(),
+  gender: z.string().min(1, "Selecciona un género"),
   birthdate: z.string().min(1, "La fecha de nacimiento es obligatoria"),
 });
 
@@ -23,6 +25,8 @@ type FormData = z.infer<typeof schema>;
 
 export default function Register() {
   const router = useRouter();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const {
     register,
@@ -32,9 +36,19 @@ export default function Register() {
     resolver: zodResolver(schema),
   });
 
-  const onSubmit = (data: FormData) => {
-    console.log(data);
-    router.push("/auth/login");
+  const onSubmit = async (userData: FormData) => {
+    setError("");
+    await AuthService.register(userData)
+      .then(() => {
+        alert("Usuario registrado con éxito");
+        router.push("/auth/login");
+      })
+      .catch((error) => {
+        setError(error.message);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   };
 
   return (
@@ -80,11 +94,11 @@ export default function Register() {
           error={errors.phone}
         />
         <SelectField
-          id="genre"
+          id="gender"
           label="Género *"
           options={["Hombre", "Mujer", "Otro"]}
-          {...register("genre")}
-          error={errors.genre}
+          {...register("gender")}
+          error={errors.gender}
         />
         <div className="col-span-1 md:col-span-2">
           <InputField
@@ -95,11 +109,15 @@ export default function Register() {
             error={errors.birthdate}
           />
         </div>
+
+        {error && <p className="text-red-500 text-sm">{error}</p>}
+
         <div className="col-span-1 md:col-span-2">
           <Button 
             className="w-full"
             colorBg={COLORS.primary}
             type="submit"
+            loading={loading}
           >
             Registrarse
           </Button>
