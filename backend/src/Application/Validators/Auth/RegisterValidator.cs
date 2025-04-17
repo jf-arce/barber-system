@@ -21,7 +21,9 @@ public class RegisterValidator : AbstractValidator<RegisterDto>
             .NotEmpty()
             .Must(value => Enum.GetNames<UserGenderEnum>().Contains(value));
         RuleFor(x => x.Phone)
-            .Matches(@"^\+?[0-9]{10,15}$").WithMessage("Phone number must be between 10 and 15 digits long and can start with a '+' sign");
+            .Matches(@"^\+?[0-9]{10,15}$")
+            .WithMessage("Phone number must be between 10 and 15 digits long and can start with a '+' sign")
+            .When(x => !string.IsNullOrWhiteSpace(x.Phone));
         RuleFor(x => x.BirthDate)
             .NotEmpty()
             .Must(date => date <= DateOnly.FromDateTime(DateTime.Now) && date >= DateOnly.FromDateTime(DateTime.Now.AddYears(-100)))

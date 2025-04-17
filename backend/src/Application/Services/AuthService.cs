@@ -36,7 +36,7 @@ public class AuthService : IAuthService
             Email = registerDto.Email,
             Password = registerDto.Password,
             Gender = registerDto.Gender,
-            Phone = registerDto.Phone ?? null,
+            Phone = string.IsNullOrWhiteSpace(registerDto.Phone) ? null : registerDto.Phone,
             BirthDate = registerDto.BirthDate,
             Role = UserRolesEnum.User.ToString(),
         };

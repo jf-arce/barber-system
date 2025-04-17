@@ -30,11 +30,11 @@ public class AuthController : ControllerBase
             var validator = await new RegisterValidator().ValidateAsync(registerDto);
             if (!validator.IsValid)
             {
-                throw new CustomHttpException(HttpStatusCode.BadRequest, validator.Errors.Select(e => e.ErrorMessage));
-
+                return BadRequest(validator.Errors.Select(e => e.ErrorMessage));
             }
+            
             await _authService.Register(registerDto); 
-            return Ok("User registered successfully!");
+            return Ok(new { message = "User registered successfully!" });
         }catch (Exception ex) {
             var handleException = HandleException.Handle(ex);
             return StatusCode(handleException.StatusCode, handleException.Body);
