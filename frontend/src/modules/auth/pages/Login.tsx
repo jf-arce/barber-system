@@ -1,13 +1,15 @@
 "use client";
 
-import { COLORS } from "@/modules/core/constants/colors";
+import { COLORS } from "@/constants/colors";
 import Link from "next/link";
 import { Button } from "quick-ui-components";
 import { useState } from "react";
+import { AuthService } from "../auth.service";
 
 export const Login = () => {
-
     const [loading, setLoading] = useState(false);
+    const [userLogged, setUserLogged] = useState(null);
+    const [error, setError] = useState("");
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -15,11 +17,20 @@ export const Login = () => {
         const formData = new FormData(e.currentTarget); 
         const formDataObj = Object.fromEntries(formData.entries());
         
+        setError("");
         setLoading(true);
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-        setLoading(false);
-
-        console.log(formDataObj);
+        await AuthService.login(formDataObj as { email: string; password: string })
+            .then((res) => {
+                console.log("Login response:", res);
+                setUserLogged(res);
+            })
+            .catch(() => {
+                setError("Error al iniciar sesión. Verifica tus credenciales.");
+            })
+            .finally(() => {
+                setLoading(false);
+                console.log(userLogged);
+            });
     };
 
     return (
@@ -57,6 +68,8 @@ export const Login = () => {
                         required
                     />
                 </div>
+
+                {error && <p className="text-red-500 text-sm">{error}</p>}
 
                 <div className="text-sm">
                     <Link href="/forgot-password" className="text-primary hover:underline">

@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import InputField from "../components/InputField";
 import SelectField from "../components/SelectField";
 import { Button } from "quick-ui-components";
-import { COLORS } from "@/modules/core/constants/colors";
+import { COLORS } from "@/constants/colors";
 
 const schema = z.object({
   name: z.string().min(1, "El nombre es obligatorio"),
