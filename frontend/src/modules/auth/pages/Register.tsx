@@ -4,6 +4,10 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
+import InputField from "../components/InputField";
+import SelectField from "../components/SelectField";
+import { Button } from "quick-ui-components";
+import { COLORS } from "@/modules/core/constants/colors";
 
 const schema = z.object({
   name: z.string().min(1, "El nombre es obligatorio"),
@@ -36,103 +40,78 @@ export default function Register() {
   return (
     <div className="bg-white py-4 px-8 rounded-xl">
       <h1 className="text-center mb-6 text-2xl font-bold text-gray-800">Regístrate</h1>
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-        <div className="flex flex-col">
-          <label htmlFor="name" className="text-sm font-medium text-gray-700">Nombre</label>
-          <input
-            type="text"
-            id="name"
-            {...register("name")}
-            className="mt-1 px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
-          />
-          {errors.name && <span className="text-sm text-red-500 mt-1">{errors.name.message}</span>}
-        </div>
-
-        <div className="flex flex-col">
-          <label htmlFor="surname" className="text-sm font-medium text-gray-700">Apellido</label>
-          <input
-            type="text"
-            id="surname"
-            {...register("surname")}
-            className="mt-1 px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
-          />
-          {errors.surname && <span className="text-sm text-red-500 mt-1">{errors.surname.message}</span>}
-        </div>
-
-        <div className="flex flex-col">
-          <label htmlFor="email" className="text-sm font-medium text-gray-700">Email</label>
-          <input
-            type="email"
-            id="email"
-            placeholder="example@mail.com"
-            {...register("email")}
-            className="mt-1 px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
-          />
-          {errors.email && <span className="text-sm text-red-500 mt-1">{errors.email.message}</span>}
-        </div>
-
-        <div className="flex flex-col">
-          <label htmlFor="password" className="text-sm font-medium text-gray-700">Contraseña</label>
-          <input
-            type="password"
-            id="password"
-            placeholder="********"
-            {...register("password")}
-            className="mt-1 px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
-          />
-          {errors.password && <span className="text-sm text-red-500 mt-1">{errors.password.message}</span>}
-        </div>
-
-        <div className="flex flex-col">
-          <label htmlFor="phone" className="text-sm font-medium text-gray-700">Teléfono</label>
-          <input
-            type="tel"
-            id="phone"
-            placeholder="+542213456674"
-            {...register("phone")}
-            className="mt-1 px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
-          />
-          {errors.phone && <span className="text-sm text-red-500 mt-1">{errors.phone.message}</span>}
-        </div>
-
-        <div className="flex flex-col">
-          <label htmlFor="genre" className="text-sm font-medium text-gray-700">Género</label>
-          <select
-            id="genre"
-            defaultValue=""
-            {...register("genre")}
-            className="mt-1 px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
-          >
-            <option value="" disabled>--seleccionar--</option>
-            {["Hombre", "Mujer", "Otro"].map((genre) => (
-              <option key={genre} value={genre}>{genre}</option>
-            ))}
-          </select>
-          {errors.genre && <span className="text-sm text-red-500 mt-1">{errors.genre.message}</span>}
-        </div>
-
-        <div className="flex flex-col">
-          <label htmlFor="birthdate" className="text-sm font-medium text-gray-700">Fecha de nacimiento</label>
-          <input
-            type="date"
+      <form onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <InputField
+          id="name"
+          label="Nombre *"
+          type="text"
+          {...register("name")}
+          error={errors.name}
+        />
+        <InputField
+          id="surname"
+          label="Apellido *"
+          type="text"
+          {...register("surname")}
+          error={errors.surname}
+        />
+        <InputField
+          id="email"
+          label="Email *"
+          type="email"
+          placeholder="example@mail.com"
+          {...register("email")}
+          error={errors.email}
+        />
+        <InputField
+          id="password"
+          label="Contraseña *"
+          type="password"
+          placeholder="********"
+          {...register("password")}
+          error={errors.password}
+        />
+        <InputField
+          id="phone"
+          label="Teléfono (opcional)"
+          type="tel"
+          placeholder="+542213456674"
+          {...register("phone")}
+          error={errors.phone}
+        />
+        <SelectField
+          id="genre"
+          label="Género *"
+          options={["Hombre", "Mujer", "Otro"]}
+          {...register("genre")}
+          error={errors.genre}
+        />
+        <div className="col-span-1 md:col-span-2">
+          <InputField
             id="birthdate"
+            label="Fecha de nacimiento *"
+            type="date"
             {...register("birthdate")}
-            className="mt-1 px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
+            error={errors.birthdate}
           />
-          {errors.birthdate && <span className="text-sm text-red-500 mt-1">{errors.birthdate.message}</span>}
         </div>
-
-        <button
-          type="submit"
-          className="bg-primary text-white font-medium px-4 py-2 rounded-lg shadow-md hover:bg-opacity-80 transition duration-200 w-full"
-        >
-          Registrarse
-        </button>
+        <div className="col-span-1 md:col-span-2">
+          <Button 
+            className="w-full"
+            colorBg={COLORS.primary}
+            type="submit"
+          >
+            Registrarse
+          </Button>
+        </div>
       </form>
 
       <p className="text-center mt-4 text-sm text-gray-600">
         ¿Ya tienes una cuenta?{" "}
-        <span className="text-primary cursor-pointer hover:underline" onClick={() => router.push("/auth/login")}>
+        <span
+          className="text-primary cursor-pointer hover:underline"
+          onClick={() => router.push("/auth/login")}
+        >
           Inicia sesión
         </span>
       </p>

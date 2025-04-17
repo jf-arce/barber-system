@@ -1,14 +1,24 @@
 "use client";
 
+import { COLORS } from "@/modules/core/constants/colors";
 import Link from "next/link";
+import { Button } from "quick-ui-components";
+import { useState } from "react";
 
 export const Login = () => {
+
+    const [loading, setLoading] = useState(false);
+
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
         const formData = new FormData(e.currentTarget); 
         const formDataObj = Object.fromEntries(formData.entries());
         
+        setLoading(true);
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+        setLoading(false);
+
         console.log(formDataObj);
     };
 
@@ -54,18 +64,19 @@ export const Login = () => {
                     </Link>
                 </div>
 
-                <button
+                <Button
+                    colorBg={COLORS.primary}
                     type="submit"
-                    className="bg-primary cursor-pointer text-white font-medium px-4 py-2 rounded-lg shadow-md hover:bg-opacity-80 transition duration-200"
+                    loading={loading}
                 >
                     Iniciar sesión
-                </button>
+                </Button>
             </form>
 
             <p className="mt-6 text-sm text-center text-gray-700">
                 ¿No tenés cuenta?{" "}
                 <Link href="/auth/register" className="text-primary font-medium hover:underline">
-                    Registrate
+                    Regístrate
                 </Link>
             </p>
         </div>
