@@ -52,7 +52,7 @@ export default function Register() {
   };
 
   return (
-    <div className="bg-white py-4 px-8 rounded-xl">
+    <div className="bg-white py-4 px-8 rounded-md">
       <h1 className="text-center mb-6 text-2xl font-bold text-gray-800">Regístrate</h1>
       <form onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-1 md:grid-cols-2 gap-5">
         <InputField
@@ -117,6 +117,7 @@ export default function Register() {
             className="w-full"
             colorBg={COLORS.primary}
             type="submit"
+            radius="sm"
             loading={loading}
           >
             Registrarse

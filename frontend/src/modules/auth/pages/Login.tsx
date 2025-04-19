@@ -35,7 +35,7 @@ export const Login = () => {
 
     return (
 
-        <div className="bg-white text-black rounded-lg shadow-lg p-6">
+        <div className="bg-white text-black rounded-md shadow-lg p-6">
             <h1 className="text-center mb-6 text-2xl font-bold text-gray-800">
                 Iniciar sesión
             </h1>
@@ -50,7 +50,7 @@ export const Login = () => {
                         id="email"
                         name="email"
                         placeholder="example@mail.com"
-                        className="mt-1 px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
+                        className="mt-1 px-4 py-2 border border-gray-300 rounded-sm focus:outline-none focus:ring-[1px] focus:ring-primary focus:border-primary"
                         required
                     />
                 </div>
@@ -64,7 +64,7 @@ export const Login = () => {
                         id="password"
                         name="password"
                         placeholder="********"
-                        className="mt-1 px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
+                        className="mt-1 px-4 py-2 border border-gray-300 rounded-sm focus:outline-none focus:ring-[1px] focus:ring-primary focus:border-primary"
                         required
                     />
                 </div>
@@ -81,6 +81,7 @@ export const Login = () => {
                     colorBg={COLORS.primary}
                     type="submit"
                     loading={loading}
+                    radius="sm"
                 >
                     Iniciar sesión
                 </Button>

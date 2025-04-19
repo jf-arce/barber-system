@@ -19,7 +19,7 @@ const SelectField: React.FC<SelectFieldProps> = ({ id, label, options, error, ..
         id={id}
         defaultValue=""
         {...register}
-        className="mt-1 px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
+        className="mt-1 px-4 py-2 border border-gray-300 rounded-sm focus:outline-none focus:ring-[1px] focus:ring-primary focus:border-primary"
       >
         <option value="" disabled>
           --seleccionar--

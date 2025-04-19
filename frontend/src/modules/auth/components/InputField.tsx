@@ -21,7 +21,7 @@ const InputField: React.FC<InputFieldProps> = ({ id, label, type, placeholder, e
         id={id}
         placeholder={placeholder}
         {...register}
-        className="mt-1 px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
+        className="mt-1 px-4 py-2 border border-gray-300 rounded-sm focus:outline-none focus:ring-[1px] focus:ring-primary focus:border-primary"
       />
       {error && <span className="text-sm text-red-500 mt-1">{error.message}</span>}
     </div>
