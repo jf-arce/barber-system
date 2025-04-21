@@ -14,7 +14,7 @@ export class AuthService {
                 body: JSON.stringify(userLogin)
             });
     
-            if (res.status === 401) {
+            if (res.status === 401 || res.status === 400) {
                 throw new Error('Error al iniciar sesión. Verifica tus credenciales.');
             }
 
