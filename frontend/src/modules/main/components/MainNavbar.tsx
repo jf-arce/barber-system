@@ -26,7 +26,7 @@ export const MainNavbar = () => {
 
   return (
     <nav className={`p-4 ${navbar ? 'bg-background shadow-md' : 'bg-transparent'} transition-all duration-300`}>
-      <div className="container mx-auto flex justify-between items-center">
+      <div className="container mx-auto px-4 flex justify-between items-center">
         {/* Logo */}
         <div className='flex flex-grow basis-0'>
           <p className="text-white text-lg font-bold">BarberShop</p>
