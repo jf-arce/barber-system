@@ -1,27 +1,32 @@
+"use client"
 import { MainContainer } from "@/components/containers/MainContainer";
-import { MainNavbar } from "@/components/MainNavbar";
-import Image from "next/image";
+import { Divider } from "@/components/Divider";
+import { AboutSection } from "@/modules/main/components/AboutSection";
+import { Hero } from "@/modules/main/components/Hero";
+import { MainNavbar } from "@/modules/main/components/MainNavbar";
+import { ServicesSection } from "@/modules/main/components/ServicesSection";
 
 export default function Home() {
   return (
     <div>
-      <MainNavbar />
-      <div className="relative max-h-[500px] overflow-hidden">
-        <Image 
-          src="/images/image-main.jpg"
-          alt="Barber"
-          width={1920}
-          height={1080}
-          className="object-cover object-top w-full h-full"  
-        />  
-      </div>	
-      <MainContainer>
-        <h1 className="text-center text-5xl font-bold p-10">No solo cortamos pelo, creamos estilo</h1>
+      <section className="relative h-dvh">
+        <header className="fixed top-0 left-0 w-full z-50">
+          <MainNavbar />
+        </header>
+        <Hero />
+      </section>
+
+      <MainContainer>  
+        <AboutSection />
+        <Divider />   
+        <ServicesSection />
       </MainContainer>
-      {/* <h1>Barber</h1>
-      <Link href="/auth/login">Login</Link>
-      <br />
-      <Link href="/auth/register">Register</Link> */}
+
+      <footer className="bg-background py-10 text-center">
+        <p className="text-gray-500">© 2023 BarberLP. Todos los derechos reservados.</p>
+        <p className="text-gray-500">Desarrollado por [Tu Nombre]</p>
+        <p className="text-gray-500">Powered by Next.js</p>
+      </footer>
     </div>
   );
 }
