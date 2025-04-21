@@ -1,40 +1,19 @@
-"use client";
-
 import { COLORS } from "@/constants/colors";
 import Link from "next/link";
 import { Button } from "quick-ui-components";
-import { useState } from "react";
-import { AuthService } from "../auth.service";
-import { UserLogin } from "../auth.type";
+import { useAuthStore } from "../auth.store";
 
-export const Login = () => {
-    const [loading, setLoading] = useState(false);
-    const [userLogged, setUserLogged] = useState(null);
-    const [error, setError] = useState("");
+interface LoginProps {
+    handleSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
+}
 
-    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-
-        const formData = new FormData(e.currentTarget); 
-        const formDataObj = Object.fromEntries(formData.entries());
-        
-        setError("");
-        setLoading(true);
-        await AuthService.login(formDataObj as UserLogin)
-            .then((res) => {
-                setUserLogged(res);
-                setError("");
-            })
-            .catch((error) => {
-                setError(error.message);
-            })
-            .finally(() => {
-                setLoading(false);
-            });
-    };
+export const Login = ({
+    handleSubmit
+}: LoginProps) => {
+    const isLoading = useAuthStore(state => state.isLoading);
+    const error = useAuthStore(state => state.error);
 
     return (
-
         <div className="bg-white text-black rounded-md shadow-lg p-6">
             <h1 className="text-center mb-6 text-2xl font-bold text-gray-800">
                 Iniciar sesión
@@ -80,7 +59,7 @@ export const Login = () => {
                 <Button
                     colorBg={COLORS.primary}
                     type="submit"
-                    loading={loading}
+                    loading={isLoading}
                     radius="sm"
                 >
                     Iniciar sesión

@@ -12,3 +12,10 @@ export type UserLogin = {
     email: string;
     password: string;
 }
+
+export type UserAuthenticated = {
+    id: string;
+    name: string;
+    email: string;
+    role: string;
+}
