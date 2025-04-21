@@ -1,4 +1,3 @@
-"use client"
 import { MainContainer } from "@/components/containers/MainContainer";
 import { Divider } from "@/components/Divider";
 import { AboutSection } from "@/modules/main/components/AboutSection";

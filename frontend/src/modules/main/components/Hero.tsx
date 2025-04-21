@@ -1,3 +1,4 @@
+"use client"
 import { COLORS } from "@/constants/colors";
 import Image from "next/image";
 import Link from "next/link";
