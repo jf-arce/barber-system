@@ -6,8 +6,8 @@ interface MainContainerProps extends React.HTMLProps<HTMLDivElement> {
 
 export const MainContainer = ({children, ...props}: MainContainerProps) => {
   return (
-    <main className="max-w-7xl mx-auto px-4" {...props}>
-        {children}
+    <main className="container mx-auto px-4" {...props}>
+      {children}
     </main>
   )
 }
