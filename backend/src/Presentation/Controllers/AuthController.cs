@@ -78,6 +78,23 @@ public class AuthController : ControllerBase
             return StatusCode(handleException.StatusCode, handleException.Body);
         }
    }
+    
+   [HttpPost]
+   [Route("logout")]
+   public IActionResult Logout()
+   {
+       try
+       {
+           Response.Cookies.Delete("access_token");
+           Response.Cookies.Delete("refresh_token");
+           return Ok(new { message = "Logged out successfully." });
+       }
+       catch (Exception ex)
+       {
+           var handleException = HandleException.Handle(ex);
+           return StatusCode(handleException.StatusCode, handleException.Body);
+       }
+   }
    
     [HttpPost]
     [Route("refreshToken")]
