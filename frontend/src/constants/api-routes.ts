@@ -4,6 +4,7 @@ export const API_ROUTES = {
     AUTH: {
         LOGIN: `${API_BASE_URL}/auth/login`,
         REGISTER: `${API_BASE_URL}/auth/register`,
-        REFRESH_TOKEN: `${API_BASE_URL}/auth/refresh-token`,
+        REFRESH_TOKEN: `${API_BASE_URL}/auth/refreshToken`,
+        LOGOUT: `${API_BASE_URL}/auth/logout`,
     },
 };

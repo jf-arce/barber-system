@@ -1,13 +1,17 @@
 "use client";
-
 import { COLORS } from '@/constants/colors';
+import { useAuthStore } from '@/modules/auth/auth.store';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Button } from 'quick-ui-components';
 import { useEffect, useState } from 'react';
 
 export const MainNavbar = () => {
 
   const [navbar, setNavbar] = useState(false);
+  const userAuthenticated = useAuthStore((state) => state.userAuthenticated);
+  const logout  = useAuthStore((state) => state.logout);
+  const router = useRouter();
 
   const scrollNavBar = () => {
     if (window.scrollY >= 20) {
@@ -23,6 +27,11 @@ export const MainNavbar = () => {
       window.removeEventListener('scroll', scrollNavBar);
     };
   }, []);
+
+  const handleLogout = async () => {
+    logout();
+    router.push('/');
+  }
 
   return (
     <nav className={`p-4 ${navbar ? 'bg-background shadow-md' : 'bg-transparent'} transition-all duration-300`}>
@@ -49,38 +58,54 @@ export const MainNavbar = () => {
               Sobre Nosotros
             </Link>
           </li>
-          <li>
-            <Link href="/contact" className="text-white font-semibold hover:text-primary transition-colors">
-              Mi cuenta
-            </Link>
-          </li>
+          {
+            userAuthenticated &&      
+            <li>
+              <Link href="/client/dashboard" className="text-white font-semibold hover:text-primary transition-colors">
+                Mi cuenta
+              </Link>
+            </li>
+          }
         </ul>
-
         {/* Auth Links */}
-        <div className="flex flex-grow basis-0 justify-end space-x-4">
-          <Button
-            asChild
-            radius='sm'
-            colorBg={COLORS.primary}
-            variant='tertiary'
-
-          >
-            <Link href="/auth/login">
-              Iniciar Sesión
-            </Link>
-          </Button>
-          <Button
-            asChild
-            radius='sm'
-            colorBg={COLORS.primary}
-            colorText='black'
-            variant='primary'
-          >
-            <Link href="/auth/register">
-              Registrarse
-            </Link>
-          </Button>
-        </div>
+        {
+          userAuthenticated ? (
+            <div className="flex flex-grow basis-0 justify-end space-x-4 items-center">
+              <span className="text-white font-semibold uppercase">Hola {userAuthenticated.name}!</span>
+                <button
+                onClick={handleLogout}
+                className="px-4 py-2 rounded-sm bg-primary text-black font-medium cursor-pointer hover:bg-primary/80 transition-colors"
+                style={{ backgroundColor: COLORS.primary }}
+                >
+                Cerrar Sesión
+                </button>
+            </div>
+          ) : (
+            <div className="flex flex-grow basis-0 justify-end space-x-4">
+              <Button
+                asChild
+                radius='sm'
+                colorBg={COLORS.primary}
+                variant='tertiary'
+              >
+                <Link href="/auth/login">
+                  Iniciar Sesión
+                </Link>
+              </Button>
+              <Button
+                asChild
+                radius='sm'
+                colorBg={COLORS.primary}
+                colorText='black'
+                variant='primary'
+              >
+                <Link href="/auth/register">
+                  Registrarse
+                </Link>
+              </Button>
+            </div>
+          )
+        }
       </div>
     </nav>
   );
