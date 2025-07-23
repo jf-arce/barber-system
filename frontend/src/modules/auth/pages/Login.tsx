@@ -1,7 +1,6 @@
-import { COLORS } from "@/constants/colors";
 import Link from "next/link";
-import { Button } from "quick-ui-components";
 import { useAuthStore } from "../auth.store";
+import { Button } from "@/components/Button";
 
 interface LoginProps {
     handleSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
@@ -57,21 +56,21 @@ export const Login = ({
                 </div>
 
                 <Button
-                    colorBg={COLORS.primary}
                     type="submit"
                     loading={isLoading}
-                    radius="sm"
                 >
                     Iniciar sesión
                 </Button>
             </form>
 
-            <p className="mt-6 text-sm text-center text-gray-700">
-                ¿No tenés cuenta?{" "}
-                <Link href="/auth/register" className="text-primary font-medium hover:underline">
+            <div className="flex justify-center gap-2 mt-6">
+                <p className="text-sm text-gray-600">
+                    ¿No tenés cuenta?
+                </p>
+                <Link href="/auth/register" className="text-sm text-primary font-medium hover:underline">
                     Regístrate
                 </Link>
-            </p>
+            </div>
         </div>
 
     );

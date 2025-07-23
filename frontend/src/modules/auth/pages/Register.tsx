@@ -1,15 +1,14 @@
 "use client";
-
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import InputField from "../components/InputField";
 import SelectField from "../components/SelectField";
-import { Button } from "quick-ui-components";
-import { COLORS } from "@/constants/colors";
 import { AuthService } from "../auth.service";
 import { useState } from "react";
+import { Button } from "@/components/Button";
+import Link from "next/link";
 
 const schema = z.object({
   name: z.string().min(1, "El nombre es obligatorio"),
@@ -113,11 +112,8 @@ export default function Register() {
         {error && <p className="text-red-500 text-sm">{error}</p>}
 
         <div className="col-span-1 md:col-span-2">
-          <Button 
-            className="w-full"
-            colorBg={COLORS.primary}
+          <Button
             type="submit"
-            radius="sm"
             loading={loading}
           >
             Registrarse
@@ -125,15 +121,12 @@ export default function Register() {
         </div>
       </form>
 
-      <p className="text-center mt-4 text-sm text-gray-600">
-        ¿Ya tienes una cuenta?{" "}
-        <span
-          className="text-primary cursor-pointer hover:underline"
-          onClick={() => router.push("/auth/login")}
-        >
-          Inicia sesión
-        </span>
-      </p>
+      <div className="flex justify-center gap-2 mt-6">
+        <p className="text-sm text-gray-600">¿Ya tienes una cuenta?</p>
+        <Link href="/auth/login" className="text-sm text-primary font-medium hover:underline">
+          Iniciar sesión
+        </Link>
+      </div>
     </div>
   );
 }

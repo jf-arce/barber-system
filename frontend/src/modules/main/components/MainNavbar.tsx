@@ -1,9 +1,9 @@
 "use client";
+import { LinkButton } from '@/components/LinkButton';
 import { COLORS } from '@/constants/colors';
 import { useAuthStore } from '@/modules/auth/auth.store';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Button } from 'quick-ui-components';
 import { useEffect, useState } from 'react';
 
 export const MainNavbar = () => {
@@ -45,7 +45,7 @@ export const MainNavbar = () => {
         <ul className="flex space-x-8">
           <li>
             <Link href="/" className="text-white font-semibold hover:text-primary transition-colors">
-              Home
+              Inicio
             </Link>
           </li>
           <li>
@@ -82,27 +82,19 @@ export const MainNavbar = () => {
             </div>
           ) : (
             <div className="flex flex-grow basis-0 justify-end space-x-4">
-              <Button
-                asChild
-                radius='sm'
-                colorBg={COLORS.primary}
+              <LinkButton
+                href="/auth/login"
                 variant='tertiary'
               >
-                <Link href="/auth/login">
                   Iniciar Sesión
-                </Link>
-              </Button>
-              <Button
-                asChild
-                radius='sm'
-                colorBg={COLORS.primary}
-                colorText='black'
-                variant='primary'
+              </LinkButton>
+              
+              <LinkButton
+                href="/auth/register"
+                className='!text-black'
               >
-                <Link href="/auth/register">
                   Registrarse
-                </Link>
-              </Button>
+              </LinkButton>
             </div>
           )
         }

@@ -1,8 +1,6 @@
 "use client"
-import { COLORS } from "@/constants/colors";
 import Image from "next/image";
-import Link from "next/link";
-import { Button } from "quick-ui-components";
+import { LinkButton } from "@/components/LinkButton";
 
 export const Hero = () => {
     return (
@@ -18,18 +16,12 @@ export const Hero = () => {
             <div className="flex flex-col gap-2 justify-center items-center h-full absolute top-0 w-full font-bold">
                 <h1 className="text-6xl">BarberLP</h1>
                 <h2 className="text-center text-2xl font-bold p-10">No solo cortamos pelo, creamos estilo</h2>
-                <Button
-                    asChild
-                    radius="sm"
-                    colorBg={COLORS.primary}
-                    colorText="black"
-                    pulse={false}
-                    size="md"
+                <LinkButton
+                    href="/"
+                    className="!text-black"
                 >
-                    <Link href="/">
-                        Reserva tu cita
-                    </Link>
-                </Button>
+                    Reserva tu cita
+                </LinkButton>
             </div>
         </>
     )
