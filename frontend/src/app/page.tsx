@@ -21,10 +21,9 @@ export default function Home() {
         <ServicesSection />
         <Divider />   
         <AboutSection />
-        <Divider /> 
-        <LocationSection />
       </MainContainer>
-      
+      <LocationSection />
+
       <Footer />
     </div>
   );

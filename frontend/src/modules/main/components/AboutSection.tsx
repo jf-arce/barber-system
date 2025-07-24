@@ -4,7 +4,7 @@ import Image from 'next/image';
 
 export const AboutSection = () => {
   return (
-    <section className="flex gap-10">
+    <section className="flex gap-10 mb-20">
       <div className="flex flex-col flex-1 justify-center">
         <h1 className="text-4xl font-bold mt-10">Sobre nosotros</h1>
         <p className="text-lg mt-4">
