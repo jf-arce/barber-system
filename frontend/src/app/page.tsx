@@ -1,5 +1,6 @@
 import { MainContainer } from "@/components/containers/MainContainer";
 import { Divider } from "@/components/Divider";
+import { Footer } from "@/components/layouts/Footer";
 import { AboutSection } from "@/modules/main/components/AboutSection";
 import { Hero } from "@/modules/main/components/Hero";
 import { LocationSection } from "@/modules/main/components/LocationSection";
@@ -23,12 +24,8 @@ export default function Home() {
         <Divider /> 
         <LocationSection />
       </MainContainer>
-
-      <footer className="bg-background py-10 text-center">
-        <p className="text-gray-500">© 2023 BarberLP. Todos los derechos reservados.</p>
-        <p className="text-gray-500">Desarrollado por [Tu Nombre]</p>
-        <p className="text-gray-500">Powered by Next.js</p>
-      </footer>
+      
+      <Footer />
     </div>
   );
 }
