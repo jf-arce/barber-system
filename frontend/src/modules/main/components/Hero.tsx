@@ -18,7 +18,7 @@ export const Hero = () => {
                 <h2 className="text-center text-2xl font-bold p-10">No solo cortamos pelo, creamos estilo</h2>
                 <LinkButton
                     href="/"
-                    className="!text-black"
+                    className="!text-black !px-5"
                 >
                     Reserva tu cita
                 </LinkButton>

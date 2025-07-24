@@ -16,9 +16,9 @@ export default function Home() {
       </section>
 
       <MainContainer>  
-        <AboutSection />
-        <Divider />   
         <ServicesSection />
+        <Divider />   
+        <AboutSection />
       </MainContainer>
 
       <footer className="bg-background py-10 text-center">
