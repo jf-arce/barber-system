@@ -38,7 +38,7 @@ export const MainNavbar = () => {
       <div className="container mx-auto px-4 flex justify-between items-center">
         {/* Logo */}
         <div className='flex flex-grow basis-0'>
-          <p className="text-white text-lg font-bold">BarberShop</p>
+          <Link href="/" className="text-white text-lg font-bold">BarberLP</Link>
         </div>
 
         {/* Menu */}
