@@ -48,7 +48,7 @@ export const MainNavbar = () => {
             </Link>
           </li>
           <li>
-            <Link href="/contact" className="text-white font-semibold hover:text-primary transition-colors">
+            <Link href="/client/dashboard" className="text-white font-semibold hover:text-primary transition-colors">
               Citas
             </Link>
           </li>
