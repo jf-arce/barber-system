@@ -7,7 +7,6 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 export const MainNavbar = () => {
-
   const [navbar, setNavbar] = useState(false);
   const userAuthenticated = useAuthStore((state) => state.userAuthenticated);
   const logout  = useAuthStore((state) => state.logout);

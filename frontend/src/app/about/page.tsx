@@ -17,11 +17,11 @@ export default function AboutPage() {
                 <MainContainer>
                     <section className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
                         <div className="space-y-6">
-                            <h1 className="text-5xl lg:text-6xl font-bold text-white leading-tight">
+                            <h1 className="text-5xl lg:text-6xl font-bold text-white leading-tight opacity-0 animate-fade-right animate-once animate-duration-700 animate-fill-forwards">
                                 Sobre{" "}
                                 <span className="text-primary">Nosotros</span>
                             </h1>
-                            <p className="text-xl text-gray-300 leading-relaxed">
+                            <p className="text-xl text-gray-300 leading-relaxed opacity-0 animate-fade-right animate-once animate-duration-700 animate-delay-200 animate-fill-forwards">
                                 Somos una barbería con más de 15 años de
                                 experiencia, dedicada a ofrecer los mejores
                                 servicios de corte y cuidado personal. Nuestro

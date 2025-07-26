@@ -14,14 +14,16 @@ export const Hero = () => {
             />
             <div className="bg-black absolute top-0 h-full w-full opacity-60 -z-40"></div>
             <div className="flex flex-col gap-2 justify-center items-center h-full absolute top-0 w-full font-bold">
-                <h1 className="text-6xl">BarberLP</h1>
-                <h2 className="text-center text-2xl font-bold p-10">No solo cortamos pelo, creamos estilo</h2>
-                <LinkButton
-                    href="/"
-                    className="!text-black !px-5"
-                >
-                    Reserva tu cita
-                </LinkButton>
+                <h1 className="text-6xl opacity-0 animate-fade-up animate-once animate-duration-700 animate-fill-forwards">BarberLP</h1>
+                <h2 className="text-center text-2xl font-bold p-10 opacity-0 animate-fade-up animate-once animate-duration-700 animate-delay-200 animate-fill-forwards">No solo cortamos pelo, creamos estilo</h2>
+                <div className="opacity-0 animate-fade-up animate-once animate-duration-700 animate-delay-400 animate-fill-forwards">
+                    <LinkButton
+                        href="/"
+                        className="!text-black !px-5"
+                    >
+                        Reserva tu cita
+                    </LinkButton>
+                </div>
             </div>
         </>
     )

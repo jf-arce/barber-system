@@ -1,12 +1,30 @@
 "use client";
 import { MapPin, Phone, Clock, Mail } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
 
 export const LocationSection = () => {
+    const [showCards, setShowCards] = useState(false);
+    const cardsRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        const observer = new window.IntersectionObserver(
+            (entries) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting) {
+                        setShowCards(true);
+                    }
+                });
+            },
+            { threshold: 0.2 }
+        );
+        if (cardsRef.current) observer.observe(cardsRef.current);
+        return () => observer.disconnect();
+    }, []);
+
     return (
         <section className="p-16 bg-primary">
             <div className="container mx-auto px-4">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-
                     <div className="relative h-96 lg:h-full min-h-[400px]">
                         <div className="w-full h-full bg-gray-800 rounded-lg overflow-hidden">
                             <iframe
@@ -21,11 +39,11 @@ export const LocationSection = () => {
                         </div>
                     </div>
 
-                    <div className="space-y-8">
+                    <div className="space-y-8" ref={cardsRef}>
                         <h2 className="text-4xl font-bold text-black mb-10">
                             Visitanos
                         </h2>
-                        <div className="bg-white/90 rounded-lg p-6">
+                        <div className={`bg-white/90 rounded-lg p-6 transition-all duration-700 ${showCards ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-16'}`}>
                             <div className="flex items-center mb-4">
                                 <MapPin className="w-6 h-6 text-black mr-3" />
                                 <h3 className="text-xl font-semibold text-black">Ubicación</h3>
@@ -36,7 +54,7 @@ export const LocationSection = () => {
                             </p>
                         </div>
 
-                        <div className="bg-white/90 rounded-lg p-6">
+                        <div className={`bg-white/90 rounded-lg p-6 transition-all duration-700 ${showCards ? 'opacity-100 translate-x-0 delay-200' : 'opacity-0 translate-x-16'}`}>
                             <div className="flex items-center mb-4">
                                 <Clock className="w-6 h-6 text-black mr-3" />
                                 <h3 className="text-xl font-semibold text-black">Horarios</h3>
@@ -48,7 +66,7 @@ export const LocationSection = () => {
                             </div>
                         </div>
 
-                        <div className="bg-white/90 rounded-lg p-6">
+                        <div className={`bg-white/90 rounded-lg p-6 transition-all duration-700 ${showCards ? 'opacity-100 translate-x-0 delay-400' : 'opacity-0 translate-x-16'}`}>
                             <div className="flex items-center mb-4">
                                 <Phone className="w-6 h-6 text-black mr-3" />
                                 <h3 className="text-xl font-semibold text-black">Contacto</h3>
