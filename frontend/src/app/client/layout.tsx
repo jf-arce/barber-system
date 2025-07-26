@@ -9,7 +9,7 @@ export default function ClientLayout({ children }: { children: ReactNode }) {
     return (
         <AuthClientProvider>
             <ClientNavbar />
-            <section className='bg-gradient-to-br from-background via-[#232323] to-primary/10'>
+            <section className='bg-foreground'>
                 <MainContainer>
                     {children}
                 </MainContainer>
