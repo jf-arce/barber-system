@@ -6,7 +6,7 @@ export const Hero = () => {
     return (
         <>
             <Image
-                src="/images/image-main.jpg"
+                src="/images/image-main.webp"
                 alt="Barber"
                 width={1920}
                 height={1080}

@@ -12,7 +12,7 @@ export const AboutSection = () => {
         </p>
         <div className="flex mt-10">
           <LinkButton
-            href='/'
+            href='/about'
             className='!text-black !px-5'
           >
             Conoce más        
