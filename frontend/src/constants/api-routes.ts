@@ -9,4 +9,5 @@ export const API_ROUTES = {
     },
     APPOINTMENTS: `${API_BASE_URL}/appointments`,
     SERVICES: `${API_BASE_URL}/services`,
+    BARBERS: `${API_BASE_URL}/barbers`,
 };

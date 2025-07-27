@@ -4,6 +4,8 @@ export type Appointment = {
     createdAt: string;
     status: string;
     serviceId: number;
-    userId: number;
-    barberId: number;
+    userId: string;
+    barberId: string;
 }
+
+export type NewAppointment = Omit<Appointment, 'id' | 'createdAt' | 'status'>;

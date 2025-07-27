@@ -23,7 +23,7 @@ export const DashboardHeader = () => {
                 </div>
                 <div>
                     <LinkButton
-                        href="/client/appointment"
+                        href="/client/appointment/new"
                         className="!text-black/80"
                     >
                         <Plus className="mr-2 h-5 w-5" />
