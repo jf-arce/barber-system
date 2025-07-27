@@ -8,7 +8,7 @@ public class Appointment
     [Key]
     public int Id { get; set; }
     public DateTime DateTime { get; set; }
-    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    public DateTime CreatedAt { get; set; }
     public string Status { get; set; } = AppointmentStatusEnum.Confirmed.ToString();
     public int ServiceId { get; set; }
     public Guid UserId { get; set; }

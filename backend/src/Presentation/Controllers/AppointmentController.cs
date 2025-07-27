@@ -24,7 +24,7 @@ public class AppointmentController : ControllerBase
         try
         {
             await _appointmentService.Create(createAppointmentDto);
-            return Ok("Appointment created successfully");  
+            return StatusCode(201, new { message = "Appointment created successfully" });
         }
         catch (Exception ex)
         {

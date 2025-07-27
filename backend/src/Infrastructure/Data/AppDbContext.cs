@@ -1,5 +1,6 @@
 using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Infrastructure.Data;
 
@@ -113,6 +114,9 @@ public class AppDbContext : DbContext
 
         modelBuilder.Entity<Appointment>(entity =>
         {
+            entity.Property(a => a.CreatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+            
             entity.HasOne(a => a.User)
              .WithMany(u => u.Appointments)
              .HasForeignKey(a => a.UserId)

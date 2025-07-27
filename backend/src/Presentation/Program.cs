@@ -7,6 +7,7 @@ using Scalar.AspNetCore;
 using Domain.Repositories;
 using Infrastructure.Data.Repositories;
 using Infrastructure.Auth;
+using Microsoft.Extensions.Options;
 using Presentation.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -18,8 +19,8 @@ builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 
 // BD connection
-builder.Services.AddDbContext<AppDbContext>(options => 
-    options.UseSqlite(builder.Configuration.GetConnectionString("SqliteConnection"))
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("PostgresConnection"))
 );
 
 // Dependency Injection
@@ -28,9 +29,15 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IHashingService, BcryptService>();
 builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<IBarberService, BarberService>();
+builder.Services.AddScoped<IAppointmentService, AppointmentService>();
+builder.Services.AddScoped<IServiceService, ServiceService>();
+builder.Services.AddScoped<IWorkService, WorkService>();
 
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IBarberRepository, BarberRepository>();
+builder.Services.AddScoped<IAppointmentRepository, AppointmentRepository>();
+builder.Services.AddScoped<IServiceRepository, ServiceRepository>();
+builder.Services.AddScoped<IWorkRepository, WorkRepository>();
 
 // JWT Authentication
 builder.Services.AddJwtAuthentication(builder.Configuration);

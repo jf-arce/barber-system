@@ -13,7 +13,7 @@ public class AppointmentRepository : GenericRepository<Appointment>, IAppointmen
     {
         _db = db;
     }
-
+    
     public async Task<List<Appointment>> FindAllByBarberId(Guid barberId, DateTime? startDate, DateTime? endDate, string? status)
     {
        var appointments =  await _db.Appointments
@@ -26,15 +26,16 @@ public class AppointmentRepository : GenericRepository<Appointment>, IAppointmen
        return appointments;
     }
 
-    public async Task<List<Appointment>> FindAllByUserId(Guid userId, DateTime? startDate, DateTime? endDate, string? status)
+    public async Task<List<Appointment>> FindAllByUserId(Guid userId, DateTime? startDate, DateTime? endDate,
+        string? status)
     {
-        var appointments =  await _db.Appointments
+        var appointments = await _db.Appointments
             .Where(a => a.UserId == userId)
             .Where(a => startDate == null || a.DateTime >= startDate)
             .Where(a => endDate == null || a.DateTime <= endDate)
             .Where(a => string.IsNullOrEmpty(status) || a.Status.ToString() == status)
             .ToListAsync();
 
-        return appointments; 
+        return appointments;
     }
 }
