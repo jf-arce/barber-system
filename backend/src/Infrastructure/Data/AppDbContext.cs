@@ -127,10 +127,9 @@ public class AppDbContext : DbContext
              .HasForeignKey(a => a.BarberId)
              .OnDelete(DeleteBehavior.Restrict);
 
-            entity.HasOne(a => a.Service)
-             .WithMany(s => s.Appointments)
-             .HasForeignKey(a => a.ServiceId)
-             .OnDelete(DeleteBehavior.SetNull);
+            entity
+                .HasMany(a => a.Services)
+                .WithMany(s => s.Appointments);
         });
     }
 }

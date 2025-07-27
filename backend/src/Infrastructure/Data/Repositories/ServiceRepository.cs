@@ -27,4 +27,9 @@ public class ServiceRepository : GenericRepository<Service>, IServiceRepository
             .Include(s => s.Skills)
             .FirstOrDefaultAsync(s => s.Id == (int)id);
     }
+    
+    public async Task<List<Service>> FindByMultipleIds(List<int> ids)
+    {
+        return await _db.Services.Where(s => ids.Contains(s.Id)).ToListAsync();
+    }
 }

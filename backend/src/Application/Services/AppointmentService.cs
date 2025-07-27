@@ -11,20 +11,26 @@ namespace Application.Services;
 public class AppointmentService : IAppointmentService
 {
     private readonly IAppointmentRepository _appointmentRepository;
+    private readonly IServiceRepository _serviceRepository;
 
-    public AppointmentService(IAppointmentRepository appointmentRepository)
+    public AppointmentService(IAppointmentRepository appointmentRepository, IServiceRepository serviceRepository)
     {
         _appointmentRepository = appointmentRepository;
+        _serviceRepository = serviceRepository;
     }
     
     public async Task Create(CreateAppointmentDto createAppointmentDto)
     {
+        var services = await _serviceRepository.FindByMultipleIds(createAppointmentDto.ServiceIds);
+        if (services.Count != createAppointmentDto.ServiceIds.Count)
+            throw new CustomHttpException(HttpStatusCode.BadRequest, "One or more services not found"); 
+        
         var newAppointment = new Appointment
         {
             DateTime = createAppointmentDto.DateTime,
-            ServiceId = createAppointmentDto.ServiceId,
             UserId = createAppointmentDto.UserId,
             BarberId = createAppointmentDto.BarberId,
+            Services = services,
         };
 
         await _appointmentRepository.Create(newAppointment);

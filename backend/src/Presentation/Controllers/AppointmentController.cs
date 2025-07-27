@@ -23,6 +23,7 @@ public class AppointmentController : ControllerBase
     {
         try
         {
+            Console.WriteLine(createAppointmentDto.ServiceIds);
             await _appointmentService.Create(createAppointmentDto);
             return StatusCode(201, new { message = "Appointment created successfully" });
         }
@@ -44,7 +45,8 @@ public class AppointmentController : ControllerBase
         try
         {
             var appointments = await _appointmentService.FindAllByBarberId(barberId, startDate, endDate, status);
-            return Ok(appointments);
+            var appointmentsDto = appointments.Select(appointment => GetAppointmentDto.Create(appointment)).ToList();
+            return Ok(appointmentsDto);
         }
         catch (Exception ex)
         {
@@ -64,7 +66,8 @@ public class AppointmentController : ControllerBase
         try
         {
             var appointments = await _appointmentService.FindAllByUserId(userId, startDate, endDate, status);
-            return Ok(appointments);
+            var appointmentsDto = appointments.Select(appointment => GetAppointmentDto.Create(appointment)).ToList();
+            return Ok(appointmentsDto);
         }
         catch (Exception ex)
         {
@@ -79,7 +82,8 @@ public class AppointmentController : ControllerBase
         try
         {
             var appointment = await _appointmentService.FindById(id);
-            return Ok(appointment);
+            var appointmentDto = GetAppointmentDto.Create(appointment);
+            return Ok(appointmentDto);
         }
         catch (Exception ex)
         {
