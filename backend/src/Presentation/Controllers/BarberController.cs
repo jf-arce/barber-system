@@ -41,8 +41,8 @@ public class BarberController : ControllerBase
         try
         {
             var barbers = await _barberService.FindAll();
-
             var barbersDto = barbers.Select(barber => GetBarberDto.Create(barber)).ToList();
+            
             return Ok(barbersDto);
         }
         catch (Exception ex)
@@ -59,8 +59,9 @@ public class BarberController : ControllerBase
         {
             var barber = await _barberService.FindById(id);
             if (barber == null) throw new CustomHttpException(HttpStatusCode.NotFound, "Barber not found");
-            
-            return Ok(barber);
+           
+            var barberDto = GetBarberDto.Create(barber);
+            return Ok(barberDto);
         }
         catch (Exception ex)
         {

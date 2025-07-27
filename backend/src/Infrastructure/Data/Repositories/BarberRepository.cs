@@ -17,12 +17,20 @@ public class BarberRepository : GenericRepository<Barber>, IBarberRepository
     
     public override async Task<List<Barber>> FindAll()
     {
-        return await _db.Barbers.Include(b => b.User).ToListAsync();
+        return await _db.Barbers
+            .Include(b => b.User)
+            .Include(b => b.Skills)
+            .Include(b => b.Languages)
+            .Include(b => b.SocialNetworks)
+            .ToListAsync();
     }
 
     public override async Task<Barber?> FindById(object id)
     {
         return await _db.Barbers.Include(b => b.User)
+            .Include(b => b.Skills)
+            .Include(b => b.Languages)
+            .Include(b => b.SocialNetworks)
             .FirstOrDefaultAsync(b => b.UserId == (Guid)id);
     }
 }
