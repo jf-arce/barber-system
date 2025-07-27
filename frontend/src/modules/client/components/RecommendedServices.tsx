@@ -1,17 +1,25 @@
 "use client";
 import { Button } from "@/components/Button"
+import { BarberServicesService } from "@/modules/barber-services/barber-services.service";
+import { Services } from "@/modules/barber-services/services.type";
 import { ArrowRight, Scissors } from "lucide-react"
 import Link from "next/link"
-
-const services = [
-  { id: 1, name: "Corte Clásico", description: "Corte tradicional con tijera y máquina.", price: 3500 },
-  { id: 2, name: "Corte + Barba", description: "Corte de pelo y perfilado de barba.", price: 5000 },
-  { id: 3, name: "Afeitado Premium", description: "Afeitado a navaja con toalla caliente.", price: 4000 },
-  { id: 4, name: "Coloración", description: "Coloración profesional para cabello o barba.", price: 6000 },
-  { id: 5, name: "Tratamiento Capilar", description: "Tratamiento hidratante y revitalizante.", price: 4500 },
-];
+import { useEffect, useState } from "react";
 
 export const RecommendedServices = () => {
+
+  const [services, setServices] = useState<Services[]>([]);
+
+  useEffect(() => {
+    const fetchServices = async () => {
+      const response = await BarberServicesService.getAll();
+  
+      setServices(response);
+    };
+
+    fetchServices();
+  }, []);
+
   return (
     <section>
       <div className="flex items-center justify-between mb-6">
