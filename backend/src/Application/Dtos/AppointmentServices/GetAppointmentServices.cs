@@ -1,4 +1,4 @@
-using Application.Dtos.Barbers;
+using Application.Dtos.Appointments;
 using Application.Dtos.Services;
 
 namespace Application.Dtos.AppointmentServices;
@@ -6,5 +6,5 @@ namespace Application.Dtos.AppointmentServices;
 public class GetAppointmentServices
 {
     public GetServiceDto Service { get; set; }
-    public GetBarberDto Barber { get; set; } 
+    public GetBarberAppointmentDto Barber { get; set; }
 }

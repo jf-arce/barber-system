@@ -11,7 +11,7 @@ public class GetAppointmentDto
     public DateTime DateTime { get; set; }
     public DateTime CreatedAt { get; set; }
     public string Status { get; set; } = null!;
-    public Guid UserId { get; set; }
+    public GetUserAppointmentDto User { get; set; }
     public List<GetAppointmentServices> Services { get; set; } = [];
 
     
@@ -24,7 +24,12 @@ public class GetAppointmentDto
             DateTime = appointment.DateTime,
             CreatedAt = TimeZoneInfo.ConvertTimeFromUtc(appointment.CreatedAt, timeZone),
             Status = appointment.Status,
-            UserId = appointment.UserId,
+            User = new GetUserAppointmentDto
+            {
+                Id = appointment.UserId,
+                Name = appointment.User?.Name ?? string.Empty,
+                Surname = appointment.User?.Surname ?? string.Empty,
+            },
             Services = appointment.AppointmentServices?.Select(aserv => new GetAppointmentServices
             {
                 Service = new GetServiceDto
@@ -34,12 +39,13 @@ public class GetAppointmentDto
                     Price = aserv.Service.Price,
                     Duration = aserv.Service.Duration
                 },
-                Barber = new GetBarberDto
+                Barber = new GetBarberAppointmentDto
                 {
+                    Id = aserv.BarberId,
                     Name = aserv.Barber.User.Name,
                     Surname = aserv.Barber.User.Surname
                 }
-            }).ToList() ?? new List<GetAppointmentServices>(),
+            }).ToList() ?? [],
         };
     }
 }

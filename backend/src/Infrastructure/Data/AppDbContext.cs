@@ -116,7 +116,7 @@ public class AppDbContext : DbContext
 
         modelBuilder.Entity<AppointmentServices>(entity =>
         {
-            entity.HasKey(x => new { x.AppointmentId, x.ServiceId });
+            entity.HasKey(x => new { x.AppointmentId, x.ServiceId, x.BarberId });
             
             entity
                 .HasOne(a => a.Appointment)
