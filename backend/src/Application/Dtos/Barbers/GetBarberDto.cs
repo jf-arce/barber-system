@@ -1,15 +1,14 @@
 using Application.Dtos.Lenguages;
-using Application.Dtos.Skills;
+using Application.Dtos.Services;
 using Application.Dtos.SocialNetworks;
 using Application.Dtos.Users;
-using Domain.Entities;
 
 namespace Application.Dtos.Barbers;
 
 public class GetBarberDto : GetUserDto
 {
     public string? Bio { get; set; } = string.Empty;
-    public List<GetSkillDto> Skills { get; set; } = new();
+    public List<GetServiceDto> Services { get; set; } = new();
     public List<GetLenguageDto> Languages { get; set; } = new();
     public List<GetSocialNetworkDto> SocialNetworks { get; set; } = new();
     
@@ -27,12 +26,11 @@ public class GetBarberDto : GetUserDto
             CreatedAt = barber.User.CreatedAt,
             Role = barber.User.Role,
             Bio = barber.Bio,
-            Skills = barber.Skills?.Select(skill => new GetSkillDto
+            Services = barber.Services?.Select(service => new GetServiceDto
             {
-                Id = skill.Id,
-                Name = skill.Name,
-                Description = skill.Description
-            }).ToList() ?? new List<GetSkillDto>(),
+                Name = service.Name,
+                Description = service.Description
+            }).ToList() ?? new List<GetServiceDto>(),
             Languages = barber.Languages?.Select(language => new GetLenguageDto
             {
                 Name = language.Name

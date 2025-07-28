@@ -12,28 +12,44 @@ public class AppointmentService : IAppointmentService
 {
     private readonly IAppointmentRepository _appointmentRepository;
     private readonly IServiceRepository _serviceRepository;
+    private readonly IAppointmentServicesRepository _appointmentServiceRepository;
 
-    public AppointmentService(IAppointmentRepository appointmentRepository, IServiceRepository serviceRepository)
+    public AppointmentService(
+        IAppointmentRepository appointmentRepository, 
+        IServiceRepository serviceRepository,
+        IAppointmentServicesRepository appointmentServicesRepository)
     {
         _appointmentRepository = appointmentRepository;
         _serviceRepository = serviceRepository;
+        _appointmentServiceRepository = appointmentServicesRepository;
     }
     
     public async Task Create(CreateAppointmentDto createAppointmentDto)
     {
-        var services = await _serviceRepository.FindByMultipleIds(createAppointmentDto.ServiceIds);
-        if (services.Count != createAppointmentDto.ServiceIds.Count)
+        var services = await _serviceRepository
+            .FindByMultipleIds(createAppointmentDto.Services
+                .Select(s => s.ServiceId).ToList());
+
+        if (services.Count != createAppointmentDto.Services.Count)
             throw new CustomHttpException(HttpStatusCode.BadRequest, "One or more services not found"); 
-        
+
         var newAppointment = new Appointment
         {
             DateTime = createAppointmentDto.DateTime,
-            UserId = createAppointmentDto.UserId,
-            BarberId = createAppointmentDto.BarberId,
-            Services = services,
+            UserId = createAppointmentDto.UserId
         };
-
+        
         await _appointmentRepository.Create(newAppointment);
+        
+        var appointmentServices = createAppointmentDto.Services
+            .Select(serv => new AppointmentServices
+            {
+                AppointmentId = newAppointment.Id,
+                ServiceId = serv.ServiceId,
+                BarberId = serv.BarberId
+            }).ToList();
+        
+        await _appointmentServiceRepository.AddRange(appointmentServices);
     }
 
     public async Task<List<Appointment>> FindAllByBarberId(Guid barberId, DateTime? startDate, DateTime? endDate, string? status)

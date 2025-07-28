@@ -42,6 +42,7 @@ builder.Services.AddScoped<IBarberRepository, BarberRepository>();
 builder.Services.AddScoped<IAppointmentRepository, AppointmentRepository>();
 builder.Services.AddScoped<IServiceRepository, ServiceRepository>();
 builder.Services.AddScoped<IWorkRepository, WorkRepository>();
+builder.Services.AddScoped<IAppointmentServicesRepository, AppointmentServicesRepository>();
 
 // JWT Authentication
 builder.Services.AddJwtAuthentication(builder.Configuration);

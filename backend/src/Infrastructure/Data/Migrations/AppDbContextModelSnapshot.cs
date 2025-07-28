@@ -22,21 +22,6 @@ namespace Infrastructure.Data.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("AppointmentService", b =>
-                {
-                    b.Property<int>("AppointmentsId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("ServicesId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("AppointmentsId", "ServicesId");
-
-                    b.HasIndex("ServicesId");
-
-                    b.ToTable("AppointmentService");
-                });
-
             modelBuilder.Entity("BarberLanguage", b =>
                 {
                     b.Property<Guid>("BarbersUserId")
@@ -52,19 +37,19 @@ namespace Infrastructure.Data.Migrations
                     b.ToTable("BarberLanguage");
                 });
 
-            modelBuilder.Entity("BarberSkill", b =>
+            modelBuilder.Entity("BarberService", b =>
                 {
                     b.Property<Guid>("BarbersUserId")
                         .HasColumnType("uuid");
 
-                    b.Property<int>("SkillsId")
+                    b.Property<int>("ServicesId")
                         .HasColumnType("integer");
 
-                    b.HasKey("BarbersUserId", "SkillsId");
+                    b.HasKey("BarbersUserId", "ServicesId");
 
-                    b.HasIndex("SkillsId");
+                    b.HasIndex("ServicesId");
 
-                    b.ToTable("BarberSkill");
+                    b.ToTable("BarberService");
                 });
 
             modelBuilder.Entity("BarberSocialNetwork", b =>
@@ -90,9 +75,6 @@ namespace Infrastructure.Data.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<Guid>("BarberId")
-                        .HasColumnType("uuid");
-
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("timestamp with time zone")
@@ -110,11 +92,29 @@ namespace Infrastructure.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("BarberId");
-
                     b.HasIndex("UserId");
 
                     b.ToTable("Appointments");
+                });
+
+            modelBuilder.Entity("Domain.Entities.AppointmentServices", b =>
+                {
+                    b.Property<int>("AppointmentId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("ServiceId")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("BarberId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("AppointmentId", "ServiceId");
+
+                    b.HasIndex("BarberId");
+
+                    b.HasIndex("ServiceId");
+
+                    b.ToTable("AppointmentServices");
                 });
 
             modelBuilder.Entity("Domain.Entities.Barber", b =>
@@ -212,27 +212,6 @@ namespace Infrastructure.Data.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Services");
-                });
-
-            modelBuilder.Entity("Domain.Entities.Skill", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Description")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Skills");
                 });
 
             modelBuilder.Entity("Domain.Entities.SocialNetwork", b =>
@@ -348,36 +327,6 @@ namespace Infrastructure.Data.Migrations
                     b.ToTable("Works");
                 });
 
-            modelBuilder.Entity("ServiceSkill", b =>
-                {
-                    b.Property<int>("ServicesId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("SkillsId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("ServicesId", "SkillsId");
-
-                    b.HasIndex("SkillsId");
-
-                    b.ToTable("ServiceSkill");
-                });
-
-            modelBuilder.Entity("AppointmentService", b =>
-                {
-                    b.HasOne("Domain.Entities.Appointment", null)
-                        .WithMany()
-                        .HasForeignKey("AppointmentsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Domain.Entities.Service", null)
-                        .WithMany()
-                        .HasForeignKey("ServicesId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("BarberLanguage", b =>
                 {
                     b.HasOne("Domain.Entities.Barber", null)
@@ -393,7 +342,7 @@ namespace Infrastructure.Data.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("BarberSkill", b =>
+            modelBuilder.Entity("BarberService", b =>
                 {
                     b.HasOne("Domain.Entities.Barber", null)
                         .WithMany()
@@ -401,9 +350,9 @@ namespace Infrastructure.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Domain.Entities.Skill", null)
+                    b.HasOne("Domain.Entities.Service", null)
                         .WithMany()
-                        .HasForeignKey("SkillsId")
+                        .HasForeignKey("ServicesId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
@@ -425,21 +374,40 @@ namespace Infrastructure.Data.Migrations
 
             modelBuilder.Entity("Domain.Entities.Appointment", b =>
                 {
-                    b.HasOne("Domain.Entities.Barber", "Barber")
-                        .WithMany("Appointments")
-                        .HasForeignKey("BarberId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
                     b.HasOne("Domain.Entities.User", "User")
                         .WithMany("Appointments")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Domain.Entities.AppointmentServices", b =>
+                {
+                    b.HasOne("Domain.Entities.Appointment", "Appointment")
+                        .WithMany("AppointmentServices")
+                        .HasForeignKey("AppointmentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.Barber", "Barber")
+                        .WithMany("AppointmentServices")
+                        .HasForeignKey("BarberId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.Service", "Service")
+                        .WithMany("AppointmentServices")
+                        .HasForeignKey("ServiceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Appointment");
+
                     b.Navigation("Barber");
 
-                    b.Navigation("User");
+                    b.Navigation("Service");
                 });
 
             modelBuilder.Entity("Domain.Entities.Barber", b =>
@@ -483,28 +451,23 @@ namespace Infrastructure.Data.Migrations
                     b.Navigation("Barber");
                 });
 
-            modelBuilder.Entity("ServiceSkill", b =>
+            modelBuilder.Entity("Domain.Entities.Appointment", b =>
                 {
-                    b.HasOne("Domain.Entities.Service", null)
-                        .WithMany()
-                        .HasForeignKey("ServicesId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Domain.Entities.Skill", null)
-                        .WithMany()
-                        .HasForeignKey("SkillsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.Navigation("AppointmentServices");
                 });
 
             modelBuilder.Entity("Domain.Entities.Barber", b =>
                 {
-                    b.Navigation("Appointments");
+                    b.Navigation("AppointmentServices");
 
                     b.Navigation("Reviews");
 
                     b.Navigation("Works");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Service", b =>
+                {
+                    b.Navigation("AppointmentServices");
                 });
 
             modelBuilder.Entity("Domain.Entities.User", b =>

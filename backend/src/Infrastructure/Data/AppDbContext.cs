@@ -14,11 +14,11 @@ public class AppDbContext : DbContext
     public DbSet<Barber> Barbers { get; set; }
     public DbSet<Appointment> Appointments { get; set; }
     public DbSet<Review> Reviews { get; set; }
-    public DbSet<Skill> Skills { get; set; }
     public DbSet<Language> Languages { get; set; }
     public DbSet<Service> Services { get; set; }
     public DbSet<SocialNetwork> SocialNetworks { get; set; }
     public DbSet<Work> Works { get; set; }
+    public DbSet<AppointmentServices> AppointmentServices { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -50,10 +50,6 @@ public class AppDbContext : DbContext
                 .HasOne(b => b.User)
                 .WithOne(u => u.Barber)
                 .HasForeignKey<Barber>(b => b.UserId);
-            
-            entity
-                .HasMany(b => b.Skills)
-                .WithMany(s => s.Barbers);
 
             entity
                 .HasMany(b => b.Languages)
@@ -62,11 +58,6 @@ public class AppDbContext : DbContext
             entity
                 .HasMany(b => b.SocialNetworks)
                 .WithMany(sn => sn.Barbers);
-        });
-
-        modelBuilder.Entity<Skill>(entity =>
-        {
-            entity.Property(s => s.Name).HasMaxLength(50);
         });
 
         modelBuilder.Entity<Service>(entity =>
@@ -121,15 +112,26 @@ public class AppDbContext : DbContext
              .WithMany(u => u.Appointments)
              .HasForeignKey(a => a.UserId)
              .OnDelete(DeleteBehavior.Cascade);
+        });
 
-            entity.HasOne(a => a.Barber)
-             .WithMany(b => b.Appointments)
-             .HasForeignKey(a => a.BarberId)
-             .OnDelete(DeleteBehavior.Restrict);
-
+        modelBuilder.Entity<AppointmentServices>(entity =>
+        {
+            entity.HasKey(x => new { x.AppointmentId, x.ServiceId });
+            
             entity
-                .HasMany(a => a.Services)
-                .WithMany(s => s.Appointments);
+                .HasOne(a => a.Appointment)
+                .WithMany(a => a.AppointmentServices)
+                .OnDelete(DeleteBehavior.Cascade);
+            
+            entity
+                .HasOne(a => a.Service)
+                .WithMany(s => s.AppointmentServices)
+                .OnDelete(DeleteBehavior.Cascade);
+            
+            entity
+                .HasOne(a => a.Barber)
+                .WithMany(b => b.AppointmentServices)
+                .OnDelete(DeleteBehavior.Cascade);
         });
     }
 }

@@ -17,8 +17,7 @@ public class AppointmentRepository : GenericRepository<Appointment>, IAppointmen
     public async Task<List<Appointment>> FindAllByBarberId(Guid barberId, DateTime? startDate, DateTime? endDate, string? status)
     {
        var appointments =  await _db.Appointments
-           .Include(a => a.Services)
-           .Where(a => a.BarberId == barberId)
+           .Include(a => a.AppointmentServices)
            .Where(a => startDate == null || a.DateTime >= startDate)
            .Where(a => endDate == null || a.DateTime <= endDate)
            .Where(a => string.IsNullOrEmpty(status) || a.Status.ToString() == status)
@@ -31,7 +30,7 @@ public class AppointmentRepository : GenericRepository<Appointment>, IAppointmen
         string? status)
     {
         var appointments = await _db.Appointments
-            .Include(a => a.Services)
+            .Include(a => a.AppointmentServices)
             .Where(a => a.UserId == userId)
             .Where(a => startDate == null || a.DateTime >= startDate)
             .Where(a => endDate == null || a.DateTime <= endDate)

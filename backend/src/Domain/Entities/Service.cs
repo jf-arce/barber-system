@@ -11,6 +11,6 @@ public class Service
     public float Price { get; set; }
     public int Duration { get; set; } // Duration in hours
     
-    public virtual List<Skill> Skills { get; set; } = [];
-    public virtual List<Appointment>? Appointments { get; set; } = [];
+    public virtual List<Barber> Barbers { get; set; } = [];
+    public virtual List<AppointmentServices> AppointmentServices { get; set; } = [];
 }

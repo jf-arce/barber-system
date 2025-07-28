@@ -19,7 +19,7 @@ public class BarberRepository : GenericRepository<Barber>, IBarberRepository
     {
         return await _db.Barbers
             .Include(b => b.User)
-            .Include(b => b.Skills)
+            .Include(b => b.Services)
             .Include(b => b.Languages)
             .Include(b => b.SocialNetworks)
             .ToListAsync();
@@ -28,7 +28,7 @@ public class BarberRepository : GenericRepository<Barber>, IBarberRepository
     public override async Task<Barber?> FindById(object id)
     {
         return await _db.Barbers.Include(b => b.User)
-            .Include(b => b.Skills)
+            .Include(b => b.Services)
             .Include(b => b.Languages)
             .Include(b => b.SocialNetworks)
             .FirstOrDefaultAsync(b => b.UserId == (Guid)id);

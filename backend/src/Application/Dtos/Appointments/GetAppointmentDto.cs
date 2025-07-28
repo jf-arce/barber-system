@@ -1,3 +1,5 @@
+using Application.Dtos.AppointmentServices;
+using Application.Dtos.Barbers;
 using Application.Dtos.Services;
 using Domain.Entities;
 
@@ -10,8 +12,7 @@ public class GetAppointmentDto
     public DateTime CreatedAt { get; set; }
     public string Status { get; set; } = null!;
     public Guid UserId { get; set; }
-    public Guid BarberId { get; set; }
-    public List<GetServiceDto> Services { get; set; } = [];
+    public List<GetAppointmentServices> Services { get; set; } = [];
 
     
     public static GetAppointmentDto Create(Appointment appointment)
@@ -23,15 +24,22 @@ public class GetAppointmentDto
             DateTime = appointment.DateTime,
             CreatedAt = TimeZoneInfo.ConvertTimeFromUtc(appointment.CreatedAt, timeZone),
             Status = appointment.Status,
-            Services = appointment.Services?.Select(service => new GetServiceDto
-            {
-                Name = service.Name,
-                Description = service.Description,
-                Price = service.Price,
-                Duration = service.Duration
-            }).ToList() ?? new List<GetServiceDto>(),
             UserId = appointment.UserId,
-            BarberId = appointment.BarberId
+            Services = appointment.AppointmentServices?.Select(aserv => new GetAppointmentServices
+            {
+                Service = new GetServiceDto
+                {
+                    Name = aserv.Service.Name,
+                    Description = aserv.Service.Description,
+                    Price = aserv.Service.Price,
+                    Duration = aserv.Service.Duration
+                },
+                Barber = new GetBarberDto
+                {
+                    Name = aserv.Barber.User.Name,
+                    Surname = aserv.Barber.User.Surname
+                }
+            }).ToList() ?? new List<GetAppointmentServices>(),
         };
     }
 }

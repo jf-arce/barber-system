@@ -62,10 +62,10 @@ public class ServiceService : IServiceService
         var service = await _serviceRepository.FindById(id);
         if (service == null) throw new CustomHttpException(HttpStatusCode.NotFound, "Service not found");
         
-        if (service.Appointments != null && service.Appointments.Count > 0)
+        if (service.AppointmentServices != null && service.AppointmentServices.Count > 0)
             throw new CustomHttpException(HttpStatusCode.BadRequest, "Service has appointments");
 
-        if (service.Skills != null && service.Skills.Count > 0)
+        if (service.Barbers != null && service.Barbers.Count > 0)
             throw new CustomHttpException(HttpStatusCode.BadRequest, "Service has skills");
         
         await _serviceRepository.Delete(service);

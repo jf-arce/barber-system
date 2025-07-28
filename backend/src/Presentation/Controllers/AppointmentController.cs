@@ -23,7 +23,6 @@ public class AppointmentController : ControllerBase
     {
         try
         {
-            Console.WriteLine(createAppointmentDto.ServiceIds);
             await _appointmentService.Create(createAppointmentDto);
             return StatusCode(201, new { message = "Appointment created successfully" });
         }

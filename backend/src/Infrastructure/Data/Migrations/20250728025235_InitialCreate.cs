@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Infrastructure.Data.Migrations
 {
     /// <inheritdoc />
-    public partial class FirstMigration : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -39,20 +39,6 @@ namespace Infrastructure.Data.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Services", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Skills",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Name = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
-                    Description = table.Column<string>(type: "text", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Skills", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -92,25 +78,23 @@ namespace Infrastructure.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "ServiceSkill",
+                name: "Appointments",
                 columns: table => new
                 {
-                    ServicesId = table.Column<int>(type: "integer", nullable: false),
-                    SkillsId = table.Column<int>(type: "integer", nullable: false)
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    DateTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP"),
+                    Status = table.Column<string>(type: "text", nullable: false),
+                    UserId = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ServiceSkill", x => new { x.ServicesId, x.SkillsId });
+                    table.PrimaryKey("PK_Appointments", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_ServiceSkill_Services_ServicesId",
-                        column: x => x.ServicesId,
-                        principalTable: "Services",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_ServiceSkill_Skills_SkillsId",
-                        column: x => x.SkillsId,
-                        principalTable: "Skills",
+                        name: "FK_Appointments_Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -134,37 +118,32 @@ namespace Infrastructure.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Appointments",
+                name: "AppointmentServices",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    DateTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP"),
-                    Status = table.Column<string>(type: "text", nullable: false),
+                    AppointmentId = table.Column<int>(type: "integer", nullable: false),
                     ServiceId = table.Column<int>(type: "integer", nullable: false),
-                    UserId = table.Column<Guid>(type: "uuid", nullable: false),
                     BarberId = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Appointments", x => x.Id);
+                    table.PrimaryKey("PK_AppointmentServices", x => new { x.AppointmentId, x.ServiceId });
                     table.ForeignKey(
-                        name: "FK_Appointments_Barbers_BarberId",
+                        name: "FK_AppointmentServices_Appointments_AppointmentId",
+                        column: x => x.AppointmentId,
+                        principalTable: "Appointments",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_AppointmentServices_Barbers_BarberId",
                         column: x => x.BarberId,
                         principalTable: "Barbers",
                         principalColumn: "UserId",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_Appointments_Services_ServiceId",
+                        name: "FK_AppointmentServices_Services_ServiceId",
                         column: x => x.ServiceId,
                         principalTable: "Services",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.SetNull);
-                    table.ForeignKey(
-                        name: "FK_Appointments_Users_UserId",
-                        column: x => x.UserId,
-                        principalTable: "Users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -194,25 +173,25 @@ namespace Infrastructure.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "BarberSkill",
+                name: "BarberService",
                 columns: table => new
                 {
                     BarbersUserId = table.Column<Guid>(type: "uuid", nullable: false),
-                    SkillsId = table.Column<int>(type: "integer", nullable: false)
+                    ServicesId = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_BarberSkill", x => new { x.BarbersUserId, x.SkillsId });
+                    table.PrimaryKey("PK_BarberService", x => new { x.BarbersUserId, x.ServicesId });
                     table.ForeignKey(
-                        name: "FK_BarberSkill_Barbers_BarbersUserId",
+                        name: "FK_BarberService_Barbers_BarbersUserId",
                         column: x => x.BarbersUserId,
                         principalTable: "Barbers",
                         principalColumn: "UserId",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_BarberSkill_Skills_SkillsId",
-                        column: x => x.SkillsId,
-                        principalTable: "Skills",
+                        name: "FK_BarberService_Services_ServicesId",
+                        column: x => x.ServicesId,
+                        principalTable: "Services",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -293,19 +272,19 @@ namespace Infrastructure.Data.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Appointments_BarberId",
-                table: "Appointments",
-                column: "BarberId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Appointments_ServiceId",
-                table: "Appointments",
-                column: "ServiceId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Appointments_UserId",
                 table: "Appointments",
                 column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AppointmentServices_BarberId",
+                table: "AppointmentServices",
+                column: "BarberId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AppointmentServices_ServiceId",
+                table: "AppointmentServices",
+                column: "ServiceId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_BarberLanguage_LanguagesId",
@@ -313,9 +292,9 @@ namespace Infrastructure.Data.Migrations
                 column: "LanguagesId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_BarberSkill_SkillsId",
-                table: "BarberSkill",
-                column: "SkillsId");
+                name: "IX_BarberService_ServicesId",
+                table: "BarberService",
+                column: "ServicesId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_BarberSocialNetwork_SocialNetworksId",
@@ -333,11 +312,6 @@ namespace Infrastructure.Data.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ServiceSkill_SkillsId",
-                table: "ServiceSkill",
-                column: "SkillsId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Works_BarberId",
                 table: "Works",
                 column: "BarberId");
@@ -347,13 +321,13 @@ namespace Infrastructure.Data.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "Appointments");
+                name: "AppointmentServices");
 
             migrationBuilder.DropTable(
                 name: "BarberLanguage");
 
             migrationBuilder.DropTable(
-                name: "BarberSkill");
+                name: "BarberService");
 
             migrationBuilder.DropTable(
                 name: "BarberSocialNetwork");
@@ -362,22 +336,19 @@ namespace Infrastructure.Data.Migrations
                 name: "Reviews");
 
             migrationBuilder.DropTable(
-                name: "ServiceSkill");
+                name: "Works");
 
             migrationBuilder.DropTable(
-                name: "Works");
+                name: "Appointments");
 
             migrationBuilder.DropTable(
                 name: "Languages");
 
             migrationBuilder.DropTable(
-                name: "SocialNetworks");
-
-            migrationBuilder.DropTable(
                 name: "Services");
 
             migrationBuilder.DropTable(
-                name: "Skills");
+                name: "SocialNetworks");
 
             migrationBuilder.DropTable(
                 name: "Barbers");
