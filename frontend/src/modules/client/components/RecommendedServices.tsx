@@ -1,14 +1,14 @@
 "use client";
 import { Button } from "@/components/Button"
 import { BarberServicesService } from "@/modules/barber-services/barber-services.service";
-import { Services } from "@/modules/barber-services/services.type";
+import { Service } from "@/modules/barber-services/services.type";
 import { ArrowRight, Scissors } from "lucide-react"
 import Link from "next/link"
 import { useEffect, useState } from "react";
 
 export const RecommendedServices = () => {
 
-  const [services, setServices] = useState<Services[]>([]);
+  const [services, setServices] = useState<Service[]>([]);
 
   useEffect(() => {
     const fetchServices = async () => {

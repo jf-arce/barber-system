@@ -1,12 +1,12 @@
 import axios from 'axios';
-import { NewAppointment } from './appointments.type';
+import { CreateAppointment } from './appointments.type';
 import { API_ROUTES } from '@/constants/api-routes';
 
 export class AppointmentsService {
 
-    static async create(newAppointment: NewAppointment) {
+    static async create(createAppointment: CreateAppointment) {
         try {
-            const response = await axios.post<NewAppointment>(API_ROUTES.APPOINTMENTS, newAppointment, {
+            const response = await axios.post<CreateAppointment>(API_ROUTES.APPOINTMENTS, createAppointment, {
                 withCredentials: true
             });
             if (response.status !== 201 ){

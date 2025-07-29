@@ -1,12 +1,12 @@
 import axios from 'axios';
-import { Services } from './services.type';
+import { Service } from './services.type';
 import { API_ROUTES } from '@/constants/api-routes';
 
 export class BarberServicesService {
-    
-    static async getAll(): Promise<Services[]> {
+
+    static async getAll(): Promise<Service[]> {
         try {
-            const response = await axios.get<Services[]>(API_ROUTES.SERVICES, {
+            const response = await axios.get<Service[]>(API_ROUTES.SERVICES, {
                 withCredentials: true
             });
             if (response.status !== 200) {
