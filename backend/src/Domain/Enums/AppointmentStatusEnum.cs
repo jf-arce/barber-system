@@ -2,7 +2,7 @@ namespace Domain.Enums;
 
 public enum AppointmentStatusEnum
 {
-    Confirmed,
-    Cancelled,
-    Completed
+    Confirmado = 1,
+    Cancelado = 2,
+    Completado = 3
 }

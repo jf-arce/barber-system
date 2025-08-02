@@ -9,6 +9,7 @@ public class Review
     public int Rating { get; set; } = 0; // 0-5
     public string Comment { get; set; } = string.Empty;
     public DateTime CreatedAt { get; set; }
+    public DateTime UpdatedAt { get; set; }
     public Guid UserId { get; set; }
     public Guid BarberId { get; set; }
     

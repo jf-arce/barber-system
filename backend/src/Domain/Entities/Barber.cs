@@ -13,4 +13,5 @@ public class Barber
 
     public virtual List<Service> Services { get; set; } = [];
     public virtual List<AppointmentServices> AppointmentServices { get; set; } = [];
+    public virtual List<BarberWorkSchedule> BarberWorkSchedules { get; set; } = [];
 }

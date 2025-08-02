@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Infrastructure.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250728214142_UpdateAppointmentUserRelation")]
-    partial class UpdateAppointmentUserRelation
+    [Migration("20250802075047_InitialCreate1")]
+    partial class InitialCreate1
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -55,21 +55,6 @@ namespace Infrastructure.Data.Migrations
                     b.ToTable("BarberService");
                 });
 
-            modelBuilder.Entity("BarberSocialNetwork", b =>
-                {
-                    b.Property<Guid>("BarbersUserId")
-                        .HasColumnType("uuid");
-
-                    b.Property<int>("SocialNetworksId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("BarbersUserId", "SocialNetworksId");
-
-                    b.HasIndex("SocialNetworksId");
-
-                    b.ToTable("BarberSocialNetwork");
-                });
-
             modelBuilder.Entity("Domain.Entities.Appointment", b =>
                 {
                     b.Property<int>("Id")
@@ -88,7 +73,13 @@ namespace Infrastructure.Data.Migrations
 
                     b.Property<string>("Status")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("timestamp with time zone")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
                     b.Property<Guid>("UserId")
                         .HasColumnType("uuid");
@@ -120,6 +111,44 @@ namespace Infrastructure.Data.Migrations
                     b.ToTable("AppointmentServices");
                 });
 
+            modelBuilder.Entity("Domain.Entities.AppointmentStatus", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.ToTable("AppointmentsStatus");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Name = "Confirmado"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Name = "Cancelado"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Name = "Completado"
+                        });
+                });
+
             modelBuilder.Entity("Domain.Entities.Barber", b =>
                 {
                     b.Property<Guid>("UserId")
@@ -131,6 +160,35 @@ namespace Infrastructure.Data.Migrations
                     b.HasKey("UserId");
 
                     b.ToTable("Barbers");
+                });
+
+            modelBuilder.Entity("Domain.Entities.BarberWorkSchedule", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<Guid>("BarberId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("DayOfWeek")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)");
+
+                    b.Property<TimeSpan>("EndTime")
+                        .HasColumnType("interval");
+
+                    b.Property<TimeSpan>("StartTime")
+                        .HasColumnType("interval");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BarberId");
+
+                    b.ToTable("BarberWorkSchedules");
                 });
 
             modelBuilder.Entity("Domain.Entities.Language", b =>
@@ -173,6 +231,11 @@ namespace Infrastructure.Data.Migrations
 
                     b.Property<int>("Rating")
                         .HasColumnType("integer");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("timestamp with time zone")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
                     b.Property<Guid>("UserId")
                         .HasColumnType("uuid");
@@ -225,6 +288,9 @@ namespace Infrastructure.Data.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<Guid>("BarberId")
+                        .HasColumnType("uuid");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -236,7 +302,67 @@ namespace Infrastructure.Data.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("BarberId");
+
                     b.ToTable("SocialNetworks");
+                });
+
+            modelBuilder.Entity("Domain.Entities.SocialNetworkName", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.ToTable("SocialNetworkNames");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Name = "Facebook"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Name = "Instagram"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Name = "Twitter"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Name = "TikTok"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Name = "YouTube"
+                        },
+                        new
+                        {
+                            Id = 6,
+                            Name = "LinkedIn"
+                        },
+                        new
+                        {
+                            Id = 7,
+                            Name = "Pinterest"
+                        });
                 });
 
             modelBuilder.Entity("Domain.Entities.User", b =>
@@ -263,6 +389,9 @@ namespace Infrastructure.Data.Migrations
                         .HasMaxLength(10)
                         .HasColumnType("character varying(10)");
 
+                    b.Property<string>("Image")
+                        .HasColumnType("text");
+
                     b.Property<bool>("IsDeleted")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("boolean")
@@ -279,7 +408,8 @@ namespace Infrastructure.Data.Migrations
                         .HasColumnType("character varying(255)");
 
                     b.Property<string>("Phone")
-                        .HasColumnType("text");
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
 
                     b.Property<string>("Role")
                         .IsRequired()
@@ -298,7 +428,86 @@ namespace Infrastructure.Data.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("Email")
+                        .IsUnique();
+
                     b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("Domain.Entities.UserGender", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.ToTable("UserGenders");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Name = "Hombre"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Name = "Mujer"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Name = "Otro"
+                        });
+                });
+
+            modelBuilder.Entity("Domain.Entities.UserRole", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.ToTable("UserRoles");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Name = "User"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Name = "Barber"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Name = "Admin"
+                        });
                 });
 
             modelBuilder.Entity("Domain.Entities.Work", b =>
@@ -360,21 +569,6 @@ namespace Infrastructure.Data.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("BarberSocialNetwork", b =>
-                {
-                    b.HasOne("Domain.Entities.Barber", null)
-                        .WithMany()
-                        .HasForeignKey("BarbersUserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Domain.Entities.SocialNetwork", null)
-                        .WithMany()
-                        .HasForeignKey("SocialNetworksId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("Domain.Entities.Appointment", b =>
                 {
                     b.HasOne("Domain.Entities.User", "User")
@@ -424,6 +618,17 @@ namespace Infrastructure.Data.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("Domain.Entities.BarberWorkSchedule", b =>
+                {
+                    b.HasOne("Domain.Entities.Barber", "Barber")
+                        .WithMany("BarberWorkSchedules")
+                        .HasForeignKey("BarberId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Barber");
+                });
+
             modelBuilder.Entity("Domain.Entities.Review", b =>
                 {
                     b.HasOne("Domain.Entities.Barber", "Barber")
@@ -441,6 +646,17 @@ namespace Infrastructure.Data.Migrations
                     b.Navigation("Barber");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Domain.Entities.SocialNetwork", b =>
+                {
+                    b.HasOne("Domain.Entities.Barber", "Barber")
+                        .WithMany("SocialNetworks")
+                        .HasForeignKey("BarberId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Barber");
                 });
 
             modelBuilder.Entity("Domain.Entities.Work", b =>
@@ -463,7 +679,11 @@ namespace Infrastructure.Data.Migrations
                 {
                     b.Navigation("AppointmentServices");
 
+                    b.Navigation("BarberWorkSchedules");
+
                     b.Navigation("Reviews");
+
+                    b.Navigation("SocialNetworks");
 
                     b.Navigation("Works");
                 });

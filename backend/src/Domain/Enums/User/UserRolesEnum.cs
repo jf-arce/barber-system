@@ -2,7 +2,7 @@ namespace Domain.Enums.User;
 
 public enum UserRolesEnum
 {
-    User,
-    Barber,
-    Admin
+    User = 1,
+    Barber = 2,
+    Admin = 3
 }

@@ -2,11 +2,11 @@ namespace Domain.Enums;
 
 public enum SocialNetworkEnum
 {
-    Facebook,
-    Instagram,
-    Twitter,
-    TikTok,
-    YouTube,
-    LinkedIn,
-    Pinterest,
+    Facebook = 1,
+    Instagram = 2,
+    Twitter = 3,
+    TikTok = 4,
+    YouTube = 5,
+    LinkedIn = 6,
+    Pinterest = 7,
 }

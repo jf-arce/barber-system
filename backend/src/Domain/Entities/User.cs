@@ -12,9 +12,10 @@ public class User
     public string Password { get; set; } = string.Empty;
     public string Gender { get; set; } = string.Empty;
     public string Role { get; set; } = string.Empty;
-    public string? Phone { get; set; }
-    public bool IsDeleted { get; set; } = false;
     public DateOnly BirthDate { get; set; }
+    public string? Phone { get; set; }
+    public string? Image { get; set; }
+    public bool IsDeleted { get; set; } = false;
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; } 
     
