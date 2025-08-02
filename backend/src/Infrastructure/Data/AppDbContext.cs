@@ -15,7 +15,6 @@ public class AppDbContext : DbContext
     public DbSet<Barber> Barbers { get; set; }
     public DbSet<Appointment> Appointments { get; set; }
     public DbSet<Review> Reviews { get; set; }
-    public DbSet<Language> Languages { get; set; }
     public DbSet<Service> Services { get; set; }
     public DbSet<SocialNetwork> SocialNetworks { get; set; }
     public DbSet<Work> Works { get; set; }
@@ -66,10 +65,6 @@ public class AppDbContext : DbContext
                 .WithOne(u => u.Barber)
                 .HasForeignKey<Barber>(b => b.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
-
-            entity
-                .HasMany(b => b.Languages)
-                .WithMany(l => l.Barbers);
         });
 
         modelBuilder.Entity<BarberWorkSchedule>(entity =>
@@ -94,11 +89,6 @@ public class AppDbContext : DbContext
             entity.Property(s => s.Name).HasMaxLength(50);
             entity.Property(s => s.Price).HasPrecision(10, 2);
             entity.Property(s => s.Duration).HasDefaultValue(1);
-        });
-
-        modelBuilder.Entity<Language>(entity =>
-        {
-            entity.Property(l => l.Name).HasMaxLength(50);
         });
 
         modelBuilder.Entity<SocialNetwork>(entity =>
