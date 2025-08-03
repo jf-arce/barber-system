@@ -41,7 +41,8 @@ public class ServiceController : ControllerBase
         try
         {
             var services = await _serviceService.FindAll();
-            return Ok(services);
+            var servicesDto = services.Select(service => GetServiceDto.Create(service));
+            return Ok(servicesDto);
         }
         catch (Exception e)
         {

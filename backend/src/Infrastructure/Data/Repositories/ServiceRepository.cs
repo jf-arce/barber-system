@@ -17,14 +17,12 @@ public class ServiceRepository : GenericRepository<Service>, IServiceRepository
     public override async Task<List<Service>> FindAll()
     {
         return await _db.Services
-            .Include(s => s.Barbers)
             .ToListAsync();
     }
 
     public override async Task<Service?> FindById(object id)
     {
         return await _db.Services
-            .Include(s => s.Barbers)
             .FirstOrDefaultAsync(s => s.Id == (int)id);
     }
     
