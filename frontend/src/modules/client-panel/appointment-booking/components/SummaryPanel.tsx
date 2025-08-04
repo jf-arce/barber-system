@@ -3,7 +3,7 @@ import { Button } from "@/core/components/Button";
 import { GetService } from "@/modules/services/services.type";
 import { GetBarber } from "@/modules/barbers/barbers.type";
 import { useFormContext } from "react-hook-form";
-import { CreateAppointmentFormData } from "../screens/AppointmentBookingScreen";
+import { CreateAppointmentFormData } from "../schemas/createAppointment.schema";
 
 interface SummaryPanelProps {
     services: GetService[];
@@ -16,7 +16,7 @@ export const SummaryPanel = ({
     services,
     barbers,
     step,
-    nextStep
+    nextStep,
 }: SummaryPanelProps) => {
     const { getValues } = useFormContext<CreateAppointmentFormData>();
     const selectedServices = getValues("services");
@@ -52,13 +52,12 @@ export const SummaryPanel = ({
                                     <div className="flex justify-between text-xs text-gray-500">
                                         <span>Barbero:</span>
                                         <span>
-                                            {barber ? (
-                                                barber.name
-                                            ) : (
+                                            {
+                                                (getValues("assignAutomatically") ? "Primero disponible" : barber?.name) ||
                                                 <span className="text-gray-400">
                                                     No seleccionado
                                                 </span>
-                                            )}
+                                            }
                                         </span>
                                     </div>
                                 </li>
@@ -100,19 +99,21 @@ export const SummaryPanel = ({
                     step === 1
                         ? selectedServices.length === 0
                         : step === 2
-                            ? selectedServices.length === 0 ||
+                        ? selectedServices.length === 0 ||
+                          (!getValues("assignAutomatically") &&
                             selectedServices.some(
                                 (s) =>
                                     !s.barberId ||
                                     !/^[0-9a-fA-F-]{36}$/.test(s.barberId)
-                            )
-                            : !getValues("dateTime") ||
-                            selectedServices.length === 0 ||
+                            ))
+                        : selectedServices.length === 0 ||
+                          (!getValues("assignAutomatically") &&
                             selectedServices.some(
                                 (s) =>
                                     !s.barberId ||
                                     !/^[0-9a-fA-F-]{36}$/.test(s.barberId)
-                            )
+                            )) ||
+                          !getValues("dateTime")
                 }
             >
                 Continuar

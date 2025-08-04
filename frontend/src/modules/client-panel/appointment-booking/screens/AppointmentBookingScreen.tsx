@@ -1,41 +1,29 @@
 "use client";
 import { useState } from "react"
-import { useRouter } from "next/navigation";
 import { Plus, Check, ArrowLeft } from "lucide-react";
 import { GetService } from "@/modules/services/services.type"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { FormProvider, useForm } from "react-hook-form"
-import { z } from "zod"
 import { useAuthStore } from "@/modules/auth/auth.store";
 import { GetBarber } from "@/modules/barbers/barbers.type";
 import { Button } from "@/core/components/Button";
 import { DatePicker } from "@/core/components/DatePicker";
 import { SummaryPanel } from "@/modules/client-panel/appointment-booking/components/SummaryPanel";
+import { CreateAppointmentFormData, createAppointmentSchema } from "../schemas/createAppointment.schema";
+import { BookingBackButton } from "../components/BookingBackButton";
+import { SelectServices } from "../components/SelectServices";
 
 interface AppointmentBookingScreenProps {
   services: GetService[];
   barbers: GetBarber[];
 }
 
-const createAppointmentSchema = z.object({
-  dateTime: z.string().min(3, "La fecha y hora son requeridas").max(100),
-  userId: z.string().uuid("Se debe seleccionar un usuario"),
-  services: z.array(z.object({
-    serviceId: z.number().int("El ID del servicio debe ser un número entero"),
-    barberId: z.string().uuid("Se debe seleccionar un barbero para el servicio"),
-  })).min(1, "Se debe seleccionar al menos un servicio"),
-});
-
-export type CreateAppointmentFormData = z.infer<typeof createAppointmentSchema>;
-
 export default function AppointmentBookingScreen({ services, barbers }: AppointmentBookingScreenProps) {
-  const router = useRouter();
 
   const [step, setStep] = useState(1);
   // Track last selected service IDs to detect changes
   const [lastServiceIds, setLastServiceIds] = useState<number[]>([]);
   // Estado para saber si se seleccionó "Primero disponible"
-  const [assignAutomatically, setAssignAutomatically] = useState(false);
   const userAuthenticated = useAuthStore().userAuthenticated;
 
   const [barbersFiltered, setBarbersFiltered] = useState<GetBarber[]>(barbers);
@@ -47,6 +35,7 @@ export default function AppointmentBookingScreen({ services, barbers }: Appointm
     defaultValues: {
       userId: userAuthenticated?.id,
       services: [],
+      assignAutomatically: false,
     }
   });
 
@@ -60,50 +49,47 @@ export default function AppointmentBookingScreen({ services, barbers }: Appointm
   } = formMethods;
 
   const nextStep = async () => {
-    let isValid = false;
+    // Actualizar barberos filtrados y lastServiceIds solo en el paso 1
     if (step === 1) {
-      // Solo validar que haya servicios seleccionados
       const selectedServices = getValues("services");
-      isValid = selectedServices.length > 0; 
       const idSelectedServices = selectedServices.map(s => s.serviceId);
-      console.log("ID Selected Services:", idSelectedServices);
-
-      // Barberos que ofrecen TODOS los servicios seleccionados
       const barbersFiltered = barbers.filter(barber =>
         idSelectedServices.every(selectedId =>
           barber.services.some(service => service.id === selectedId)
         )
       );
-      console.log("Barbers Filtered:", barbersFiltered);
       setBarbersFiltered(barbersFiltered);
-
-      // Guardar la combinación actual de servicios para comparar en el siguiente paso
       setLastServiceIds(idSelectedServices);
+    }
 
+    // Validar el formulario según el paso actual
+    let isValid = false;
+    if (step === 1) {
+      isValid = await trigger("services");
     } else if (step === 2) {
-      // Validar que todos los servicios tengan barberId válido (uuid)
-      const selectedServices = getValues("services") as { serviceId: number; barberId?: string }[];
-      isValid = selectedServices.length > 0 && selectedServices.every(s => s.barberId && /^[0-9a-fA-F-]{36}$/.test(s.barberId));
+      isValid = await trigger("services");
     } else if (step === 3) {
       isValid = await trigger("dateTime");
     } else {
       isValid = true;
     }
+
     // Si vamos de step 1 a step 2, y la combinación de servicios cambió, reiniciar barberos
     if (step === 1 && isValid) {
-      const selectedServices = getValues("services") as { serviceId: number; barberId?: string }[];
+      const selectedServices = getValues("services");
       const idSelectedServices = selectedServices.map(s => s.serviceId).sort();
       const lastIdsSorted = [...lastServiceIds].sort();
       const changed = idSelectedServices.length !== lastIdsSorted.length || idSelectedServices.some((id, i) => id !== lastIdsSorted[i]);
       if (changed) {
-        // Reset barberId for all selected services
         setValue(
           "services",
           selectedServices.map(s => ({ serviceId: s.serviceId, barberId: "" })),
           { shouldValidate: true }
         );
+        setValue("assignAutomatically", false, { shouldValidate: false });
       }
     }
+
     if (isValid) setStep((prev) => prev + 1);
   }
 
@@ -115,17 +101,17 @@ export default function AppointmentBookingScreen({ services, barbers }: Appointm
       localDate.getTime() - localDate.getTimezoneOffset() * 60000
     ).toISOString();
 
-    // Solo enviar los IDs requeridos para cada servicio
+    // Limpiar barberId si assignAutomatically es true
     const servicesToSend = newAppointment.services.map(service => ({
       serviceId: service.serviceId,
-      barberId: service.barberId,
+      barberId: getValues("assignAutomatically") ? undefined : service.barberId,
     }));
 
     const appointmentToSend = {
       dateTime: utcDate,
       userId: newAppointment.userId,
       services: servicesToSend,
-      assignAutomatically: assignAutomatically,
+      assignAutomatically: getValues("assignAutomatically"),
     };
 
     console.log("Formulario enviado:", appointmentToSend);
@@ -134,25 +120,6 @@ export default function AppointmentBookingScreen({ services, barbers }: Appointm
     // AppointmentsService.create(appointmentToSend);
   }
 
-  // Manejo de clicks para seleccionar/deseleccionar servicios
-  const handleServiceCardClick = (serviceId: number) => {
-    const current = getValues("services");
-    const exists = current.some(s => s.serviceId === serviceId);
-    if (exists) {
-      setValue(
-        "services",
-        current.filter(s => s.serviceId !== serviceId),
-        { shouldValidate: true } // Se valida y actualiza el estado
-      );
-    } else {
-      setValue(
-        "services",
-        [...current, { serviceId, barberId: "" }],
-        { shouldValidate: true } // Se valida y actualiza el estado
-      );
-    }
-  };
-
   // Asigna un barbero a un servicio específico
   const handleBarberSelect = (serviceId: number, barberId: string) => {
     const currentServices = getValues("services");
@@ -160,30 +127,31 @@ export default function AppointmentBookingScreen({ services, barbers }: Appointm
       currentService.serviceId === serviceId ? { ...currentService, barberId } : currentService
     );
     setValue("services", updated, { shouldValidate: true });
+    // Si se selecciona un barbero, desactivar la opción "Primero disponible"
+    if (getValues("assignAutomatically")) {
+      setValue("assignAutomatically", false, { shouldValidate: false });
+    }
   }
 
+  const handelAutomaticAssignToggle = () => {
+      setValue("assignAutomatically", !getValues("assignAutomatically"), { shouldValidate: true });
+      setValue(
+        "services",
+        getValues("services").map(s => ({ ...s, barberId: "" })),
+        { shouldValidate: true }
+      );
+  }
 
   return (
     <FormProvider {...formMethods}>
       <div className="text-black pt-5 pb-12">
-        {/* Botón volver arriba a la izquierda, cambia comportamiento según sub-step */}
-        <button
-          type="button"
-          onClick={() => {
-            if (step === 2 && isSelectingBarberPerService) {
-              setIsSelectingBarberPerService(false); // volver a selección global de barbero
-            } else if (step > 1) {
-              setIsSelectingBarberPerService(false); // reset sub-step si vuelve de step 2
-              prevStep();
-            } else {
-              router.push("/client/dashboard");
-            }
-          }}
-          className="flex items-center gap-2 mb-4 text-gray-700 hover:text-black transition cursor-pointer bg-transparent hover:bg-gray-300/30 rounded-md px-2 py-2 group"
-        >
-          <ArrowLeft className="w-5 h-5 transition-transform duration-200 group-hover:-translate-x-1" />
-          <span className="font-medium">Volver</span>
-        </button>
+
+        <BookingBackButton
+          step={step}
+          setIsSelectingBarberPerService={setIsSelectingBarberPerService}
+          isSelectingBarberPerService={isSelectingBarberPerService}
+          prevStep={prevStep}
+        />
 
         <div className="px-4 md:px-8 lg:px-16 min-h-[calc(100vh-200px)]">
           <form onSubmit={handleSubmit(onSubmit)}>
@@ -192,43 +160,7 @@ export default function AppointmentBookingScreen({ services, barbers }: Appointm
                 {/* Parte izquierda dinámica */}
                 <div className="flex-1">
                   {step === 1 && (
-                    <>
-                      <h2 className="text-2xl font-bold mb-8">Paso 1: Selecciona uno o más servicios</h2>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {services.map((service, idx) => {
-                          const selectedServices = getValues("services");
-                          const selected = selectedServices.some(s => s.serviceId === service.id);
-                          return (
-                            <div
-                              key={service.id}
-                              className={`rounded-sm bg-gray-100/40 border transition-all cursor-pointer group animate-fade-up animate-duration-700 animate-ease-out animate-delay-[${idx * 120}ms] 
-                                ${selected ? 'border-primary bg-primary/60' : 'border-primary/30 hover:bg-primary/60'}`}
-                              onClick={() => handleServiceCardClick(service.id)}
-                            >
-                              <div className="p-4">
-                                <div className="flex gap-16 items-center justify-between">
-                                  <div className="flex flex-col gap-3">
-                                    <div className="flex flex-col gap-1">
-                                      <h4 className={`font-semibold text-black group-hover:text-black transition-colors ${selected ? '' : ''}`}>{service.name}</h4>
-                                      <p className="text-sm text-gray-500">{service.description || '1hs'}</p>
-                                    </div>
-                                    <span className="text-md font-medium text-black">desde ${service.price?.toFixed(2) ?? '-'}</span>
-                                  </div>
-                                  <div className="flex items-center space-x-4">
-                                    {/* Icono de selección */}
-                                    {selected ? (
-                                      <Check className="w-7 h-7 text-green-600" />
-                                    ) : (
-                                      <Plus className="w-7 h-7 text-gray-400" />
-                                    )}
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </>
+                    <SelectServices services={services} />
                   )}
                   {step === 2 && !isSelectingBarberPerService && (
                     <>
@@ -237,8 +169,8 @@ export default function AppointmentBookingScreen({ services, barbers }: Appointm
                         {/* Card: Primero disponible */}
                         <div
                           className={`rounded-sm bg-gray-100/40 border transition-all cursor-pointer group flex flex-col items-center p-4 animate-fade-up animate-duration-700 animate-ease-out animate-delay-[0ms] 
-                            ${assignAutomatically ? 'border-primary bg-primary/60' : 'border-primary/30 hover:bg-primary/60'}`}
-                          onClick={() => setAssignAutomatically((prev) => !prev)}
+                            ${getValues("assignAutomatically") ? 'border-primary bg-primary/60' : 'border-primary/30 hover:bg-primary/60'}`}
+                          onClick={handelAutomaticAssignToggle}
                         >
                           <div className="flex gap-16 items-center justify-between w-full">
                             <div className="flex flex-col gap-1">
@@ -246,7 +178,7 @@ export default function AppointmentBookingScreen({ services, barbers }: Appointm
                               <p className="text-sm text-gray-500">El sistema elegirá el barbero más temprano disponible</p>
                             </div>
                             <div className="flex items-center space-x-4">
-                              {assignAutomatically ? (
+                              {getValues("assignAutomatically") ? (
                                 <Check className="w-7 h-7 text-green-600" />
                               ) : (
                                 <Plus className="w-7 h-7 text-gray-400" />
@@ -275,7 +207,7 @@ export default function AppointmentBookingScreen({ services, barbers }: Appointm
                         {barbersFiltered.map((barber, bidx) => {
                           // Selección global: si todos los servicios tienen este barberId
                           const selectedServices = getValues("services");
-                          const allSelected = selectedServices.length > 0 && selectedServices.every(s => s.barberId === barber.id);
+                          const allSelected = selectedServices.length > 0 && selectedServices.every(s => s.barberId === barber.id) && !getValues("assignAutomatically");
                           return (
                             <div
                               key={barber.id}
@@ -283,6 +215,9 @@ export default function AppointmentBookingScreen({ services, barbers }: Appointm
                                 ${allSelected ? 'border-primary bg-primary/60' : 'border-primary/30 hover:bg-primary/60'}`}
                               onClick={() => {
                                 // Asignar este barbero a todos los servicios seleccionados
+                                if (getValues("assignAutomatically")) {
+                                  setValue("assignAutomatically", false, { shouldValidate: false });
+                                }
                                 const current = getValues("services");
                                 setValue(
                                   "services",
@@ -396,12 +331,27 @@ export default function AppointmentBookingScreen({ services, barbers }: Appointm
                       const barber = barbers.find(b => b.id === s.barberId);
                       return (
                         <li key={s.serviceId}>
-                          <b>Servicio:</b> {service?.name || '-'} <b>Barbero:</b> {barber?.name || '-'}
+                          <b>Servicio:</b> {service?.name || '-'} <b>Barbero:</b> {barber?.name || ''} {getValues("assignAutomatically") ? 'Primero disponible' : ''}
                         </li>
                       );
                     })}
                     <li><b>Fecha y hora:</b> {getValues("dateTime") || "-"}</li>
                   </ul>
+                  {/* Mostrar errores de validación si existen */}
+                  {Object.keys(errors).length > 0 && (
+                    <div className="mt-4 text-red-600">
+                      <b>Errores en el formulario:</b>
+                      <ul className="list-disc ml-6">
+                        {errors.services && (
+                          <li>Debes seleccionar al menos un servicio y un barbero (o primero disponible).</li>
+                        )}
+                        {errors.dateTime && (
+                          <li>{errors.dateTime.message}</li>
+                        )}
+                        {/* Puedes agregar más mensajes según tu schema */}
+                      </ul>
+                    </div>
+                  )}
                 </div>
                 <Button
                   type="submit"
