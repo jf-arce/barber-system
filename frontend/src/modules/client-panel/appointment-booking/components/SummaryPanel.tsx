@@ -4,6 +4,7 @@ import { GetService } from "@/modules/services/services.type";
 import { GetBarber } from "@/modules/barbers/barbers.type";
 import { useFormContext } from "react-hook-form";
 import { CreateAppointmentFormData } from "../schemas/createAppointment.schema";
+import { formatDateTime } from "@/core/utils/formatDateTime";
 
 interface SummaryPanelProps {
     services: GetService[];
@@ -18,8 +19,8 @@ export const SummaryPanel = ({
     step,
     nextStep,
 }: SummaryPanelProps) => {
-    const { getValues } = useFormContext<CreateAppointmentFormData>();
-    const selectedServices = getValues("services");
+    const { watch } = useFormContext<CreateAppointmentFormData>();
+    const selectedServices = watch("services");
 
     return (
         <div className="w-full md:w-[500px] bg-gray-50 border border-gray-200 rounded-lg p-6 h-fit md:sticky md:top-8 self-start flex flex-col justify-between min-h-[320px]">
@@ -53,7 +54,7 @@ export const SummaryPanel = ({
                                         <span>Barbero:</span>
                                         <span>
                                             {
-                                                (getValues("assignAutomatically") ? "Primero disponible" : barber?.name) ||
+                                                (watch("assignAutomatically") ? "Primero disponible" : barber?.name) ||
                                                 <span className="text-gray-400">
                                                     No seleccionado
                                                 </span>
@@ -68,8 +69,8 @@ export const SummaryPanel = ({
                 <div className="flex justify-between text-sm mb-1">
                     <span className="font-semibold">Fecha y hora</span>
                     <span>
-                        {getValues("dateTime") ? (
-                            getValues("dateTime")
+                        {watch("dateTime") ? (
+                            formatDateTime(watch("dateTime"))
                         ) : (
                             <span className="text-gray-400">
                                 No seleccionada
@@ -100,20 +101,20 @@ export const SummaryPanel = ({
                         ? selectedServices.length === 0
                         : step === 2
                         ? selectedServices.length === 0 ||
-                          (!getValues("assignAutomatically") &&
+                          (!watch("assignAutomatically") &&
                             selectedServices.some(
                                 (s) =>
                                     !s.barberId ||
                                     !/^[0-9a-fA-F-]{36}$/.test(s.barberId)
                             ))
                         : selectedServices.length === 0 ||
-                          (!getValues("assignAutomatically") &&
+                          (!watch("assignAutomatically") &&
                             selectedServices.some(
                                 (s) =>
                                     !s.barberId ||
                                     !/^[0-9a-fA-F-]{36}$/.test(s.barberId)
                             )) ||
-                          !getValues("dateTime")
+                          !watch("dateTime")
                 }
             >
                 Continuar
