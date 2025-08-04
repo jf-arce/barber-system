@@ -24,9 +24,9 @@ export type CreateAppointment = {
     userId: string;
     services: {
         serviceId: number;
-        barberId: string;
+        barberId: number;
     }[];
-    assignAutomatically: boolean;
+    assignBarberAutomatically: boolean;
 };
 
 export type GetAppointment = {

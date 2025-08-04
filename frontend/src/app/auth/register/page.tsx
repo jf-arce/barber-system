@@ -1,8 +1,7 @@
-import Register from '@/modules/auth/pages/Register'
-import React from 'react'
+import { RegisterScreen } from '@/modules/auth/screens/RegisterScreen'
 
 export default function RegisterPage() {
   return (
-    <Register/>
+    <RegisterScreen/>
   )
 }

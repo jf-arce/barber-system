@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { CreateAppointment } from './appointments.type';
-import { API_ROUTES } from '@/constants/api-routes';
+import { API_ROUTES } from '@/core/constants/api-routes';
 
 export class AppointmentsService {
 

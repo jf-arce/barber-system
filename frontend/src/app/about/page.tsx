@@ -1,6 +1,6 @@
-import { MainContainer } from "@/components/containers/MainContainer";
-import { Footer } from "@/components/layouts/Footer";
-import { MainNavbar } from "@/components/layouts/MainNavbar";
+import { MainContainer } from "@/core/containers/MainContainer";
+import { Footer } from "@/core/layouts/Footer";
+import { MainNavbar } from "@/core/layouts/MainNavbar";
 import { AboutHero } from "@/modules/about/components/AboutHero";
 import { BarbersCards } from "@/modules/about/components/BarbersCards";
 import { BarbershopPlace } from "@/modules/about/components/BarbershopPlace";

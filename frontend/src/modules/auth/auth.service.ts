@@ -1,4 +1,4 @@
-import { API_ROUTES } from "@/constants/api-routes";
+import { API_ROUTES } from "@/core/constants/api-routes";
 import { UserLogin, UserRegister } from "./auth.types";
 
 export class AuthService {

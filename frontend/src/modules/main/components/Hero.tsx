@@ -1,6 +1,6 @@
 "use client"
 import Image from "next/image";
-import { LinkButton } from "@/components/LinkButton";
+import { LinkButton } from "@/core/components/LinkButton";
 
 export const Hero = () => {
     return (

@@ -1,10 +1,10 @@
-import { MainContainer } from "@/components/containers/MainContainer";
-import { Divider } from "@/components/Divider";
-import { Footer } from "@/components/layouts/Footer";
+import { MainContainer } from "@/core/containers/MainContainer";
+import { Divider } from "@/core/components/Divider";
+import { Footer } from "@/core/layouts/Footer";
 import { AboutSection } from "@/modules/main/components/AboutSection";
 import { Hero } from "@/modules/main/components/Hero";
 import { LocationSection } from "@/modules/main/components/LocationSection";
-import { MainNavbar } from "@/components/layouts/MainNavbar";
+import { MainNavbar } from "@/core/layouts/MainNavbar";
 import { ServicesSection } from "@/modules/main/components/ServicesSection";
 
 export default function Home() {

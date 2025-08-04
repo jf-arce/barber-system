@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { DM_Sans } from "next/font/google";
 import "./globals.css";
-import { AuthRefresh } from "@/modules/auth/components/AuthRefresh";
+import { AuthRefreshProvider } from "@/modules/auth/providers/AuthRefreshProvider";
 
 const dmSans = DM_Sans({
   weight: ["400", "500", "700"],
@@ -24,9 +24,9 @@ export default function RootLayout({
       <body
         className={`${dmSans.className} antialiased bg-background text-foreground`}
       >
-        <AuthRefresh>
+        <AuthRefreshProvider>
           {children}
-        </AuthRefresh>
+        </AuthRefreshProvider>
       </body>
     </html>
   );

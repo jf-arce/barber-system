@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { UserAuthenticated } from './auth.types';
-import { API_ROUTES } from '@/constants/api-routes';
+import { API_ROUTES } from '@/core/constants/api-routes';
 
 interface AuthStore {
     userAuthenticated: UserAuthenticated | null;

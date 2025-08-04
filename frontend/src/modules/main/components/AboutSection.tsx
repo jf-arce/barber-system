@@ -1,5 +1,5 @@
 "use client";
-import { LinkButton } from '@/components/LinkButton';
+import { LinkButton } from '@/core/components/LinkButton';
 import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
 

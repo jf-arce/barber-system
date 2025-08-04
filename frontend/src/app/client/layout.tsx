@@ -1,7 +1,7 @@
-import { MainContainer } from '@/components/containers/MainContainer';
-import { ClientNavbar } from '@/components/layouts/ClientNavbar';
-import { Footer } from '@/components/layouts/Footer';
-import { AuthClientProvider } from '@/modules/client/providers/AuthClientProvider';
+import { MainContainer } from '@/core/containers/MainContainer';
+import { ClientNavbar } from '@/core/layouts/ClientNavbar';
+import { Footer } from '@/core/layouts/Footer';
+import { AuthClientProvider } from '@/modules/auth/providers/AuthClientProvider';
 import { ReactNode } from 'react';
 
 export default function ClientLayout({ children }: { children: ReactNode }) {
