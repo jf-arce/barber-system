@@ -22,7 +22,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${dmSans.className} antialiased bg-background text-foreground`}
+        className={`${dmSans.className} antialiased bg-foreground text-background`}
       >
         <AuthRefreshProvider>
           {children}

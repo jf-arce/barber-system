@@ -1,7 +1,8 @@
 "use client";
-import { LinkButton } from '@/core/components/LinkButton';
-import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
+import Image from 'next/image';
+import Link from 'next/link';
+import { Button } from '@/core/components/Button';
 
 export const AboutSection = () => {
   const [isTextVisible, setIsTextVisible] = useState(false);
@@ -45,12 +46,12 @@ export const AboutSection = () => {
           En BarberLP, no solo cortamos pelo, creamos estilo. Nuestro equipo de barberos expertos está dedicado a ofrecerte la mejor experiencia de corte y cuidado personal. Con años de experiencia y una pasión por la estética, estamos aquí para ayudarte a lucir y sentirte increíble.
         </p>
         <div className="flex mt-10">
-          <LinkButton
-            href='/about'
+          <Button
+            asChild
             className='!text-black !px-5'
           >
-            Conoce más        
-          </LinkButton>
+            <Link href='/about'>Conoce más</Link>
+          </Button>
         </div>
       </div>
       <div 

@@ -1,7 +1,7 @@
-"use client";
-import { LinkButton } from "@/core/components/LinkButton";
+import Link from "next/link";
 import { Plus } from "lucide-react";
 import { UserAuthenticated } from "@/modules/auth/auth.types";
+import { Button } from "@/core/components/Button";
 
 interface DashboardHeaderResponsiveProps {
     userAuthenticated: UserAuthenticated | null;
@@ -24,13 +24,14 @@ export const DashboardHeaderResponsive = ({ userAuthenticated, abierto }: Dashbo
                         </p>
                     </div>
                     <div>
-                        <LinkButton
-                            href="/client/appointment/booking"
-                            className="!text-black/80 animate-fade-up animate-once animate-duration-700 animate-delay-200"
+                        <Button
+                            className="animate-fade-up animate-once animate-duration-700 animate-delay-200"
                         >
-                            <Plus className="mr-2 h-5 w-5" />
-                            Reservar una cita
-                        </LinkButton>
+                            <Link href="/client/appointment/booking">
+                                <Plus className="mr-2 h-5 w-5" />
+                                Reservar una cita
+                            </Link>
+                        </Button>
                     </div>
                 </div>
                 {/* Estado de la peluquería */}

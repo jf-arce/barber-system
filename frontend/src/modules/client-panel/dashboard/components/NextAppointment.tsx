@@ -1,4 +1,3 @@
-"use client";
 import { Button } from "@/core/components/Button";
 import { AlertCircle, Calendar, CheckCircle, Clock, Plus, RotateCcw, User, X } from "lucide-react";
 
@@ -109,11 +108,11 @@ export const NextAppointment = () => {
                                 </div>
 
                                 <div className="grid grid-cols-2 gap-3 pt-4">
-                                    <Button className="bg-neutral-600 text-black hover:bg-neutral-500">
+                                    <Button className="bg-neutral-600 text-background hover:bg-neutral-500">
                                         <RotateCcw className="mr-2 h-4 w-4" />
                                         Reprogramar
                                     </Button>
-                                    <Button className="bg-red-700 hover:bg-red-600 text-white">
+                                    <Button className="bg-red-700 hover:bg-red-600 text-background">
                                         <X className="mr-2 h-4 w-4" />
                                         Cancelar
                                     </Button>

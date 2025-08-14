@@ -46,7 +46,7 @@ export const ClientNavbar = () => {
             <div className="container mx-auto px-4 flex justify-between items-center">
 
             <div className="flex items-center space-x-4">
-                <Link href="/" className="text-white text-lg font-bold">BarberLP</Link>
+                <Link href="/" className="text-white text-xl font-bold">BarberLP</Link>
             </div>
 
             <div className="flex items-center space-x-7">
@@ -65,7 +65,7 @@ export const ClientNavbar = () => {
                 </div>
                 <div className="flex items-center space-x-3">
                     <div className="text-right">
-                        <p className="text-sm font-medium text-white">{userAuthenticated?.name}</p>
+                        <p className="text-md font-medium text-white">{userAuthenticated?.name}</p>
                     </div>
                     <div className="h-10 w-10 border-2 border-[#d0c1a9]/20 rounded-full">
                         <Image 

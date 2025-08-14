@@ -33,7 +33,6 @@ export default function AppointmentBookingScreen({
     setIsSelectingBarberPerService,
     formMethods,
     handleSubmitForm,
-    register,
     watch
   } = useAppointmentBookingForm({ barbers });
 
@@ -94,12 +93,10 @@ export default function AppointmentBookingScreen({
                   {step === 3 && (
                     <div>
                       <h2 className="text-2xl font-bold mb-4">Paso 3: Selecciona una fecha y hora</h2>
-                      <input
-                        type="datetime-local"
-                        {...register("dateTime")}
-                        className="w-full p-2 border rounded"
+                      <DatePicker
+                        value={watch("dateTime")}
+                        onChange={date => formMethods.setValue("dateTime", date)}
                       />
-                      <DatePicker />
                     </div>
                   )}
                 </div>

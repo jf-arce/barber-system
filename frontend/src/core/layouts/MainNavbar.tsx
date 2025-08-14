@@ -1,10 +1,10 @@
 "use client";
-import { LinkButton } from '@/core/components/LinkButton';
 import { COLORS } from '@/core/constants/colors';
 import { useAuthStore } from '@/modules/auth/auth.store';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { Button } from '../components/Button';
 
 export const MainNavbar = () => {
   const [navbar, setNavbar] = useState(false);
@@ -33,11 +33,11 @@ export const MainNavbar = () => {
   }
 
   return (
-    <nav className={`p-4 ${navbar ? 'bg-background shadow-md' : 'bg-transparent'} transition-all duration-300`}>
+    <nav className={`p-4 ${navbar ? 'bg-foreground shadow-md' : 'bg-transparent'} transition-all duration-300`}>
       <div className="container mx-auto px-4 flex justify-between items-center">
         {/* Logo */}
         <div className='flex flex-grow basis-0'>
-          <Link href="/" className="text-white text-lg font-bold">BarberLP</Link>
+          <Link href="/" className="text-white text-xl font-bold">BarberLP</Link>
         </div>
 
         {/* Menu */}
@@ -81,19 +81,20 @@ export const MainNavbar = () => {
             </div>
           ) : (
             <div className="flex flex-grow basis-0 justify-end space-x-4">
-              <LinkButton
-                href="/auth/login"
-                variant='tertiary'
+              <Button
+                asChild
+                variant='outline'
+                className='text-background'
               >
-                  Iniciar Sesión
-              </LinkButton>
+                <Link href="/auth/login">Iniciar Sesión</Link>
+              </Button>
               
-              <LinkButton
-                href="/auth/register"
+              <Button
+                asChild
                 className='!text-black'
               >
-                  Registrarse
-              </LinkButton>
+                <Link href="/auth/register">Registrarse</Link>
+              </Button>
             </div>
           )
         }

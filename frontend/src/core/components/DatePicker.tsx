@@ -1,74 +1,107 @@
-"use client";
-import { useState } from "react";
+"use client"
 
-const BarberHoursOfTheDay = [
-  "08:00", "09:00", "10:00", "11:00", "12:00",
-  "13:00", "14:00", "15:00", "16:00", "17:00",
-  "18:00"
-];
+import * as React from "react"
+import { CalendarIcon } from "lucide-react"
 
-// Mock de horarios ocupados por día
-const bookedHoursByDate: Record<string, string[]> = {
-  "2025-07-30": ["09:00", "13:00"],
-  "2025-07-31": ["10:00", "14:00", "16:00"],
-  // Puedes agregar más fechas y horarios ocupados aquí
-};
+import { Button } from "@/core/components/Button"
+import { Calendar } from "@/core/components/Calendar"
+import { Input } from "@/core/components/Input"
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/core/components/Popover"
 
-export function DatePicker() {
-  const [date, setDate] = useState("");
-  const [selectedHour, setSelectedHour] = useState("");
+function formatDate(date: Date | undefined) {
+  if (!date) {
+    return ""
+  }
+  return date.toLocaleDateString("es-ES", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  })
+}
 
-  // Obtener horarios ocupados para la fecha seleccionada
-  const bookedHours = bookedHoursByDate[date] || [];
+interface DatePickerProps {
+  value?: string
+  onChange?: (value: string) => void
+}
 
-  // Filtrar horarios disponibles
-  const availableHours = BarberHoursOfTheDay.filter(
-    (hour) => !bookedHours.includes(hour)
-  );
+export function DatePicker({ value, onChange }: DatePickerProps) {
+  const [open, setOpen] = React.useState(false)
+  const [date, setDate] = React.useState<Date | undefined>(
+    value ? new Date(value) : undefined
+  )
+  const [month, setMonth] = React.useState<Date | undefined>(date)
+  const [inputValue, setInputValue] = React.useState(
+    value ? formatDate(new Date(value)) : ""
+  )
 
-  // Fecha mínima (hoy)
-  const minDate = new Date();
-  minDate.setMinutes(0);
-  minDate.setSeconds(0);
-  minDate.setMilliseconds(0);
-  const min = minDate.toISOString().slice(0, 10); // formato YYYY-MM-DD
+  React.useEffect(() => {
+    if (value) {
+      setDate(new Date(value))
+      setInputValue(formatDate(new Date(value)))
+      setMonth(new Date(value))
+    }
+  }, [value])
 
   return (
-    <div>
-      <input
-        type="date"
-        value={date}
-        onChange={(e) => {
-          setDate(e.target.value);
-          setSelectedHour(""); // resetear hora al cambiar fecha
-        }}
-        min={min}
-        className="w-full px-4 py-2 border  rounded-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-black"
-      />
-
-      {date && (
-        <ul className="mt-4 space-y-2">
-          {availableHours.length === 0 ? (
-            <li className="text-gray-500">No hay horarios disponibles</li>
-          ) : (
-            availableHours.map((hour) => (
-              <li key={hour}>
-                <button
-                  type="button"
-                  className={`w-full px-4 py-2 rounded ${
-                    selectedHour === hour
-                      ? "bg-black text-white"
-                      : "bg-gray-100 hover:bg-gray-200"
-                  }`}
-                  onClick={() => setSelectedHour(hour)}
-                >
-                  {hour}
-                </button>
-              </li>
-            ))
-          )}
-        </ul>
-      )}
+    <div className="flex flex-col gap-3">
+      <div className="relative flex gap-2">
+        <Popover open={open} onOpenChange={setOpen}>
+          <PopoverTrigger asChild>
+            <div className="flex w-full">
+              <Input
+                id="date"
+                value={inputValue}
+                placeholder="DD/MM/YYYY"
+                className="bg-background pr-10 border border-primary cursor-pointer focus-visible:border-primary focus-visible:ring-0"
+                readOnly
+                onClick={() => setOpen(true)}
+                onKeyDown={(e) => {
+                  if (e.key === "ArrowDown" || e.key === "Enter" || e.key === " ") {
+                    e.preventDefault()
+                    setOpen(true)
+                  }
+                }}
+              />
+              <Button
+                id="date-picker"
+                variant="ghost"
+                className="absolute top-1/2 right-2 size-6 -translate-y-1/2"
+                tabIndex={-1}
+              >
+                <CalendarIcon className="size-3.5" />
+                <span className="sr-only">Select date</span>
+              </Button>
+            </div>
+          </PopoverTrigger>
+          <PopoverContent
+            className="w-auto overflow-hidden p-0"
+            align="end"
+            alignOffset={-8}
+            sideOffset={10}
+          >
+            <Calendar
+              mode="single"
+              selected={date}
+              captionLayout="dropdown"
+              month={month}
+              onMonthChange={setMonth}
+              onSelect={(selectedDate) => {
+                setDate(selectedDate)
+                const formatted = formatDate(selectedDate)
+                setInputValue(formatted)
+                setOpen(false)
+                if (onChange && selectedDate) {
+                  onChange(selectedDate.toISOString())
+                }
+              }}
+            />
+          </PopoverContent>
+        </Popover>
+      </div>
     </div>
-  );
+  )
 }

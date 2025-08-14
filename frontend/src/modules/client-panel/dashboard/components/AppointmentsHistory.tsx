@@ -1,4 +1,3 @@
-"use client";
 import { Button } from "@/core/components/Button";
 import { History, Star } from "lucide-react";
 

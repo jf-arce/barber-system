@@ -4,6 +4,8 @@ import { useAuthStore } from "../auth.store";
 import { Button } from "@/core/components/Button";
 import { UserAuthenticated, UserLogin } from "@/modules/auth/auth.types";
 import { AuthService } from "@/modules/auth/auth.service";
+import { LoaderCircleIcon } from "@/core/components/Icons";
+import { Input } from "@/core/components/Input";
 
 export const LoginScreen = () => {
     const isLoading = useAuthStore(state => state.isLoading);
@@ -46,12 +48,12 @@ export const LoginScreen = () => {
                     <label htmlFor="email" className="text-sm font-medium text-gray-700">
                         Email
                     </label>
-                    <input
+                    <Input
                         type="email"
                         id="email"
                         name="email"
-                        placeholder="example@mail.com"
-                        className="mt-1 px-4 py-2 border border-gray-300 rounded-sm focus:outline-none focus:ring-[1px] focus:ring-primary focus:border-primary"
+                        placeholder="ejemplo@mail.com"
+                        className="mt-1"
                         required
                     />
                 </div>
@@ -60,12 +62,12 @@ export const LoginScreen = () => {
                     <label htmlFor="password" className="text-sm font-medium text-gray-700">
                         Contraseña
                     </label>
-                    <input
+                    <Input
                         type="password"
                         id="password"
                         name="password"
                         placeholder="********"
-                        className="mt-1 px-4 py-2 border border-gray-300 rounded-sm focus:outline-none focus:ring-[1px] focus:ring-primary focus:border-primary"
+                        className="mt-1"
                         required
                     />
                 </div>
@@ -80,8 +82,10 @@ export const LoginScreen = () => {
 
                 <Button
                     type="submit"
-                    loading={isLoading}
                 >
+                    {
+                        isLoading && (<LoaderCircleIcon className="loader animate-spin animate-infinite" />)
+                    }
                     Iniciar sesión
                 </Button>
             </form>

@@ -1,4 +1,3 @@
-"use client";
 import { Button } from "@/core/components/Button";
 import { GetService } from "@/modules/services/services.type";
 import { GetBarber } from "@/modules/barbers/barbers.type";

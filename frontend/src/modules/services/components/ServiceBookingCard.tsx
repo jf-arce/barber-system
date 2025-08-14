@@ -25,8 +25,8 @@ export default function ServiceBookingCard({ service, className, ...props }: Ser
                     </div>
                     <div className="flex items-center space-x-4">
                         <Button
-                            variant="tertiary"
-                            className="border-black/20 text-black bg-white/40 hover:bg-primary/20"
+                            variant="outline"
+                            className="border-black/20 bg-white/40 hover:bg-primary/20"
                         >
                             Reservar
                         </Button>
