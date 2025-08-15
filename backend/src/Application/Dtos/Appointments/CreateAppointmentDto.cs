@@ -7,4 +7,6 @@ public class CreateAppointmentDto
     public DateTime DateTime { get; set; }
     public Guid UserId { get; set; }
     public List<CreateAppointmentServiceDto> Services { get; set; } = new();
+
+    public bool AssignBarberAutomatically { get; set; }
 }
