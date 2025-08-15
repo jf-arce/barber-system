@@ -28,7 +28,7 @@ interface DatePickerProps {
   onChange?: (value: string) => void
 }
 
-export function DatePicker({ value, onChange }: DatePickerProps) {
+export function BookingDatePicker({ value, onChange }: DatePickerProps) {
   const [open, setOpen] = React.useState(false)
   const [date, setDate] = React.useState<Date | undefined>(
     value ? new Date(value) : undefined

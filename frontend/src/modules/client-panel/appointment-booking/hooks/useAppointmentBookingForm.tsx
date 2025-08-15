@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useAuthStore } from "@/modules/auth/auth.store";
@@ -6,6 +7,7 @@ import { CreateAppointmentFormData, createAppointmentSchema } from "../schemas/c
 import { GetBarber } from "@/modules/barbers/barbers.type";
 import { getBarbersForSelectedServices } from "../helpers/getBarbersForSelectedServices";
 import { hasServiceSelectionChanged } from "../helpers/hasServiceSelectionChanged";
+import { AppointmentsService } from "@/modules/appointments/appointments.service";
 
 interface UseAppointmentFormProps {
     barbers: GetBarber[];
@@ -16,6 +18,7 @@ export const useAppointmentBookingForm = ({ barbers }: UseAppointmentFormProps) 
     const [lastServiceIds, setLastServiceIds] = useState<number[]>([]);
     const [barbersFiltered, setBarbersFiltered] = useState<GetBarber[]>(barbers);
     const [isSelectingBarberPerService, setIsSelectingBarberPerService] = useState(false);
+    const router = useRouter();
 
     const userAuthenticated = useAuthStore().userAuthenticated;
 
@@ -81,6 +84,8 @@ export const useAppointmentBookingForm = ({ barbers }: UseAppointmentFormProps) 
     const prevStep = () => setStep((prev) => prev - 1);
 
     const onSubmit = (newAppointment: CreateAppointmentFormData) => {
+        if (step !== 4) return;
+
         const localDate = new Date(newAppointment.dateTime);
         const utcDate = new Date(
             localDate.getTime() - localDate.getTimezoneOffset() * 60000
@@ -88,20 +93,22 @@ export const useAppointmentBookingForm = ({ barbers }: UseAppointmentFormProps) 
 
         const servicesToSend = newAppointment.services.map(service => ({
             serviceId: service.serviceId,
-            barberId: getValues("assignAutomatically") ? undefined : service.barberId,
+            barberId: getValues("assignAutomatically") ? null : service.barberId,
         }));
 
         const appointmentToSend = {
             dateTime: utcDate,
             userId: newAppointment.userId,
             services: servicesToSend,
-            assignAutomatically: getValues("assignAutomatically"),
+            assignBarberAutomatically: getValues("assignAutomatically"),
         };
 
         console.log("Formulario enviado:", appointmentToSend);
         alert("Formulario enviado exitosamente!");
 
-        // AppointmentsService.create(appointmentToSend);
+        AppointmentsService.create(appointmentToSend);
+
+        router.push("/client/dashboard");
     }
 
     const handleSubmitForm = handleSubmit(onSubmit);

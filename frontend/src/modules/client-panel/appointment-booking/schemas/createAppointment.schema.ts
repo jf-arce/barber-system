@@ -6,7 +6,7 @@ export const createAppointmentSchema = z.object({
     userId: z.string().uuid("Se debe seleccionar un usuario"),
     services: z.array(z.object({
         serviceId: z.number().int("El ID del servicio debe ser un número entero"),
-        barberId: z.string().uuid("Se debe seleccionar un barbero para el servicio").optional().or(z.literal("")).or(z.undefined()),
+        barberId: z.string().uuid("Se debe seleccionar un barbero para el servicio").nullable().or(z.literal("")),
     })).min(1, "Se debe seleccionar al menos un servicio"),
     assignAutomatically: z.boolean(),
 }).superRefine((data, ctx) => {

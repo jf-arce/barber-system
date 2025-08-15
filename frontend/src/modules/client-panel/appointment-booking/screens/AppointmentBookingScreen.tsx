@@ -3,7 +3,7 @@ import { GetService } from "@/modules/services/services.type"
 import { FormProvider } from "react-hook-form"
 import { GetBarber } from "@/modules/barbers/barbers.type";
 import { Button } from "@/core/components/Button";
-import { DatePicker } from "@/core/components/DatePicker";
+import { BookingDatePicker } from "@/modules/client-panel/appointment-booking/components/BookingDatePicker";
 import { SummaryPanel } from "@/modules/client-panel/appointment-booking/components/SummaryPanel";
 import { BookingBackButton } from "../components/BookingBackButton";
 import { SelectServices } from "../components/SelectServices";
@@ -13,6 +13,7 @@ import { SelectBarber } from "../components/SelectBarber";
 import { ArrowLeftIcon } from "@/core/components/Icons";
 import { useAppointmentBookingForm } from "../hooks/useAppointmentBookingForm";
 import { formatDateTime } from "@/core/utils/formatDateTime";
+// import { useState } from "react";
 
 interface AppointmentBookingScreenProps {
   services: GetService[];
@@ -35,6 +36,22 @@ export default function AppointmentBookingScreen({
     handleSubmitForm,
     watch
   } = useAppointmentBookingForm({ barbers });
+
+  // const [hours, setHours] = useState<number[]>([]);
+
+  // const handleDateChange = (date: Date | null) => {
+  //   if (date) {
+  //     // const selectedHours = getHoursFromDate(date);
+  //     const selectedHours = [
+  //       {
+
+  //       }
+  //     ]
+  //     setHours(selectedHours);
+  //   } else {
+  //     setHours([]);
+  //   }
+  // };
 
   return (
     <FormProvider {...formMethods}>
@@ -93,10 +110,15 @@ export default function AppointmentBookingScreen({
                   {step === 3 && (
                     <div>
                       <h2 className="text-2xl font-bold mb-4">Paso 3: Selecciona una fecha y hora</h2>
-                      <DatePicker
+                      <BookingDatePicker
                         value={watch("dateTime")}
                         onChange={date => formMethods.setValue("dateTime", date)}
                       />
+                      {formMethods.watch("dateTime") && (
+                        <div>
+                          
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
