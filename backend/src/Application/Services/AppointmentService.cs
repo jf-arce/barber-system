@@ -14,6 +14,11 @@ public class AppointmentService : IAppointmentService
     private readonly IServiceRepository _serviceRepository;
     private readonly IAppointmentServicesRepository _appointmentServiceRepository;
     private readonly IBarberRepository _barberRepository;
+    
+    private const int MonthsInAdvanceLimit = 5;
+    private const int WorkDayStartHour = 8;
+    private const int WorkDayEndHour = 18;
+    private const int MinimumAnticipationMinutes = 30;
 
     public AppointmentService(
         IAppointmentRepository appointmentRepository, 
@@ -29,7 +34,10 @@ public class AppointmentService : IAppointmentService
     
     public async Task Create(CreateAppointmentDto createAppointmentDto)
     {
-         // 1️⃣ Validar servicios enviados
+         // 1️⃣ Validar fecha, hora y los servicios enviados
+         
+        ValidateDateTime(createAppointmentDto.DateTime);
+        
         var services = await _serviceRepository
             .FindByMultipleIds(createAppointmentDto.Services
                 .Select(s => s.ServiceId).ToList());
@@ -43,7 +51,7 @@ public class AppointmentService : IAppointmentService
             DateTime = createAppointmentDto.DateTime,
             UserId = createAppointmentDto.UserId
         };
-
+        
         await _appointmentRepository.Create(newAppointment);
 
         // Asignar el o los servicios a la cita (AppointmentServices) donde cada servicio puede tener un barbero asignado.
@@ -81,7 +89,7 @@ public class AppointmentService : IAppointmentService
                     {
                         throw new CustomHttpException(HttpStatusCode.BadRequest,
                             $"El barbero {serviceDto.BarberId} no está disponible para el servicio {serviceDto.ServiceId} " +
-                            $"a las {createAppointmentDto.DateTime:HH:mm}");
+                            $"a las {ToArgentina(createAppointmentDto.DateTime):HH:mm}");
                     }
                 }
                 
@@ -109,9 +117,9 @@ public class AppointmentService : IAppointmentService
                     
                     if (availableBarbers.Count == 0)
                         throw new CustomHttpException(HttpStatusCode.NotFound,
-                            $"No se encontraron barberos disponibles para {service.Name} a las {appointmentStart:HH:mm}");
+                            $"No se encontraron barberos disponibles para {service.Name} a las {ToArgentina(appointmentStart):HH:mm}");
                     
-                    // Elegimos el que tenga menos citas en el dia (para balancear la carga de trabajo)
+                    // // Elegimos el que tenga menos citas en el dia (para balancear la carga de trabajo)
                     var barber = availableBarbers
                         .OrderBy(b => b.AppointmentServices.Count(aserv =>
                             aserv.Appointment.DateTime.Date == appointmentStart.Date))
@@ -142,7 +150,7 @@ public class AppointmentService : IAppointmentService
         {
             // Si falla algo al crear AppointmentServices, eliminamos la cita
             await _appointmentRepository.Delete(newAppointment);
-            throw new CustomHttpException(HttpStatusCode.BadRequest, $"{ex.Message}");
+            throw;
         }
     }
 
@@ -195,5 +203,46 @@ public class AppointmentService : IAppointmentService
     public Task Notify()
     {
         throw new NotImplementedException();
+    }
+    
+    // Auxiliary methods
+    private static DateTime ToArgentina(DateTime utcDateTime)
+    {
+        return TimeZoneInfo.ConvertTimeFromUtc(utcDateTime, TimeZoneInfo.FindSystemTimeZoneById("Argentina Standard Time"));
+    }
+    
+    private static void ValidateDateTime(DateTime datetimeDto)
+    { 
+        var argentinaDateTimeDto = ToArgentina(datetimeDto);
+        
+        if (datetimeDto < DateTime.UtcNow)
+            throw new CustomHttpException(HttpStatusCode.BadRequest, "La fecha y hora de la cita no puede ser en el pasado");
+        
+        if (datetimeDto > DateTime.UtcNow.AddMonths(MonthsInAdvanceLimit))
+            throw new InvalidOperationException($"La cita no puede ser más de {MonthsInAdvanceLimit} meses en el futuro");
+        
+        if (ToArgentina(datetimeDto).Hour is < WorkDayStartHour or > WorkDayEndHour)
+            throw new InvalidOperationException("La cita debe estar dentro del horario laboral (08:00 a 18:00)");
+        
+        if (argentinaDateTimeDto.Minute != 0 || argentinaDateTimeDto.Second != 0)
+            throw new InvalidOperationException("La cita debe comenzar en una hora exacta");
+        
+        ValidateAnticipation(datetimeDto);
+    }
+    
+    private static void ValidateAnticipation(DateTime datetimeDto)
+    {
+        var argentinaDateTimeDto = ToArgentina(datetimeDto);
+        var nowArgentina = ToArgentina(DateTime.UtcNow);
+        var minimumAnticipationTime = TimeSpan.FromMinutes(MinimumAnticipationMinutes);
+        // Redondear la hora actual hacia arriba a la próxima hora
+        var nextHour = new DateTime(nowArgentina.Year, nowArgentina.Month, nowArgentina.Day, nowArgentina.Hour, 0, 0).AddHours(1);
+
+        if (argentinaDateTimeDto.Date != nowArgentina.Date) return; // Si la fecha no es hoy, no se aplica la validación de anticipación
+        
+        // Si la diferencia entre la hora actual y la próxima hora es menor que el tiempo minimo de anticipacion en minutos
+        // O la hora de reserva no es igual o posterior a la próxima hora redondeada hacia arriba, no se puede reservar
+        if (nextHour - nowArgentina < minimumAnticipationTime || argentinaDateTimeDto < nextHour)
+            throw new InvalidOperationException($"La cita debe reservarse con al menos { MinimumAnticipationMinutes } minutos de anticipación y comenzar en una hora exacta");
     }
 }

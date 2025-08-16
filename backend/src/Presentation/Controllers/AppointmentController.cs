@@ -1,6 +1,8 @@
 using Application.Dtos.Appointments;
 using Application.Exceptions;
 using Application.Interfaces;
+using Application.Validators.Appointments;
+using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -23,6 +25,9 @@ public class AppointmentController : ControllerBase
     {
         try
         {
+            var validator = new CreateAppointmentValidator();
+            await validator.ValidateAndThrowAsync(createAppointmentDto);
+            
             await _appointmentService.Create(createAppointmentDto);
             return StatusCode(201, new { message = "Appointment created successfully" });
         }
