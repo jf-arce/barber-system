@@ -1,4 +1,4 @@
-using Application.Dtos.AppointmentServices;
+using Application.Dtos.AppointmentDetails;
 using Application.Dtos.Barbers;
 using Application.Dtos.Services;
 using Domain.Entities;
@@ -8,11 +8,10 @@ namespace Application.Dtos.Appointments;
 public class GetAppointmentDto
 {
     public int Id { get; set; }
-    public DateTime DateTime { get; set; }
     public DateTime CreatedAt { get; set; }
     public string Status { get; set; } = null!;
     public GetUserAppointmentDto User { get; set; }
-    public List<GetAppointmentServices> Services { get; set; } = [];
+    public List<GetAppointmentDetailDto> AppointmentDetails { get; set; } = [];
 
     
     public static GetAppointmentDto Create(Appointment appointment)
@@ -21,7 +20,6 @@ public class GetAppointmentDto
         return new GetAppointmentDto
         {
             Id = appointment.Id,
-            DateTime = appointment.DateTime,
             CreatedAt = TimeZoneInfo.ConvertTimeFromUtc(appointment.CreatedAt, timeZone),
             Status = appointment.Status,
             User = new GetUserAppointmentDto
@@ -30,7 +28,7 @@ public class GetAppointmentDto
                 Name = appointment.User?.Name ?? string.Empty,
                 Surname = appointment.User?.Surname ?? string.Empty,
             },
-            Services = appointment.AppointmentServices?.Select(aserv => new GetAppointmentServices
+            AppointmentDetails = appointment.AppointmentDetails.Select(aserv => new GetAppointmentDetailDto
             {
                 Service = new GetServiceDto
                 {

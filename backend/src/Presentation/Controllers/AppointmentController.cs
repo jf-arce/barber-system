@@ -71,21 +71,6 @@ public class AppointmentController : ControllerBase
         {
             var appointments = await _appointmentService.FindAllByUserId(userId, startDate, endDate, status);
             
-            Console.WriteLine($"Cantidad de citas encontradas: {appointments.Count}");
-            Console.WriteLine($"Cantidad de servicios por cita: {appointments.Sum(a => a.AppointmentServices.Count)}");
-            foreach (var appointment in appointments)
-            {
-                Console.WriteLine($"Appointment ID: {appointment.Id}, UserId: {appointment.UserId}, DateTime: {appointment.DateTime}");
-                foreach (var appointmentService in appointment.AppointmentServices)
-                {
-                    Console.WriteLine($"  Service ID: {appointmentService.ServiceId}" +
-                                      $" Nombre del servicio: {appointmentService.Service.Name}" +
-                                      $", Barber ID: {appointmentService.BarberId}" +
-                                      $", Nombre del barber: {appointmentService.Barber.User.Name}");
-                }
-            }
-            
-            
             var appointmentsDto = appointments.Select(appointment => GetAppointmentDto.Create(appointment)).ToList();
             return Ok(appointmentsDto);
         }

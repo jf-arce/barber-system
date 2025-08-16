@@ -1,9 +1,9 @@
 using Application.Dtos.Appointments;
 using Application.Dtos.Services;
 
-namespace Application.Dtos.AppointmentServices;
+namespace Application.Dtos.AppointmentDetails;
 
-public class GetAppointmentServices
+public class GetAppointmentDetailDto
 {
     public GetServiceDto Service { get; set; }
     public GetBarberAppointmentDto Barber { get; set; }

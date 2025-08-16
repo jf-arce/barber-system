@@ -18,7 +18,7 @@ public class AppDbContext : DbContext
     public DbSet<Service> Services { get; set; }
     public DbSet<SocialNetwork> SocialNetworks { get; set; }
     public DbSet<Work> Works { get; set; }
-    public DbSet<AppointmentServices> AppointmentServices { get; set; }
+    public DbSet<AppointmentDetail> AppointmentDetails { get; set; }
     public DbSet<BarberWorkSchedule> BarberWorkSchedules { get; set; }
     
     //Enums
@@ -26,7 +26,6 @@ public class AppDbContext : DbContext
     public DbSet<UserGender> UserGenders { get; set; }
     public DbSet<AppointmentStatus> AppointmentsStatus { get; set; }
     public DbSet<SocialNetworkName> SocialNetworkNames { get; set; }
-    
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -151,23 +150,23 @@ public class AppDbContext : DbContext
                 .HasMaxLength(20);
         });
 
-        modelBuilder.Entity<AppointmentServices>(entity =>
+        modelBuilder.Entity<AppointmentDetail>(entity =>
         {
-            entity.HasKey(x => new { x.AppointmentId, x.ServiceId, x.BarberId });
+            entity.HasKey(ad => ad.Id);
 
             entity
                 .HasOne(a => a.Appointment)
-                .WithMany(a => a.AppointmentServices)
+                .WithMany(a => a.AppointmentDetails)
                 .OnDelete(DeleteBehavior.Cascade);
 
             entity
                 .HasOne(a => a.Service)
-                .WithMany(s => s.AppointmentServices)
+                .WithMany(s => s.AppointmentDetails)
                 .OnDelete(DeleteBehavior.Cascade);
 
             entity
                 .HasOne(a => a.Barber)
-                .WithMany(b => b.AppointmentServices)
+                .WithMany(b => b.AppointmentDetails)
                 .OnDelete(DeleteBehavior.Cascade);
         });
         

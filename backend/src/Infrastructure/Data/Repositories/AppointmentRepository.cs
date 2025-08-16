@@ -18,13 +18,14 @@ public class AppointmentRepository : GenericRepository<Appointment>, IAppointmen
     {
        var appointments =  await _db.Appointments
            .Include(a => a.User)
-           .Include(a => a.AppointmentServices)
+           .Include(a => a.AppointmentDetails)
                 .ThenInclude(aserv => aserv.Service)
-           .Include(a => a.AppointmentServices)
+           .Include(a => a.AppointmentDetails)
                 .ThenInclude(aserv => aserv.Barber).ThenInclude(barber => barber.User)
-           .Where(a => a.AppointmentServices.Any(aserv => aserv.BarberId == barberId))
-           .Where(a => startDate == null || a.DateTime >= startDate)
-           .Where(a => endDate == null || a.DateTime <= endDate)
+           .Where(a => a.AppointmentDetails.Any(aserv => aserv.BarberId == barberId))
+           // Filtrar por rango de fechas usando Start y End de AppointmentDetail
+           .Where(a => startDate == null || a.AppointmentDetails.Any(ad => ad.StartDateTime >= startDate))
+           .Where(a => endDate == null || a.AppointmentDetails.Any(ad => ad.EndDateTime <= endDate))
            .Where(a => string.IsNullOrEmpty(status) || a.Status.ToString() == status)
            .ToListAsync();
 
@@ -36,13 +37,14 @@ public class AppointmentRepository : GenericRepository<Appointment>, IAppointmen
     {
         var appointments = await _db.Appointments
             .Include(a => a.User)
-            .Include(a => a.AppointmentServices)
+            .Include(a => a.AppointmentDetails)
                 .ThenInclude(aserv => aserv.Service)
-            .Include(a => a.AppointmentServices)
+            .Include(a => a.AppointmentDetails)
                 .ThenInclude(aserv => aserv.Barber).ThenInclude(barber => barber.User)
             .Where(a => a.UserId == userId)
-            .Where(a => startDate == null || a.DateTime >= startDate)
-            .Where(a => endDate == null || a.DateTime <= endDate)
+            // Filtrar por rango de fechas usando Start y End de AppointmentDetail
+            .Where(a => startDate == null || a.AppointmentDetails.Any(ad => ad.StartDateTime >= startDate))
+            .Where(a => endDate == null || a.AppointmentDetails.Any(ad => ad.EndDateTime <= endDate))
             .Where(a => string.IsNullOrEmpty(status) || a.Status.ToString() == status)
             .ToListAsync();
     
@@ -58,9 +60,9 @@ public class AppointmentRepository : GenericRepository<Appointment>, IAppointmen
         
         var appointments = await _db.Appointments
             .Include(a => a.User)
-            .Include(a => a.AppointmentServices)
+            .Include(a => a.AppointmentDetails)
                 .ThenInclude(aserv => aserv.Service)
-            .Include(a => a.AppointmentServices)
+            .Include(a => a.AppointmentDetails)
                 .ThenInclude(aserv => aserv.Barber).ThenInclude(barber => barber.User)
             .FirstOrDefaultAsync(a => a.Id == appointmentId);
 

@@ -12,7 +12,7 @@ public class AppointmentService : IAppointmentService
 {
     private readonly IAppointmentRepository _appointmentRepository;
     private readonly IServiceRepository _serviceRepository;
-    private readonly IAppointmentServicesRepository _appointmentServiceRepository;
+    private readonly IAppointmentDetailRepository _appointmentDetailRepository;
     private readonly IBarberRepository _barberRepository;
     
     private const int MonthsInAdvanceLimit = 5;
@@ -23,12 +23,12 @@ public class AppointmentService : IAppointmentService
     public AppointmentService(
         IAppointmentRepository appointmentRepository, 
         IServiceRepository serviceRepository,
-        IAppointmentServicesRepository appointmentServicesRepository,
+        IAppointmentDetailRepository appointmentDetailRepository,
         IBarberRepository barberRepository)
     {
         _appointmentRepository = appointmentRepository;
         _serviceRepository = serviceRepository;
-        _appointmentServiceRepository = appointmentServicesRepository;
+        _appointmentDetailRepository = appointmentDetailRepository;
         _barberRepository = barberRepository;
     }
     
@@ -36,122 +36,109 @@ public class AppointmentService : IAppointmentService
     {
          // 1️⃣ Validar fecha, hora y los servicios enviados
          
-        ValidateDateTime(createAppointmentDto.DateTime);
+        ValidateDateTime(createAppointmentDto.StartDateTime);
         
         var services = await _serviceRepository
-            .FindByMultipleIds(createAppointmentDto.Services
+            .FindByMultipleIds(createAppointmentDto.AppointmentDetails
                 .Select(s => s.ServiceId).ToList());
 
-        if (services.Count != createAppointmentDto.Services.Count)
-            throw new CustomHttpException(HttpStatusCode.BadRequest, "One or more services not found");
+        if (services.Count != createAppointmentDto.AppointmentDetails.Count)
+            throw new CustomHttpException(HttpStatusCode.BadRequest, "Uno o más servicios no encontrados");
 
         // 2️⃣ Crear la cita
         var newAppointment = new Appointment
         {
-            DateTime = createAppointmentDto.DateTime,
             UserId = createAppointmentDto.UserId
         };
         
         await _appointmentRepository.Create(newAppointment);
 
         // Asignar el o los servicios a la cita (AppointmentServices) donde cada servicio puede tener un barbero asignado.
-        try
-        {
-            // 3️⃣ Asignación manual
-            if (!createAppointmentDto.AssignBarberAutomatically)
+         try 
+         {
+            // Comenzamos con la hora de inicio indicada por el usuario
+            var appointmentStartDto = createAppointmentDto.StartDateTime;
+
+            // 3️⃣ Recorrer todos los detalles de la cita solicitados
+            foreach (var appointmentDetailDto in createAppointmentDto.AppointmentDetails)
             {
-                // Validamos que los barberos no sean nulos
-                if (createAppointmentDto.Services.Any(s => s.BarberId == Guid.Empty))
-                    throw new CustomHttpException(HttpStatusCode.BadRequest, "El barbero no puede ser nulo");
-                
-                // Validar que los barberos enviados existan y estén disponibles
-                var barberIds = createAppointmentDto.Services
-                    .Select(s => s.BarberId!.Value)
-                    .Where(id => true)
-                    .Distinct()
-                    .ToList();
+                var serviceDto = services.First(s => s.Id == appointmentDetailDto.ServiceId);
+                Guid barberId;
 
-                var barbersFound = await _barberRepository.FindAllByIds(barberIds);
-
-                if (barbersFound.Count != barberIds.Count)
-                    throw new CustomHttpException(HttpStatusCode.BadRequest, "Uno o más barberos no encontrados");
-                
-                // Validar que los barberos elegidos estén disponibles
-                foreach (var serviceDto in createAppointmentDto.Services)
+                if (!createAppointmentDto.AssignBarberAutomatically)
                 {
-                    var service = services.First(s => s.Id == serviceDto.ServiceId);
+                    // 3️⃣ Asignación manual
+
+                    // Validamos que los barberos no sean nulos
+                    if (appointmentDetailDto.BarberId == null || appointmentDetailDto.BarberId == Guid.Empty)
+                        throw new CustomHttpException(HttpStatusCode.BadRequest, "El barbero no puede ser nulo");
+
+                    barberId = appointmentDetailDto.BarberId.Value;
+
+                    // Validar que el barbero enviado exista y pueda hacer el servicio
+                    var barbersFound = await _barberRepository.FindAllByIds([barberId]);
+                    if (barbersFound.Count == 0 || barbersFound.First().Services.All(bs => bs.Id != serviceDto.Id))
+                        throw new CustomHttpException(HttpStatusCode.BadRequest, $"Barbero {barberId} no puede realizar {serviceDto.Name}");
+
+                    // Validar que el barbero elegido esté disponible
                     var isBarberAvailable = await _barberRepository.IsBarberAvailable(
-                        serviceDto.BarberId!.Value,
-                        createAppointmentDto.DateTime,
-                        service.Duration);
+                        barberId, appointmentStartDto, serviceDto.Duration);
 
                     if (!isBarberAvailable)
-                    {
                         throw new CustomHttpException(HttpStatusCode.BadRequest,
-                            $"El barbero {serviceDto.BarberId} no está disponible para el servicio {serviceDto.ServiceId} " +
-                            $"a las {ToArgentina(createAppointmentDto.DateTime):HH:mm}");
-                    }
+                            $"El barbero {barberId} no está disponible para el servicio {serviceDto.Name} " +
+                            $"a las {ToArgentina(appointmentStartDto):HH:mm}");
                 }
-                
-                var appointmentServices = createAppointmentDto.Services
-                    .Select(serv => new AppointmentServices
-                    {
-                        AppointmentId = newAppointment.Id,
-                        ServiceId = serv.ServiceId,
-                        BarberId = serv.BarberId!.Value
-                    }).ToList();
-
-                await _appointmentServiceRepository.AddRange(appointmentServices);
-            }
-            else
-            {
-                // 4️⃣ Asignación automática (independientemente si hay un solo servicio o varios)
-                var appointmentStart = createAppointmentDto.DateTime;
-
-                foreach (var serviceDto in createAppointmentDto.Services)
+                else
                 {
-                    var service = services.First(s => s.Id == serviceDto.ServiceId);
-                    
+                    // 4️⃣ Asignación automática (independientemente si hay un solo servicio o varios)
                     var availableBarbers = await _barberRepository
-                        .FindAllAvailableBarbers(appointmentStart, service.Duration);
+                        .FindAllAvailableBarbers(appointmentStartDto, serviceDto.Duration);
                     
-                    if (availableBarbers.Count == 0)
+                    // Filtrar barberos que puedan hacer el servicio
+                    var candidateBarbers = availableBarbers
+                        .Where(b => b.Services.Any(bs => bs.Id == serviceDto.Id))
+                        .ToList();
+
+                    if (candidateBarbers.Count == 0)
                         throw new CustomHttpException(HttpStatusCode.NotFound,
-                            $"No se encontraron barberos disponibles para {service.Name} a las {ToArgentina(appointmentStart):HH:mm}");
-                    
-                    // // Elegimos el que tenga menos citas en el dia (para balancear la carga de trabajo)
-                    var barber = availableBarbers
-                        .OrderBy(b => b.AppointmentServices.Count(aserv =>
-                            aserv.Appointment.DateTime.Date == appointmentStart.Date))
-                        .First();
-                    
-                    var appointmentService = new AppointmentServices
-                    {
-                        AppointmentId = newAppointment.Id,
-                        ServiceId = service.Id,
-                        BarberId = barber.UserId
-                    };
+                            $"No hay barberos disponibles para {serviceDto.Name} a las {ToArgentina(appointmentStartDto):HH:mm}");
 
-                    await _appointmentServiceRepository.Create(appointmentService);
-
-                    // Sumar duración del servicio para que la siguiente cita empiece cuando termina la anterior
-                    appointmentStart = appointmentStart.AddHours(service.Duration);
-                    
-                    /*Esto es para que si hay varios servicios, se asignen consecutivos.
-                    Por ejemplo si un servicio dura 1 hora y el siguiente 2 horas,
-                    la cita completa dura 3 horas seguidas.
-                    
-                    No hacemos que el cliente tenga que venir en dos horarios distintos.
-                    */
+                    // Elegimos el que tenga menos citas en el día (para balancear la carga de trabajo)
+                    barberId = candidateBarbers
+                        .OrderBy(b => b.AppointmentDetails.Count(ad => ad.StartDateTime.Date == appointmentStartDto.Date))
+                        .First().UserId;
                 }
+
+                // Crear AppointmentDetail con start y end
+                var detail = new AppointmentDetail
+                {
+                    AppointmentId = newAppointment.Id,
+                    ServiceId = serviceDto.Id,
+                    BarberId = barberId,
+                    StartDateTime = appointmentStartDto,
+                    EndDateTime = appointmentStartDto.AddHours(serviceDto.Duration)
+                };
+
+                await _appointmentDetailRepository.Create(detail);
+
+                // Sumar duración del servicio para que la siguiente cita empiece cuando termina la anterior
+                appointmentStartDto = detail.EndDateTime;
+
+                /*Esto es para que si hay varios servicios, se asignen consecutivos.
+                Por ejemplo si un servicio dura 1 hora y el siguiente 2 horas,
+                la cita completa dura 3 horas seguidas.
+
+                No hacemos que el cliente tenga que venir en dos horarios distintos.
+                */
             }
-        }
-        catch (Exception ex)
-        {
-            // Si falla algo al crear AppointmentServices, eliminamos la cita
+         }
+         catch (Exception)
+         {
+            // Si falla algo al crear AppointmentDetails, eliminamos la cita completa
             await _appointmentRepository.Delete(newAppointment);
             throw;
-        }
+         }
     }
 
     public async Task<List<Appointment>> FindAllByBarberId(Guid barberId, DateTime? startDate, DateTime? endDate, string? status)
@@ -192,12 +179,13 @@ public class AppointmentService : IAppointmentService
 
     public async Task Reschedule(int id, DateTime newDateTime)
     {
-        var appointment = await _appointmentRepository.FindById(id);
-        if (appointment == null) throw new CustomHttpException(HttpStatusCode.NotFound, "Appointment not found");
-
-        appointment.DateTime = newDateTime;
-        
-        await _appointmentRepository.Update(appointment);
+        // var appointment = await _appointmentRepository.FindById(id);
+        // if (appointment == null) throw new CustomHttpException(HttpStatusCode.NotFound, "Appointment not found");
+        //
+        // appointment.DateTime = newDateTime;
+        //
+        // await _appointmentRepository.Update(appointment);
+        throw new NotImplementedException();
     }
 
     public Task Notify()

@@ -7,7 +7,7 @@ public class CreateAppointmentValidator : AbstractValidator<CreateAppointmentDto
 {
     public CreateAppointmentValidator()
     {
-        RuleFor(x => x.DateTime)
+        RuleFor(x => x.StartDateTime)
             .NotEmpty()
             .WithMessage("La fecha y hora de la cita no puede estar vacía");
 
@@ -16,16 +16,16 @@ public class CreateAppointmentValidator : AbstractValidator<CreateAppointmentDto
             .Must(id => id != Guid.Empty)
             .WithMessage("UserId no puede ser vacío o Guid.Empty");
 
-        RuleFor(x => x.Services)
+        RuleFor(x => x.AppointmentDetails)
             .NotEmpty()
             .WithMessage("Debe especificar al menos un servicio");
 
         RuleFor(x => x.AssignBarberAutomatically)
             .NotNull()
             .WithMessage("Debe especificar si se asigna el barbero automáticamente")
-            .When(x => x.Services.Count != 0);
+            .When(x => x.AppointmentDetails.Count != 0);
 
-        RuleForEach(x => x.Services)
+        RuleForEach(x => x.AppointmentDetails)
             .ChildRules(s =>
             {
                 s.RuleFor(service => service.ServiceId)
@@ -33,7 +33,7 @@ public class CreateAppointmentValidator : AbstractValidator<CreateAppointmentDto
                     .WithMessage("ServiceId debe ser un número válido mayor a 0");
             });
         
-        RuleForEach(x => x.Services)
+        RuleForEach(x => x.AppointmentDetails)
             .ChildRules(s =>
             {
                 s.RuleFor(service => service.BarberId)
