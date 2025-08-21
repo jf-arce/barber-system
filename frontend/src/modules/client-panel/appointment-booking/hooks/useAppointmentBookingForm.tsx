@@ -57,7 +57,8 @@ export const useAppointmentBookingForm = ({ barbers }: UseAppointmentFormProps) 
         } else if (step === 2) {
             isValid = await trigger("services");
         } else if (step === 3) {
-            isValid = await trigger("dateTime");
+            isValid = await trigger("startDateTime");
+            isValid = await trigger("endDateTime");
         } else {
             isValid = true;
         } 
@@ -86,27 +87,22 @@ export const useAppointmentBookingForm = ({ barbers }: UseAppointmentFormProps) 
     const onSubmit = (newAppointment: CreateAppointmentFormData) => {
         if (step !== 4) return;
 
-        const localDate = new Date(newAppointment.dateTime);
-        const utcDate = new Date(
-            localDate.getTime() - localDate.getTimezoneOffset() * 60000
-        ).toISOString();
-
         const servicesToSend = newAppointment.services.map(service => ({
             serviceId: service.serviceId,
             barberId: getValues("assignAutomatically") ? null : service.barberId,
         }));
 
         const appointmentToSend = {
-            dateTime: utcDate,
+            startDateTime: newAppointment.startDateTime,
             userId: newAppointment.userId,
-            services: servicesToSend,
+            appointmentDetails: servicesToSend,
             assignBarberAutomatically: getValues("assignAutomatically"),
         };
 
         console.log("Formulario enviado:", appointmentToSend);
         alert("Formulario enviado exitosamente!");
 
-        // AppointmentsService.create(appointmentToSend);
+        AppointmentsService.create(appointmentToSend);
 
         router.push("/client/dashboard");
     }

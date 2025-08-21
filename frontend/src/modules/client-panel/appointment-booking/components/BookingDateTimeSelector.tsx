@@ -6,8 +6,14 @@ import { CreateAppointmentFormData } from '../schemas/createAppointment.schema';
 import { Button } from '@/core/components/Button';
 import { GetBarbersAvailability } from '@/modules/appointments/appointments.type';
 import { AppointmentsService } from '@/modules/appointments/appointments.service';
+import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 export const BookingDateTimeSelector = () => {
+  const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
 
   const { watch, setValue, getValues } = useFormContext<CreateAppointmentFormData>();
 
@@ -16,7 +22,6 @@ export const BookingDateTimeSelector = () => {
     date: "",
     availableSlots: []
   });
-  console.log(getBarbersAvailability)
 
   useEffect(() => {
     const isAssigningBarber = getValues("assignAutomatically");
@@ -34,14 +39,31 @@ export const BookingDateTimeSelector = () => {
         setGetBarbersAvailability(barbersSlotsAvailability)
       })
     }
-  }, [currentDatePicker, getValues])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentDatePicker])
+
+  useEffect(() => {
+    const startDateTime = getValues("startDateTime");
+    if (startDateTime) {
+      const localDate = dayjs(startDateTime).tz('America/Argentina/Buenos_Aires');
+      setCurrentDatePicker(localDate.format('YYYY-MM-DD'));
+      setSelectedSlot(localDate.format('HH:mm'));
+    } else {
+      setSelectedSlot(null);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [watch("startDateTime")]);
 
   const handleDateTimeSelect = (slot: { start: string; end: string }) => {
-    //Tenemos que unir la fecha con el start en un DateTimeUtc
-    const dateTime = `${currentDatePicker}T${slot.start}`;
-    const isoDateTime = new Date(dateTime).toISOString();
-    console.log(isoDateTime);
-    setValue("dateTime", isoDateTime);
+    const startDateTime = `${currentDatePicker}T${slot.start}`;
+    const endDateTime = `${currentDatePicker}T${slot.end}`;
+    
+    const isoStartDateTime = dayjs(startDateTime).millisecond(0).toISOString();
+    const isoEndDateTime = dayjs(endDateTime).millisecond(0).toISOString();
+
+    setValue("startDateTime", isoStartDateTime);
+    setValue("endDateTime", isoEndDateTime);
+    setSelectedSlot(slot.start);
   }
 
   return (
@@ -49,7 +71,7 @@ export const BookingDateTimeSelector = () => {
       <h2 className="text-2xl font-bold mb-4">Paso 3: Selecciona una fecha y hora</h2>
       <div className="space-y-4">
         <BookingDatePicker
-          value={watch("dateTime")}
+          value={watch("startDateTime")}
           setCurrentDatePicker={setCurrentDatePicker}
         />
         {currentDatePicker && (
@@ -59,13 +81,12 @@ export const BookingDateTimeSelector = () => {
                 <ul className="flex flex-col gap-2">
                   {getBarbersAvailability.availableSlots.map((barberAvailability, idx) => (
                     <li key={idx}>
-                      <Button 
+                      <Button
                         variant="outline"
-                        className="w-full hover:bg-primary" 
+                        className={`w-full transition-colors ${selectedSlot === barberAvailability.start.split(":").slice(0,2).join(":") ? 'bg-primary' : ''} hover:bg-primary/80`}
                         onClick={() => handleDateTimeSelect(barberAvailability)}>
                         {barberAvailability.start.split(":").slice(0, 2).join(":")}
                       </Button>
-                      {/* {barberAvailability.start} - {barberAvailability.end} */}
                     </li>
                   ))}
                 </ul>

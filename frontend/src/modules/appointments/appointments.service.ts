@@ -10,16 +10,20 @@ export class AppointmentsService {
                 withCredentials: true
             });
             if (response.status !== 201 ){
-                throw new Error(`Failed to create appointment`);
+                throw new Error(`Failed to create appointment: ${response.data}`);
             }
             return response.data;
         } catch (error) {
+            if (axios.isAxiosError(error)) {
+                console.error("Axios error:", error.response?.data);
+            } else {
+                console.error("Unexpected error:", error);
+            }
             throw new Error(`Error creating appointment: ${error}`);
         }
     }
 
     static async checkBarbersAvailability(checkBarbersAvailabilityDto: PostBarbersAvailability): Promise<GetBarbersAvailability> {
-        console.log(checkBarbersAvailabilityDto)
         try {
             const response = await axios.post(`${API_ROUTES.APPOINTMENTS}/barbers-availability`, checkBarbersAvailabilityDto, {
                 withCredentials: true

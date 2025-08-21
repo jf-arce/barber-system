@@ -4,25 +4,26 @@ export enum AppointmentStatus {
     COMPLETED = "Completed",
 }
 
-type AppointmentServices = {
+type AppointmentDetails = {
     appointmentId: number;
     serviceId: number;
     barberId: number;
+    startDateTime: string;
+    endDateTime: string;
 };
 
 export type Appointment = {
     id: number;
-    dateTime: string;
     createdAt: string;
     status: AppointmentStatus;
     userId: string;
-    services: AppointmentServices[];
+    appointmentDetails: AppointmentDetails[];
 };
 
 export type CreateAppointment = {
-    dateTime: string;
+    startDateTime: string;
     userId: string;
-    services: {
+    appointmentDetails: {
         serviceId: number;
         barberId: string | null;
     }[];

@@ -2,7 +2,8 @@ import { z } from "zod";
 
 
 export const createAppointmentSchema = z.object({
-    dateTime: z.string().min(3, "La fecha y hora son requeridas").max(100),
+    startDateTime: z.string().min(3, "La fecha y hora son requeridas").max(100),
+    endDateTime: z.string().min(3, "La fecha y hora de fin son requeridas").max(100),
     userId: z.string().uuid("Se debe seleccionar un usuario"),
     services: z.array(z.object({
         serviceId: z.number().int("El ID del servicio debe ser un número entero"),

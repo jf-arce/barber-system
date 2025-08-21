@@ -139,6 +139,9 @@
   --shadow-lg: var(--shadow-lg);
   --shadow-xl: var(--shadow-xl);
   --shadow-2xl: var(--shadow-2xl);
+
+  --text-sm: 0.9375rem;
+  --text-md: 1.0625rem;
 }
 
 @layer base {

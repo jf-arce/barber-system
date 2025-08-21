@@ -125,7 +125,7 @@ export default function AppointmentBookingScreen({
                         </li>
                       );
                     })}
-                    <li><b>Fecha y hora:</b> {formatDateTime(watch("dateTime")) || "-"}</li>
+                    <li><b>Fecha y hora:</b> {formatDateTime(watch("startDateTime")) || "-"}</li>
                   </ul>
                 </div>
                 <Button
