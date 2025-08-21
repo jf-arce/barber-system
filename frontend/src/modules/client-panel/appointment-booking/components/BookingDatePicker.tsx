@@ -12,6 +12,8 @@ import {
   PopoverTrigger,
 } from "@/core/components/Popover"
 
+import dayjs from "dayjs"
+
 function formatDate(date: Date | undefined) {
   if (!date) {
     return ""
@@ -25,10 +27,10 @@ function formatDate(date: Date | undefined) {
 
 interface DatePickerProps {
   value?: string
-  onChange?: (value: string) => void
+  setCurrentDatePicker: (date: string | null) => void
 }
 
-export function BookingDatePicker({ value, onChange }: DatePickerProps) {
+export function BookingDatePicker({ value, setCurrentDatePicker }: DatePickerProps) {
   const [open, setOpen] = React.useState(false)
   const [date, setDate] = React.useState<Date | undefined>(
     value ? new Date(value) : undefined
@@ -45,6 +47,19 @@ export function BookingDatePicker({ value, onChange }: DatePickerProps) {
       setMonth(new Date(value))
     }
   }, [value])
+
+  const handleDateSelect = (selectedDate: Date | undefined) => {
+    
+    const formatted = formatDate(selectedDate)
+    setInputValue(formatted)
+    setOpen(false)
+
+    setDate(selectedDate)
+
+    const dateFormatted = dayjs(selectedDate).format("YYYY-MM-DD")
+    
+    setCurrentDatePicker(dateFormatted)
+  }
 
   return (
     <div className="flex flex-col gap-3">
@@ -89,15 +104,7 @@ export function BookingDatePicker({ value, onChange }: DatePickerProps) {
               captionLayout="dropdown"
               month={month}
               onMonthChange={setMonth}
-              onSelect={(selectedDate) => {
-                setDate(selectedDate)
-                const formatted = formatDate(selectedDate)
-                setInputValue(formatted)
-                setOpen(false)
-                if (onChange && selectedDate) {
-                  onChange(selectedDate.toISOString())
-                }
-              }}
+              onSelect={(selectedDate) => handleDateSelect(selectedDate)}
             />
           </PopoverContent>
         </Popover>

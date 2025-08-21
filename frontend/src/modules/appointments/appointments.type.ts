@@ -61,3 +61,22 @@ type UserAppointment = {
     name: string;
     surname: string;
 };
+
+
+export type PostBarbersAvailability = {
+    date: string; // ISO 8601 format
+    servicesWithBarberDto: ServicesWithBarber[];
+};
+
+export type ServicesWithBarber = {
+    serviceId: number;
+    barberId: string;
+};
+
+export type GetBarbersAvailability = {
+    date: string; // ISO 8601 format
+    availableSlots: {
+        start: string;
+        end: string;
+    }[];
+};

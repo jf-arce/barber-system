@@ -106,7 +106,7 @@ export const useAppointmentBookingForm = ({ barbers }: UseAppointmentFormProps) 
         console.log("Formulario enviado:", appointmentToSend);
         alert("Formulario enviado exitosamente!");
 
-        AppointmentsService.create(appointmentToSend);
+        // AppointmentsService.create(appointmentToSend);
 
         router.push("/client/dashboard");
     }
@@ -125,6 +125,7 @@ export const useAppointmentBookingForm = ({ barbers }: UseAppointmentFormProps) 
         formMethods,
         handleSubmitForm,
         register,
-        watch
+        watch,
+        getValues
     }
 }

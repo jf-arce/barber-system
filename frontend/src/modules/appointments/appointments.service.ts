@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { CreateAppointment } from './appointments.type';
+import { CreateAppointment, PostBarbersAvailability, GetBarbersAvailability } from './appointments.type';
 import { API_ROUTES } from '@/core/constants/api-routes';
 
 export class AppointmentsService {
@@ -15,6 +15,22 @@ export class AppointmentsService {
             return response.data;
         } catch (error) {
             throw new Error(`Error creating appointment: ${error}`);
+        }
+    }
+
+    static async checkBarbersAvailability(checkBarbersAvailabilityDto: PostBarbersAvailability): Promise<GetBarbersAvailability> {
+        console.log(checkBarbersAvailabilityDto)
+        try {
+            const response = await axios.post(`${API_ROUTES.APPOINTMENTS}/barbers-availability`, checkBarbersAvailabilityDto, {
+                withCredentials: true
+            });
+            if (response.status !== 200) {
+                throw new Error(`Failed to fetch barber's hours availability: ${response.data}`);
+            }
+            return response.data;
+        } catch (error) {
+            console.log(error)
+            return {} as GetBarbersAvailability;
         }
     }
 
