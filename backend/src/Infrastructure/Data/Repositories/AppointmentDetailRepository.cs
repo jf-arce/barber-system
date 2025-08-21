@@ -1,6 +1,7 @@
 using Domain.Entities;
 using Domain.Repositories;
 using Infrastructure.Data.Repositories.Base;
+using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Data.Repositories;
 
@@ -18,5 +19,12 @@ public class AppointmentDetailRepository : GenericRepository<AppointmentDetail>,
         await _db.AppointmentDetails.AddRangeAsync(appointmentDetails);
         await _db.SaveChangesAsync();
         return appointmentDetails;
+    }
+    
+    public async Task<List<AppointmentDetail>> GetAppointmentDetailsByDateRange(DateTime startUtc, DateTime endUtc)
+    {
+        return await _db.AppointmentDetails
+            .Where(ad => ad.StartDateTime >= startUtc && ad.StartDateTime < endUtc)
+            .ToListAsync();
     }
 }

@@ -192,7 +192,66 @@ public class AppointmentService : IAppointmentService
     {
         throw new NotImplementedException();
     }
-    
+
+    public async Task<GetBarbersAvailabilityDto> GetBarbersAvailability(CheckBarbersAvailabilityDto dto)
+    {
+        // Mapear servicios con duración
+        var serviceEntities = await _serviceRepository.FindByMultipleIds(dto.ServicesWithBarberDto.Select(s => s.ServiceId).ToList());
+        var servicesWithDuration = dto.ServicesWithBarberDto
+            .Select(s => new
+            {
+                s.ServiceId,
+                s.BarberId,
+                DurationInHours = serviceEntities.First(se => se.Id == s.ServiceId).Duration
+            })
+            .ToList();
+
+        // Horario de jornada local Argentina → UTC
+        var argentinaTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Argentina Standard Time");
+        var startOfDayUtc = TimeZoneInfo
+            .ConvertTimeToUtc(dto.Date.ToDateTime(new TimeOnly(WorkDayStartHour, 0)), argentinaTimeZone);
+        var endOfDayUtc   = TimeZoneInfo
+            .ConvertTimeToUtc(dto.Date.ToDateTime(new TimeOnly(WorkDayEndHour + 1, 0)), argentinaTimeZone); // +1 para incluir hasta las 18:00
+
+        // Obtener detailsAppointments con horarios en UTC
+        var appointmentDetails = await _appointmentDetailRepository
+            .GetAppointmentDetailsByDateRange(startOfDayUtc, endOfDayUtc);
+
+        var totalDuration = servicesWithDuration.Sum(s => s.DurationInHours);
+        var availableSlots = new List<AvailableSlotDto>();
+        var current = startOfDayUtc;
+
+        while (current.AddHours(totalDuration) <= endOfDayUtc)
+        {
+            var slotEnd = current.AddHours(totalDuration);
+
+            var allFree = servicesWithDuration.All(s =>
+                !appointmentDetails.Any(ad =>
+                    ad.BarberId == s.BarberId &&
+                    ad.StartDateTime < slotEnd &&
+                    ad.EndDateTime > current
+                )
+            );
+
+            if (allFree)
+            {
+                availableSlots.Add(new AvailableSlotDto
+                {
+                    Start = TimeOnly.FromDateTime(ToArgentina(current)),
+                    End   = TimeOnly.FromDateTime(ToArgentina(slotEnd))
+                });
+            }
+
+            current = slotEnd; // Avanzar al siguiente posible rango horario
+        }
+
+        return new GetBarbersAvailabilityDto
+        {
+            Date = dto.Date,
+            AvailableSlots = availableSlots
+        };
+    }
+
     // Auxiliary methods
     private static DateTime ToArgentina(DateTime utcDateTime)
     {

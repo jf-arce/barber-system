@@ -112,4 +112,21 @@ public class AppointmentController : ControllerBase
         }
     }
     
+    [HttpPost("barbers-availability")]
+    public async Task<IActionResult> GetBarbersAvailability([FromBody] CheckBarbersAvailabilityDto checkBarbersAvailabilityDto)
+    {
+        try
+        {
+            var validator = new CheckBarbersAvailabilityValidator();
+            await validator.ValidateAndThrowAsync(checkBarbersAvailabilityDto);
+            
+            var result = await _appointmentService.GetBarbersAvailability(checkBarbersAvailabilityDto);
+            return Ok(result);
+        }
+        catch (Exception ex)
+        {
+            var handleException = HandleException.Handle(ex);
+            return StatusCode(handleException.StatusCode, handleException.Body);
+        }
+    }
 }

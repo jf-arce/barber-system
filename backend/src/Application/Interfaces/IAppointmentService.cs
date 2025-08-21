@@ -12,4 +12,5 @@ public interface IAppointmentService
     Task ChangeStatus(int id, string newStatus);
     Task Reschedule(int id, DateTime newDateTime);
     Task Notify();
+    Task<GetBarbersAvailabilityDto> GetBarbersAvailability(CheckBarbersAvailabilityDto dto);
 }
