@@ -38,32 +38,33 @@ export const NextAppointment = ({ appointment }: NextAppointmentProps) => {
                                     <h4 className="text-xl font-semibold text-black mb-2">
                                         {appointment.appointmentDetails.map(ad => ad.service.name).join(" + ")}
                                     </h4>
-                                    <p className="text-gray-700 flex items-center">
-                                        <User className="mr-2 h-4 w-4 text-black" />
-                                        con {
-                                            Array.from(
+                                    <p className="text-gray-700 flex items-center gap-1">
+                                        <User className="h-4 w-4 text-black" />
+                                        con
+                                        <span className="font-semibold">
+                                            {Array.from(
                                                 new Set(appointment.appointmentDetails.map(ad => ad.barber.name))
-                                            ).join(" y ")
-                                        }
+                                            ).join(" y ")}
+                                        </span>
                                     </p>
                                 </div>
 
                                 <div className="grid grid-cols-2 gap-4 py-4 border-y border-gray-500/40">
                                     <div className="flex flex-col items-center justify-center">
-                                        <div className="flex flex-col items-center justify-center">
+                                        <div className="flex flex-col items-center justify-center gap-2">
                                             <span className="flex items-center justify-center w-14 h-14 rounded-full bg-primary/20 border-2 border-primary mb-2">
                                                 <Calendar className="h-6 w-6 text-primary" />
                                             </span>
                                             <p className="text-xs text-gray-700 font-semibold">
                                                 Fecha
                                             </p>
-                                            <p className="font-bold text-black text-base">
+                                            <p className="font-bold text-black text-base text-center">
                                                 {dateTimeFormated.date}
                                             </p>
                                         </div>
                                     </div>
-                                    <div className="flex flex-col items-center justify-center">
-                                        <div className="flex flex-col items-center justify-center">
+                                    <div className="flex flex-col items-center">
+                                        <div className="flex flex-col items-center justify-center gap-2">
                                             <span className="flex items-center justify-center w-14 h-14 rounded-full bg-primary/20 border-2 border-primary mb-2">
                                                 <Clock className="h-6 w-6 text-primary" />
                                             </span>
