@@ -40,35 +40,38 @@ export const AppointmentsHistory = ({ appointments }: AppointmentsHistoryProps) 
                     Historial Reciente
                 </h4>
                 <div className="space-y-3">
-                    {appointments.slice(0, 2).map((item, idx) => (
-                        <div
-                            key={idx}
-                            className="flex items-center justify-between text-sm"
-                        >
-                            <div>
-                                <p className="text-black font-semibold">
-                                    {item.appointmentDetails.map(ad => ad.service.name).join(" + ")}
-                                </p>
-                                <div className="flex flex-wrap gap-2 text-xs text-gray-500">
-                                    <span>{getDateTimeFormatted(item.appointmentDetails[0].startDateTime).date || "-"}</span>
-                                    <span>·</span>
-                                    <span>{getDateTimeFormatted(item.appointmentDetails[0].startDateTime).hour || "-"}</span>
-                                    <span>·</span>
-                                    <span className="text-black/80 font-bold">
-                                        $16000
-                                    </span>
+                    {appointments.slice(0, 2).map((item, idx) => {
+                        const totalPrice = item?.appointmentDetails?.reduce((sum, ad) => sum + ad.service.price, 0);
+                        return (
+                            <div
+                                key={idx}
+                                className="flex items-center justify-between text-sm"
+                            >
+                                <div>
+                                    <p className="text-black font-semibold">
+                                        {item.appointmentDetails.map(ad => ad.service.name).join(" + ")}
+                                    </p>
+                                    <div className="flex flex-wrap gap-2 text-xs text-gray-500">
+                                        <span>{getDateTimeFormatted(item.appointmentDetails[0].startDateTime).date || "-"}</span>
+                                        <span>·</span>
+                                        <span>{getDateTimeFormatted(item.appointmentDetails[0].startDateTime).hour || "-"}</span>
+                                        <span>·</span>
+                                        <span className="text-black/80 font-bold">
+                                            ${totalPrice}
+                                        </span>
+                                    </div>
+                                </div>
+                                <div className="flex items-center space-x-1">
+                                    {Array.from({ length: 5 }).map((_, i) => (
+                                        <Star
+                                            key={i}
+                                            className="h-3 w-3 fill-yellow-500 text-yellow-500"
+                                        />
+                                    ))}
                                 </div>
                             </div>
-                            <div className="flex items-center space-x-1">
-                                {Array.from({ length: 5 }).map((_, i) => (
-                                    <Star
-                                        key={i}
-                                        className="h-3 w-3 fill-yellow-500 text-yellow-500"
-                                    />
-                                ))}
-                            </div>
-                        </div>
-                    ))}
+                        );
+                    })}
                 </div>
                 <Button className="mt-3 !text-black/80">
                     Ver todo el historial

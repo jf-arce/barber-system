@@ -3,14 +3,6 @@ import { AppointmentStatus, GetAppointment } from "@/modules/appointments/appoin
 import { AlertCircle, Calendar, CheckCircle, Clock, Plus, RotateCcw, User, X } from "lucide-react";
 import { getDateTimeFormatted } from "../../../../core/utils/getDateTimeFormatted";
 
-const currentAppointment = {
-  status: true,
-  service: "Corte + Barba",
-  date: "2025-07-28 17:00",
-  barber: "Juan Pérez",
-  price: 16000
-};
-
 interface NextAppointmentProps {
   appointment: GetAppointment;
 }
@@ -19,6 +11,7 @@ export const NextAppointment = ({ appointment }: NextAppointmentProps) => {
     
     const startDateTimeUTC = appointment?.appointmentDetails?.[0]?.startDateTime;
     const totalDuration = appointment?.appointmentDetails?.reduce((sum, ad) => sum + ad.service.duration, 0);
+    const totalPrice = appointment?.appointmentDetails?.reduce((sum, ad) => sum + ad.service.price, 0);
     const dateTimeFormated = getDateTimeFormatted(startDateTimeUTC);
 
     return (
@@ -90,7 +83,7 @@ export const NextAppointment = ({ appointment }: NextAppointmentProps) => {
                                             Precio
                                         </p>
                                         <p className="text-2xl font-bold text-black">
-                                            ${currentAppointment.price}
+                                            ${totalPrice}
                                         </p>
                                     </div>
                                     <div className="text-right">

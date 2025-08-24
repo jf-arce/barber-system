@@ -31,7 +31,7 @@ export const SelectableServiceCard = ({
                         <h4 className="font-semibold text-black group-hover:text-black transition-colors">{service.name}</h4>
                         <p className="text-sm text-gray-500">{service.description || '1hs'}</p>
                     </div>
-                    <span className="text-md font-medium text-black">desde ${service.price?.toFixed(2) ?? '-'}</span>
+                    <span className="text-md font-medium text-black">desde ${service.price?.toFixed(0) ?? '-'}</span>
                 </div>
                 <div className="flex items-center space-x-4">
                     {selected ? (
