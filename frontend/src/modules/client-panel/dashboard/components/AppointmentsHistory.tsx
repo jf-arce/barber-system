@@ -40,7 +40,7 @@ export const AppointmentsHistory = ({ appointments }: AppointmentsHistoryProps) 
                     Historial Reciente
                 </h4>
                 <div className="space-y-3">
-                    {appointments.slice(0, 2).map((item, idx) => {
+                    {appointments.slice(1, 3).map((item, idx) => {
                         const totalPrice = item?.appointmentDetails?.reduce((sum, ad) => sum + ad.service.price, 0);
                         return (
                             <div

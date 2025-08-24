@@ -34,7 +34,10 @@ export class AppointmentsService {
             return response.data;
         } catch (error) {
             console.log(error)
-            return {} as GetBarbersAvailability;
+            return {
+                date: "",
+                availableSlots: []
+            } as GetBarbersAvailability;
         }
     }
 

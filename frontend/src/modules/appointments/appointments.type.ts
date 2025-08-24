@@ -69,11 +69,12 @@ type UserAppointment = {
 export type PostBarbersAvailability = {
     date: string; // ISO 8601 format
     servicesWithBarberDto: ServicesWithBarber[];
+    assignBarberAutomatically: boolean;
 };
 
 export type ServicesWithBarber = {
     serviceId: number;
-    barberId: string;
+    barberId: string | null;
 };
 
 export type GetBarbersAvailability = {

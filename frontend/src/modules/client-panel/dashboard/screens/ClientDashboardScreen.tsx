@@ -51,11 +51,11 @@ export const ClientDashboardScreen = ({ services }: ClientDashboardScreenProps) 
           <Suspense fallback={<p>Cargando servicios...</p>}>
             <section>
               <div className="flex items-center justify-between mb-6">
-                <h3 className="text-lg font-bold text-background flex items-center">
+                <h3 className="text-lg font-bold text-foreground flex items-center">
                   <ScissorsIcon className="mr-2 h-5 w-5" />
                   Servicios
                 </h3>
-                <Link href="/services" className="text-background font-semibold hover:underline flex items-center gap-1">
+                <Link href="/client/appointment/booking" className="text-foreground font-semibold hover:underline flex items-center gap-1">
                   Ver todos <ArrowRightIcon className="w-4 h-4" />
                 </Link>
               </div>

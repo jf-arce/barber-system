@@ -107,7 +107,7 @@ export const SummaryPanel = ({
                                 const serv = services.find((serv) => serv.id === s.serviceId);
                                 return acc + (serv?.price || 0);
                             }, 0)
-                            .toFixed(2)}
+                            .toFixed(0)}
                     </span>
                 </div>
             </div>

@@ -13,6 +13,11 @@ import {
 } from "@/core/components/Popover"
 
 import dayjs from "dayjs"
+import utc from "dayjs/plugin/utc";
+import timezone from "dayjs/plugin/timezone";
+dayjs.extend(utc);
+dayjs.extend(timezone);
+
 
 function formatDate(date: Date | undefined) {
   if (!date) {
@@ -39,6 +44,9 @@ export function BookingDatePicker({ value, setCurrentDatePicker }: DatePickerPro
   const [inputValue, setInputValue] = React.useState(
     value ? formatDate(new Date(value)) : ""
   )
+
+  const todayArgentina = dayjs().tz("America/Argentina/Buenos_Aires").startOf("day").toDate();
+  const maxDate = dayjs(todayArgentina).add(5, "month").toDate();
 
   React.useEffect(() => {
     if (value) {
@@ -99,6 +107,7 @@ export function BookingDatePicker({ value, setCurrentDatePicker }: DatePickerPro
             sideOffset={10}
           >
             <Calendar
+              disabled={{ before: todayArgentina, after: maxDate }}
               mode="single"
               selected={date}
               captionLayout="dropdown"

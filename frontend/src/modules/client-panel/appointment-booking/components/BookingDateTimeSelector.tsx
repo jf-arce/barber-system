@@ -24,17 +24,16 @@ export const BookingDateTimeSelector = () => {
   });
 
   useEffect(() => {
-    const isAssigningBarber = getValues("assignAutomatically");
-
-    if (currentDatePicker && !isAssigningBarber) {
+    if (currentDatePicker) {
       const servicesWithBarbers = getValues("services").map(service => ({
         serviceId: service.serviceId,
-        barberId: service.barberId as string
+        barberId: service.barberId || null
       }));
 
       AppointmentsService.checkBarbersAvailability({
         date: currentDatePicker,
-        servicesWithBarberDto: servicesWithBarbers
+        servicesWithBarberDto: servicesWithBarbers,
+        assignBarberAutomatically: getValues("assignAutomatically")
       }).then((barbersSlotsAvailability) => {
         setGetBarbersAvailability(barbersSlotsAvailability)
       })
