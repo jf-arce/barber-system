@@ -40,7 +40,7 @@ export const SummaryPanel = ({
     }
 
     return (
-        <div className="w-full h-full md:w-[500px] bg-gray-50 border border-gray-200 rounded-lg p-6 md:sticky md:top-8 self-start flex flex-col justify-between">
+        <div className="w-full bg-gray-50 border border-gray-200 rounded-lg p-6 md:sticky md:top-8 self-start flex flex-col">
             <div>
                 <h3 className="font-bold text-lg mb-2">Resumen</h3>
                 <ul className="mb-2">

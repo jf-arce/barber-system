@@ -5,6 +5,8 @@ export default async function ClientDashboardPage() {
   const services = await ServicesService.getAll();
   
   return (
-    <ClientDashboardScreen services={services}/>
+    <ClientDashboardScreen 
+      services={services} 
+    />
   );
 }

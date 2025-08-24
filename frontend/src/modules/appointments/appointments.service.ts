@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { CreateAppointment, PostBarbersAvailability, GetBarbersAvailability } from './appointments.type';
+import { CreateAppointment, PostBarbersAvailability, GetBarbersAvailability, GetAppointment } from './appointments.type';
 import { API_ROUTES } from '@/core/constants/api-routes';
 
 export class AppointmentsService {
@@ -35,6 +35,23 @@ export class AppointmentsService {
         } catch (error) {
             console.log(error)
             return {} as GetBarbersAvailability;
+        }
+    }
+
+    static async getAllAppointmentsByUserId(userId: string): Promise<GetAppointment[]> {
+        try {
+            const response = await axios.get<GetAppointment[]>(`${API_ROUTES.APPOINTMENTS}/user/${userId}`, {
+                withCredentials: true
+            });
+
+            if (response.status !== 200) {
+                throw new Error(`Failed to fetch appointments: ${response.data}`);
+            }
+            
+            return response.data;
+        } catch (error) {
+            console.error("Error fetching appointments:", error);
+            return [];
         }
     }
 

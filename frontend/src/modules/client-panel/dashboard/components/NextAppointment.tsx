@@ -1,5 +1,7 @@
 import { Button } from "@/core/components/Button";
+import { AppointmentStatus, GetAppointment } from "@/modules/appointments/appointments.type";
 import { AlertCircle, Calendar, CheckCircle, Clock, Plus, RotateCcw, User, X } from "lucide-react";
+import { getDateTimeFormatted } from "../../../../core/utils/getDateTimeFormatted";
 
 const currentAppointment = {
   status: true,
@@ -9,11 +11,19 @@ const currentAppointment = {
   price: 16000
 };
 
+interface NextAppointmentProps {
+  appointment: GetAppointment;
+}
 
-export const NextAppointment = () => {
+export const NextAppointment = ({ appointment }: NextAppointmentProps) => {
+    
+    const startDateTimeUTC = appointment?.appointmentDetails?.[0]?.startDateTime;
+    const totalDuration = appointment?.appointmentDetails?.reduce((sum, ad) => sum + ad.service.duration, 0);
+    const dateTimeFormated = getDateTimeFormatted(startDateTimeUTC);
+
     return (
         <>
-            {currentAppointment.status ? (
+            {appointment && appointment.status !== AppointmentStatus.COMPLETED ? (
                 <div className="rounded-md bg-gray-100 shadow-xl animate-fade-up animate-duration-700 animate-ease-out animate-delay-100">
                     <div className="p-6">
                         <div className="space-y-6">
@@ -22,17 +32,26 @@ export const NextAppointment = () => {
                                     <Calendar className="mr-2 h-5 w-5 text-black" />
                                     Tu Próxima Cita
                                 </h3>
-                                <CheckCircle className="w-7 h-7 text-green-600 flex" />
+                                {appointment.status === AppointmentStatus.CONFIRMED && (
+                                    <CheckCircle className="w-7 h-7 text-green-600 flex" />
+                                )}
+                                {appointment.status === AppointmentStatus.CANCELLED && (
+                                    <X className="w-7 h-7 text-red-600 flex" />
+                                )}
                             </div>
 
                             <div className="space-y-4">
                                 <div>
                                     <h4 className="text-xl font-semibold text-black mb-2">
-                                        {currentAppointment.service}
+                                        {appointment.appointmentDetails.map(ad => ad.service.name).join(" + ")}
                                     </h4>
                                     <p className="text-gray-700 flex items-center">
                                         <User className="mr-2 h-4 w-4 text-black" />
-                                        con {currentAppointment.barber}
+                                        con {
+                                            Array.from(
+                                                new Set(appointment.appointmentDetails.map(ad => ad.barber.name))
+                                            ).join(" y ")
+                                        }
                                     </p>
                                 </div>
 
@@ -46,7 +65,7 @@ export const NextAppointment = () => {
                                                 Fecha
                                             </p>
                                             <p className="font-bold text-black text-base">
-                                                15 Enero
+                                                {dateTimeFormated.date}
                                             </p>
                                         </div>
                                     </div>
@@ -59,7 +78,7 @@ export const NextAppointment = () => {
                                                 Hora
                                             </p>
                                             <p className="font-bold text-black text-base">
-                                                14:30
+                                                {dateTimeFormated.hour}
                                             </p>
                                         </div>
                                     </div>
@@ -79,7 +98,7 @@ export const NextAppointment = () => {
                                             Duración
                                         </p>
                                         <p className="font-semibold text-black">
-                                            1hs
+                                            {totalDuration === 1 ? "1 hora" : `${totalDuration} horas`}
                                         </p>
                                     </div>
                                 </div>

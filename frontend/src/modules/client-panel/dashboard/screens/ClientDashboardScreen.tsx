@@ -10,7 +10,8 @@ import { DashboardHeaderResponsive } from "@/modules/client-panel/dashboard/comp
 import { GetService } from "@/modules/services/services.type";
 import { useAuthStore } from "@/modules/auth/auth.store";
 import ServiceBookingCard from "@/modules/services/components/ServiceBookingCard";
-import { Suspense } from "react";
+import { Suspense, useEffect } from "react";
+import { useClientPanelStore } from "../../stores/client-panel.store";
 
 interface ClientDashboardScreenProps {
   services: GetService[]; // Adjust type as necessary
@@ -19,7 +20,16 @@ interface ClientDashboardScreenProps {
 export const ClientDashboardScreen = ({ services }: ClientDashboardScreenProps) => {
 
   const userAuthenticated = useAuthStore().userAuthenticated;
+  const fetchAppointments = useClientPanelStore((state) => state.fetchAppointments);
+  const appointments = useClientPanelStore((state) => state.appointments);
   const abierto = isBarbershopOpen();
+
+  useEffect(() => {
+    const fetchData = async () => {
+      await fetchAppointments(userAuthenticated?.id || '');
+    };
+    fetchData();
+  }, [userAuthenticated?.id]);
 
   return (
     <div className="pt-10 pb-20 min-h-screen">
@@ -69,9 +79,9 @@ export const ClientDashboardScreen = ({ services }: ClientDashboardScreenProps) 
         <div className="lg:w-1/3 w-full mb-8 lg:mb-0">
           <div className="sticky top-8">
 
-            <NextAppointment />
+            <NextAppointment appointment={appointments[0]} />
 
-            <AppointmentsHistory />
+            <AppointmentsHistory appointments={appointments}/>
 
           </div>
         </div>

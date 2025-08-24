@@ -1,7 +1,7 @@
 export enum AppointmentStatus {
-    CONFIRMED = "Confirmed",
-    CANCELLED = "Cancelled",
-    COMPLETED = "Completed",
+    CONFIRMED = "Confirmado",
+    CANCELLED = "Cancelado",
+    COMPLETED = "Completado",
 }
 
 type AppointmentDetails = {
@@ -32,19 +32,21 @@ export type CreateAppointment = {
 
 export type GetAppointment = {
     id: number;
-    dateTime: string; // ISO 8601 format
     createdAt: string; // ISO 8601 format
     status: AppointmentStatus;
     user: UserAppointment;
-    services: GetAppointmentServices[];
+    appointmentDetails: GetAppointmentDetails[];
 };
 
-type GetAppointmentServices = {
+type GetAppointmentDetails = {
+    startDateTime: string; // ISO 8601 format
+    endDateTime: string; // ISO 8601 format
     service: ServiceAppointment;
     barber: BarberAppointment;
 };
 
 export type ServiceAppointment = {
+    id: number;
     name: string;
     description: string;
     price: number;

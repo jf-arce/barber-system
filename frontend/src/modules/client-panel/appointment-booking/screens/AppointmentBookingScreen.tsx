@@ -11,7 +11,7 @@ import { BarberPerServiceSelector } from "../components/BarberPerServiceSelector
 import { SelectBarber } from "../components/SelectBarber";
 import { ArrowLeftIcon } from "@/core/components/Icons";
 import { useAppointmentBookingForm } from "../hooks/useAppointmentBookingForm";
-import { formatDateTime } from "@/core/utils/formatDateTime";
+import { getDateTimeFormatted } from "@/core/utils/getDateTimeFormatted";
 import { BookingDateTimeSelector } from "../components/BookingDateTimeSelector";
 
 interface AppointmentBookingScreenProps {
@@ -47,18 +47,18 @@ export default function AppointmentBookingScreen({
           prevStep={prevStep}
         />
 
-        <div className="px-4 md:px-8 lg:px-16 min-h-[calc(100vh-200px)]">
+        <div className="min-h-[calc(100vh-200px)]">
           <form onSubmit={handleSubmitForm}>
             {(step === 1 || step === 2 || step === 3) && (
-              <div className="flex flex-col md:flex-row gap-20 w-full animate-fade-up animate-duration-700 animate-ease-out">
-                <div className="flex-1">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-20 w-full animate-fade-up animate-duration-700 animate-ease-out">
+                <div className="flex-1 relative">
                   {step === 1 && (
                     <SelectServices services={services} />
                   )}
                   {step === 2 && !isSelectingBarberPerService && (
                     <>
                       <h2 className="text-2xl font-bold mb-8">Paso 2: Selecciona un barbero</h2>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-8">
                         <AutomaticAssignCard />
 
                         {watch("services").length > 1 && (
@@ -95,12 +95,12 @@ export default function AppointmentBookingScreen({
                   )}
                 </div>
 
-                <SummaryPanel
-                  services={services}
-                  barbers={barbers}
-                  step={step}
-                  nextStep={nextStep}
-                />
+                  <SummaryPanel
+                    services={services}
+                    barbers={barbers}
+                    step={step}
+                    nextStep={nextStep}
+                  />
               </div>
             )}
 
@@ -125,7 +125,12 @@ export default function AppointmentBookingScreen({
                         </li>
                       );
                     })}
-                    <li><b>Fecha y hora:</b> {formatDateTime(watch("startDateTime")) || "-"}</li>
+                    <li>
+                      <b>Fecha:</b> 
+                      {getDateTimeFormatted(watch("startDateTime")).date || "-"}
+                      <br />
+                      <b>Hora:</b> {getDateTimeFormatted(watch("startDateTime")).hour || "-"}
+                    </li>
                   </ul>
                 </div>
                 <Button

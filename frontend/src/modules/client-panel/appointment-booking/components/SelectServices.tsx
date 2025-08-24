@@ -33,7 +33,7 @@ export const SelectServices = ({ services }: SelectServicesProps) => {
     return (
         <>
             <h2 className="text-2xl font-bold mb-8">Paso 1: Selecciona uno o más servicios</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 {services.map((service, idx) => {
                     const selectedServices = watch("services");
                     const selected = selectedServices.some(s => s.serviceId === service.id);
