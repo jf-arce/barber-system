@@ -56,6 +56,7 @@ export const useAppointmentBookingForm = ({ barbers }: UseAppointmentFormProps) 
             isValid = await trigger("services");
         } else if (step === 2) {
             isValid = await trigger("services");
+
         } else if (step === 3) {
             isValid = await trigger("startDateTime");
             isValid = await trigger("endDateTime");
@@ -63,19 +64,23 @@ export const useAppointmentBookingForm = ({ barbers }: UseAppointmentFormProps) 
             isValid = true;
         } 
 
-        if (step === 1 && isValid) {
-            // Si vamos de step 1 a step 2, y la combinación de servicios cambió, reiniciar barberos
+        if (step === 1) {
             const selectedServices = getValues("services");
             const idSelectedServices = selectedServices.map(s => s.serviceId).sort();
-
+            
             if (hasServiceSelectionChanged(idSelectedServices, lastServiceIds)) {
                 setValue(
                     "services",
                     selectedServices.map(s => ({ serviceId: s.serviceId, barberId: "" })),
-                    { shouldValidate: true }
+                    { shouldValidate: false }
                 );
                 setValue("assignAutomatically", false, { shouldValidate: false });
+                setValue("startDateTime", "", { shouldValidate: false });
+                setValue("endDateTime", "", { shouldValidate: false });
             }
+            // Permitir avanzar aunque los barberId estén vacíos
+            // La validación estricta de barberos solo se aplicará en los pasos posteriores
+            isValid = true;
         }
 
         if (isValid) setStep((prev) => prev + 1);
