@@ -233,6 +233,21 @@ public class AppointmentService : IAppointmentService
         var endOfDayUtc = TimeZoneInfo.ConvertTimeToUtc(
             dto.Date.ToDateTime(new TimeOnly(WorkDayEndHour + 1, 0)), argentinaTimeZone
         ); // +1 para incluir hasta las 18:00
+        
+        // Ajustar inicio si la fecha es hoy → empezar desde ahora mismo
+        if (dto.Date == today)
+        {
+            var nowArgentina = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, argentinaTimeZone);
+
+            // Solo consideramos horarios posteriores a "ahora + MinimumAnticipationMinutes"
+            var earliestTime = nowArgentina.AddMinutes(MinimumAnticipationMinutes);
+
+            // No permitir horarios antes del inicio de jornada
+            if (earliestTime.TimeOfDay < new TimeSpan(WorkDayStartHour, 0, 0))
+                earliestTime = earliestTime.Date.AddHours(WorkDayStartHour);
+
+            startOfDayUtc = TimeZoneInfo.ConvertTimeToUtc(earliestTime, argentinaTimeZone);
+        }
 
         // Obtener detalles de turnos existentes (UTC)
         var appointmentDetails = await _appointmentDetailRepository
