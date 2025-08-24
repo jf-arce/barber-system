@@ -30,6 +30,8 @@ public class GetAppointmentDto
             },
             AppointmentDetails = appointment.AppointmentDetails.Select(aserv => new GetAppointmentDetailDto
             {
+                StartDateTime = aserv.StartDateTime,
+                EndDateTime = aserv.EndDateTime,
                 Service = new GetServiceDto
                 {
                     Name = aserv.Service.Name,
