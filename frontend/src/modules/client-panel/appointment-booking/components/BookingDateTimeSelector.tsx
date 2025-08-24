@@ -9,6 +9,7 @@ import { AppointmentsService } from '@/modules/appointments/appointments.service
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
+import { Skeleton } from '@/core/components/Skeleton';
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
@@ -23,6 +24,8 @@ export const BookingDateTimeSelector = () => {
     availableSlots: []
   });
 
+  const [loading, setLoading] = useState(false);
+
   useEffect(() => {
     if (currentDatePicker) {
       const servicesWithBarbers = getValues("services").map(service => ({
@@ -30,12 +33,18 @@ export const BookingDateTimeSelector = () => {
         barberId: service.barberId || null
       }));
 
+      setLoading(true);
+
       AppointmentsService.checkBarbersAvailability({
         date: currentDatePicker,
         servicesWithBarberDto: servicesWithBarbers,
         assignBarberAutomatically: getValues("assignAutomatically")
       }).then((barbersSlotsAvailability) => {
         setGetBarbersAvailability(barbersSlotsAvailability)
+      }).finally(() => {
+        setTimeout(() => {   
+          setLoading(false);
+        }, 400);
       })
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -65,6 +74,52 @@ export const BookingDateTimeSelector = () => {
     setSelectedSlot(slot.start);
   }
 
+
+  let listOfAvailableSlotsRender;
+
+  if (loading) {
+    listOfAvailableSlotsRender = (
+      <div className='space-y-2'>
+        {Array.from({ length: 10 }).map((_, idx) => (
+          <div
+        key={idx}
+        className='h-12 rounded-md border border-neutral-400/50 flex items-center gap-2 p-4 opacity-0 animate-fade-in'
+        style={{
+          animationDelay: `${idx * 40}ms`,
+          animationFillMode: 'forwards'
+        }}
+          >
+        <Skeleton className="h-2 w-[80px]" />
+          </div>
+        ))}
+      </div>
+    )
+  } else if (getBarbersAvailability.availableSlots.length > 0) {
+    listOfAvailableSlotsRender = (
+      <ul className="flex flex-col gap-2">
+        {getBarbersAvailability.availableSlots.map((barberAvailability, idx) => (
+          <li 
+            key={idx}
+            className="opacity-0 animate-fade-in"
+            style={{
+              animationDelay: `${idx * 40}ms`,
+              animationFillMode: 'forwards'
+            }}
+          >
+            <Button
+              variant="outline"
+              className={`w-full transition-colors ${selectedSlot === barberAvailability.start.split(":").slice(0,2).join(":") ? 'bg-primary' : ''} hover:bg-primary/80`}
+              onClick={() => handleDateTimeSelect(barberAvailability)}>
+              {barberAvailability.start.split(":").slice(0, 2).join(":")}
+            </Button>
+          </li>
+        ))}
+      </ul>
+    );
+  } else {
+    listOfAvailableSlotsRender = <p>No hay barberos disponibles en este horario.</p>;
+  }
+
   return (
     <div>
       <h2 className="text-2xl font-bold mb-4">Paso 3: Selecciona una fecha y hora</h2>
@@ -75,24 +130,9 @@ export const BookingDateTimeSelector = () => {
         />
         {currentDatePicker && (
           <div>
-            {
-              getBarbersAvailability.availableSlots.length > 0 ? (
-                <ul className="flex flex-col gap-2">
-                  {getBarbersAvailability.availableSlots.map((barberAvailability, idx) => (
-                    <li key={idx}>
-                      <Button
-                        variant="outline"
-                        className={`w-full transition-colors ${selectedSlot === barberAvailability.start.split(":").slice(0,2).join(":") ? 'bg-primary' : ''} hover:bg-primary/80`}
-                        onClick={() => handleDateTimeSelect(barberAvailability)}>
-                        {barberAvailability.start.split(":").slice(0, 2).join(":")}
-                      </Button>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p>No hay barberos disponibles en este horario.</p>
-              )}
-
+            <div>
+              {listOfAvailableSlotsRender}
+            </div>
           </div>
         )}
       </div>
