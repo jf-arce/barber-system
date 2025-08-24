@@ -10,4 +10,6 @@ public interface IBarberRepository : IGenericRepository<Barber>
     
     public Task<bool> IsBarberAvailable(Guid barberId, DateTime appointmentDateTime, int serviceDurationHours);
     public Task<List<Barber>> FindAllByIds(List<Guid> barberIds);
+    
+    Task<List<Guid>> GetBarbersForService(int serviceId);
 }

@@ -80,4 +80,12 @@ public class BarberRepository : GenericRepository<Barber>, IBarberRepository
             .Include(b => b.Services)
             .ToListAsync();
     }
+    
+    public async Task<List<Guid>> GetBarbersForService(int serviceId)
+    {
+        return await _db.Barbers
+            .Where(b => b.Services.Any(s => s.Id == serviceId))
+            .Select(b => b.UserId) // Solo devolvemos el ID del barbero
+            .ToListAsync();
+    }
 }

@@ -195,25 +195,46 @@ public class AppointmentService : IAppointmentService
 
     public async Task<GetBarbersAvailabilityDto> GetBarbersAvailability(CheckBarbersAvailabilityDto dto)
     {
+        // Validar fecha
+        var today = DateOnly.FromDateTime(DateTime.UtcNow);
+
+        if (dto.Date < today)
+            throw new CustomHttpException(HttpStatusCode.BadRequest, "La fecha de la cita no puede estar en el pasado");
+
+        if (dto.Date > today.AddMonths(MonthsInAdvanceLimit))
+            throw new InvalidOperationException($"La cita no puede ser más de {MonthsInAdvanceLimit} meses en el futuro");
+        
+        var services = await _serviceRepository
+            .FindByMultipleIds(dto.ServicesWithBarberDto
+                .Select(s => s.ServiceId).ToList());
+
+        if (services.Count != dto.ServicesWithBarberDto.Count)
+            throw new CustomHttpException(HttpStatusCode.BadRequest, "Uno o más servicios no encontrados");
+        
         // Mapear servicios con duración
-        var serviceEntities = await _serviceRepository.FindByMultipleIds(dto.ServicesWithBarberDto.Select(s => s.ServiceId).ToList());
+        var serviceEntities = await _serviceRepository.FindByMultipleIds(
+            dto.ServicesWithBarberDto.Select(s => s.ServiceId).ToList()
+        );
+
         var servicesWithDuration = dto.ServicesWithBarberDto
             .Select(s => new
             {
                 s.ServiceId,
-                s.BarberId,
+                s.BarberId, // puede venir vacío si AssignBarberAutomatically = true
                 DurationInHours = serviceEntities.First(se => se.Id == s.ServiceId).Duration
             })
             .ToList();
 
         // Horario de jornada local Argentina → UTC
         var argentinaTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Argentina Standard Time");
-        var startOfDayUtc = TimeZoneInfo
-            .ConvertTimeToUtc(dto.Date.ToDateTime(new TimeOnly(WorkDayStartHour, 0)), argentinaTimeZone);
-        var endOfDayUtc   = TimeZoneInfo
-            .ConvertTimeToUtc(dto.Date.ToDateTime(new TimeOnly(WorkDayEndHour + 1, 0)), argentinaTimeZone); // +1 para incluir hasta las 18:00
+        var startOfDayUtc = TimeZoneInfo.ConvertTimeToUtc(
+            dto.Date.ToDateTime(new TimeOnly(WorkDayStartHour, 0)), argentinaTimeZone
+        );
+        var endOfDayUtc = TimeZoneInfo.ConvertTimeToUtc(
+            dto.Date.ToDateTime(new TimeOnly(WorkDayEndHour + 1, 0)), argentinaTimeZone
+        ); // +1 para incluir hasta las 18:00
 
-        // Obtener detailsAppointments con horarios en UTC
+        // Obtener detalles de turnos existentes (UTC)
         var appointmentDetails = await _appointmentDetailRepository
             .GetAppointmentDetailsByDateRange(startOfDayUtc, endOfDayUtc);
 
@@ -224,14 +245,42 @@ public class AppointmentService : IAppointmentService
         while (current.AddHours(totalDuration) <= endOfDayUtc)
         {
             var slotEnd = current.AddHours(totalDuration);
+            bool allFree;
 
-            var allFree = servicesWithDuration.All(s =>
-                !appointmentDetails.Any(ad =>
-                    ad.BarberId == s.BarberId &&
-                    ad.StartDateTime < slotEnd &&
-                    ad.EndDateTime > current
-                )
-            );
+            if (dto.AssignBarberAutomatically)
+            {
+                // Buscar barberos posibles para cada servicio
+                allFree = true;
+
+                foreach (var service in servicesWithDuration)
+                {
+                    var possibleBarbers = await _barberRepository.GetBarbersForService(service.ServiceId);
+
+                    // Algún barbero libre para este servicio?
+                    var hasFreeBarber = possibleBarbers.Any(barberId =>
+                        !appointmentDetails.Any(ad =>
+                            ad.BarberId == barberId &&
+                            ad.StartDateTime < slotEnd &&
+                            ad.EndDateTime > current
+                        )
+                    );
+
+                    if (hasFreeBarber) continue;
+                    allFree = false;
+                    break;
+                }
+            }
+            else
+            {
+                // Caso original: validar con los barberos enviados en el dto
+                allFree = servicesWithDuration.All(s =>
+                    !appointmentDetails.Any(ad =>
+                        ad.BarberId == s.BarberId &&
+                        ad.StartDateTime < slotEnd &&
+                        ad.EndDateTime > current
+                    )
+                );
+            }
 
             if (allFree)
             {
@@ -242,7 +291,7 @@ public class AppointmentService : IAppointmentService
                 });
             }
 
-            current = slotEnd; // Avanzar al siguiente posible rango horario
+            current = slotEnd; // Avanzar al siguiente rango posible
         }
 
         return new GetBarbersAvailabilityDto

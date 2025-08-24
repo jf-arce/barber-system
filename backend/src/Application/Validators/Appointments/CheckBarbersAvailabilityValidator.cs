@@ -15,16 +15,27 @@ public class CheckBarbersAvailabilityValidator : AbstractValidator<CheckBarbersA
             .NotEmpty()
             .WithMessage("Debe especificar al menos un servicio");
 
+        RuleFor(x => x.AssignBarberAutomatically)
+            .NotNull()
+            .WithMessage("Debe especificar si se asigna el barbero automáticamente")
+            .When(x => x.ServicesWithBarberDto.Count != 0);
+
+        // Validación siempre para ServiceId
         RuleForEach(x => x.ServicesWithBarberDto)
             .ChildRules(s =>
             {
                 s.RuleFor(service => service.ServiceId)
                     .GreaterThan(0)
                     .WithMessage("ServiceId debe ser un número válido mayor a 0");
+            });
 
+        // Validación condicional para BarberId
+        RuleForEach(x => x.ServicesWithBarberDto)
+            .ChildRules(s =>
+            {
                 s.RuleFor(service => service.BarberId)
                     .NotEmpty()
-                    .WithMessage("El barbero no puede ser nulo");
-            });
+                    .WithMessage("El barbero no puede ser nulo cuando AssignBarberAutomatically es falso");
+            }).When(x => !x.AssignBarberAutomatically);
     }
 }
