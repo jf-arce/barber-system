@@ -107,7 +107,10 @@ export function BookingDatePicker({ value, setCurrentDatePicker }: DatePickerPro
             sideOffset={10}
           >
             <Calendar
-              disabled={{ before: todayArgentina, after: maxDate }}
+              disabled={[
+                { before: todayArgentina, after: maxDate },
+                { dayOfWeek: [0, 1] } // domingo=0, lunes=1
+              ]}
               mode="single"
               selected={date}
               captionLayout="dropdown"
