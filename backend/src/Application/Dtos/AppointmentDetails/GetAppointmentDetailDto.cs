@@ -7,6 +7,6 @@ public class GetAppointmentDetailDto
 {
     public DateTime StartDateTime { get; init; }
     public DateTime EndDateTime { get; init; }
-    public GetServiceDto Service { get; set; }
-    public GetBarberAppointmentDto Barber { get; set; }
+    public GetServiceDto Service { get; set; } = null!;
+    public GetBarberAppointmentDto Barber { get; set; } = null!;
 }

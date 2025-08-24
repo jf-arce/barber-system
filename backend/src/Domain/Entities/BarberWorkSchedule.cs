@@ -11,5 +11,5 @@ public class BarberWorkSchedule
     public TimeSpan EndTime { get; set; }
 
     public Guid BarberId { get; set; }
-    public virtual Barber Barber { get; set; }
+    public virtual Barber Barber { get; set; } = null!;
 }

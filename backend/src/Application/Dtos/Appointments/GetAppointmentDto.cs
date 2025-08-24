@@ -10,7 +10,7 @@ public class GetAppointmentDto
     public int Id { get; set; }
     public DateTime CreatedAt { get; set; }
     public string Status { get; set; } = null!;
-    public GetUserAppointmentDto User { get; set; }
+    public GetUserAppointmentDto User { get; set; } = null!;
     public List<GetAppointmentDetailDto> AppointmentDetails { get; set; } = [];
 
     

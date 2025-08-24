@@ -110,7 +110,7 @@ public class JwtService : IJwtService
            
            return tokenInfo;
        }
-       catch (Exception ex)
+       catch
        {
            return null;
        }

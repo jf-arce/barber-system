@@ -13,7 +13,7 @@ public class AppointmentDetail
     public DateTime StartDateTime { get; init; }
     public DateTime EndDateTime { get; init; }
 
-    public virtual Appointment Appointment { get; init; }
-    public virtual Service Service { get; init; }
-    public virtual Barber Barber { get; init; }
+    public virtual Appointment Appointment { get; init; } = null!;
+    public virtual Service Service { get; init; } = null!;
+    public virtual Barber Barber { get; init; } = null!;
 }
