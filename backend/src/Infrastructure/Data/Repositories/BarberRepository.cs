@@ -1,4 +1,5 @@
 using Domain.Entities;
+using Domain.Enums;
 using Domain.Repositories;
 using Domain.Repositories.Base;
 using Infrastructure.Data.Repositories.Base;
@@ -48,10 +49,12 @@ public class BarberRepository : GenericRepository<Barber>, IBarberRepository
             /* Ej: Si la cita a asignar es de 2 horas, no puede haber una cita que empiece antes del fin de la cita a asignar
                y termine después de que empiece la cita a asignar.
             */
-            .Where(b => !b.AppointmentDetails.Any(ad =>
-                ad.StartDateTime < appointmentEnd &&
-                ad.EndDateTime > appointmentStart
-            ))
+            .Where(b => !b.AppointmentDetails
+                .Any(ad => ad.Appointment.Status != AppointmentStatusEnum.Cancelado.ToString() &&
+                           ad.Appointment.Status != AppointmentStatusEnum.Completado.ToString() &&
+                           ad.StartDateTime < appointmentEnd &&
+                           ad.EndDateTime > appointmentStart
+                           ))
             .Include(b => b.AppointmentDetails)
             .Include(b => b.Services)
             .ToListAsync();
@@ -65,10 +68,12 @@ public class BarberRepository : GenericRepository<Barber>, IBarberRepository
 
         return _db.Barbers
             .Where(b => b.UserId == barberId)
-            .Select(b => !b.AppointmentDetails.Any(ad =>
-                ad.StartDateTime < appointmentEnd &&
-                ad.EndDateTime > appointmentStart
-            ))
+            .Select(b => !b.AppointmentDetails
+                .Any(ad => ad.Appointment.Status != AppointmentStatusEnum.Cancelado.ToString() &&
+                           ad.Appointment.Status != AppointmentStatusEnum.Completado.ToString() &&
+                           ad.StartDateTime < appointmentEnd &&
+                           ad.EndDateTime > appointmentStart
+                ))
             .FirstOrDefaultAsync();
         // Devuelve true si el barbero está disponible, false si no lo está.
     }

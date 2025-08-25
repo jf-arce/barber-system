@@ -1,4 +1,5 @@
 using Domain.Entities;
+using Domain.Enums;
 using Domain.Repositories;
 using Infrastructure.Data.Repositories.Base;
 using Microsoft.EntityFrameworkCore;
@@ -24,7 +25,10 @@ public class AppointmentDetailRepository : GenericRepository<AppointmentDetail>,
     public async Task<List<AppointmentDetail>> GetAppointmentDetailsByDateRange(DateTime startUtc, DateTime endUtc)
     {
         return await _db.AppointmentDetails
+            .Include(ad => ad.Appointment) // Incluimos la cita para poder acceder al estado
             .Where(ad => ad.StartDateTime >= startUtc && ad.StartDateTime < endUtc)
+            .Where(ad => ad.Appointment.Status != AppointmentStatusEnum.Cancelado.ToString()
+                         && ad.Appointment.Status != AppointmentStatusEnum.Completado.ToString())
             .ToListAsync();
     }
 }

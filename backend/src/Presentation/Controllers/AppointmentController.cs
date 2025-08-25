@@ -129,4 +129,34 @@ public class AppointmentController : ControllerBase
             return StatusCode(handleException.StatusCode, handleException.Body);
         }
     }
+    
+    [HttpPatch("{id:int}/cancel")]
+    public async Task<IActionResult> Cancel(int id)
+    {
+        try
+        {
+            await _appointmentService.Cancel(id);
+            return Ok(new { message = "Appointment canceled successfully" });
+        }
+        catch (Exception ex)
+        {
+            var handleException = HandleException.Handle(ex);
+            return StatusCode(handleException.StatusCode, handleException.Body);
+        }
+    }
+    
+    [HttpPatch("{id:int}/reschedule")]
+    public async Task<IActionResult> Reschedule(int id, [FromBody] RescheduleAppointmentDto rescheduleDto)
+    {
+        try
+        {
+            await _appointmentService.Reschedule(id, rescheduleDto.NewDateTime);
+            return Ok(new { message = "Appointment rescheduled successfully" });
+        }
+        catch (Exception ex)
+        {
+            var handleException = HandleException.Handle(ex);
+            return StatusCode(handleException.StatusCode, handleException.Body);
+        }
+    }
 }

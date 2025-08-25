@@ -10,8 +10,8 @@ public class AppointmentDetail
     public Guid BarberId { get; init; }
     public int ServiceId { get; init; }
     
-    public DateTime StartDateTime { get; init; }
-    public DateTime EndDateTime { get; init; }
+    public DateTime StartDateTime { get; set; }
+    public DateTime EndDateTime { get; set; }
 
     public virtual Appointment Appointment { get; init; } = null!;
     public virtual Service Service { get; init; } = null!;

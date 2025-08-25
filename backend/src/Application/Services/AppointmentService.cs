@@ -94,7 +94,7 @@ public class AppointmentService : IAppointmentService
                     // 4️⃣ Asignación automática (independientemente si hay un solo servicio o varios)
                     var availableBarbers = await _barberRepository
                         .FindAllAvailableBarbers(appointmentStartDto, serviceDto.Duration);
-                    
+
                     // Filtrar barberos que puedan hacer el servicio
                     var candidateBarbers = availableBarbers
                         .Where(b => b.Services.Any(bs => bs.Id == serviceDto.Id))
@@ -104,9 +104,12 @@ public class AppointmentService : IAppointmentService
                         throw new CustomHttpException(HttpStatusCode.NotFound,
                             $"No hay barberos disponibles para {serviceDto.Name} a las {ToArgentina(appointmentStartDto):HH:mm}");
 
-                    // Elegimos el que tenga menos citas en el día (para balancear la carga de trabajo)
+                    // Elegimos el que tenga menos citas activas en el día (para balancear la carga de trabajo)
                     barberId = candidateBarbers
-                        .OrderBy(b => b.AppointmentDetails.Count(ad => ad.StartDateTime.Date == appointmentStartDto.Date))
+                        .OrderBy(b => b.AppointmentDetails
+                            .Count(ad => ad.StartDateTime.Date == appointmentStartDto.Date &&
+                                         ad.Appointment.Status != AppointmentStatusEnum.Cancelado.ToString() &&
+                                         ad.Appointment.Status != AppointmentStatusEnum.Completado.ToString()))
                         .First().UserId;
                 }
 
@@ -176,16 +179,58 @@ public class AppointmentService : IAppointmentService
 
        await _appointmentRepository.Update(appointment);
     }
+    
+    public async Task Cancel(int id)
+    {
+        var appointment = await _appointmentRepository.FindById(id);
+        if (appointment == null)
+            throw new CustomHttpException(HttpStatusCode.NotFound, "Appointment not found");
+
+        var nowUtc = DateTime.UtcNow;
+        if (appointment.AppointmentDetails.Any(ad => ad.StartDateTime <= nowUtc))
+            throw new CustomHttpException(HttpStatusCode.BadRequest, "No se puede cancelar una cita que ya comenzó");
+
+        appointment.Status = AppointmentStatusEnum.Cancelado.ToString();
+        await _appointmentRepository.Update(appointment);
+    }
 
     public async Task Reschedule(int id, DateTime newDateTime)
     {
-        // var appointment = await _appointmentRepository.FindById(id);
-        // if (appointment == null) throw new CustomHttpException(HttpStatusCode.NotFound, "Appointment not found");
-        //
-        // appointment.DateTime = newDateTime;
-        //
-        // await _appointmentRepository.Update(appointment);
-        throw new NotImplementedException();
+        var appointment = await _appointmentRepository.FindById(id);
+        if (appointment == null)
+            throw new CustomHttpException(HttpStatusCode.NotFound, "Appointment not found");
+
+        if (appointment.AppointmentDetails.Any(ad => ad.StartDateTime <= DateTime.UtcNow))
+            throw new CustomHttpException(HttpStatusCode.BadRequest, "No se puede reprogramar una cita que ya comenzó");
+
+        ValidateDateTime(newDateTime);
+
+        // Ordenamos los detalles por hora para reasignarlos consecutivamente
+        var appointmentDetails = appointment.AppointmentDetails.OrderBy(ad => ad.StartDateTime).ToList();
+        var startDateTime = newDateTime;
+
+        foreach (var detail in appointmentDetails)
+        {
+            var service = await _serviceRepository.FindById(detail.ServiceId);
+            if (service == null)
+                throw new CustomHttpException(HttpStatusCode.NotFound, $"Servicio {detail.ServiceId} no encontrado");
+
+            // Validamos que el barbero original esté disponible
+            var isAvailable = await _barberRepository.IsBarberAvailable(detail.BarberId, startDateTime, service.Duration);
+            if (!isAvailable)
+                throw new CustomHttpException(HttpStatusCode.BadRequest,
+                    $"El barbero {detail.BarberId} no está disponible para {service.Name} a las {ToArgentina(startDateTime):HH:mm}");
+
+            // Actualizamos los horarios
+            detail.StartDateTime = startDateTime;
+            detail.EndDateTime = startDateTime.AddHours(service.Duration);
+            await _appointmentDetailRepository.Update(detail);
+
+            startDateTime = detail.EndDateTime; // siguiente servicio consecutivo
+        }
+
+        appointment.Status = AppointmentStatusEnum.Confirmado.ToString();
+        await _appointmentRepository.Update(appointment);
     }
 
     public Task Notify()
