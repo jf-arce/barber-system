@@ -27,7 +27,7 @@ public class AppointmentRepository : GenericRepository<Appointment>, IAppointmen
            .Where(a => startDate == null || a.AppointmentDetails.Any(ad => ad.StartDateTime >= startDate))
            .Where(a => endDate == null || a.AppointmentDetails.Any(ad => ad.EndDateTime <= endDate))
            .Where(a => string.IsNullOrEmpty(status) || a.Status.ToString() == status)
-           .OrderByDescending(a => a.AppointmentDetails.Min(ad => ad.StartDateTime))
+           .OrderByDescending(a => a.CreatedAt)
            .ToListAsync();
 
        return appointments;
@@ -47,7 +47,7 @@ public class AppointmentRepository : GenericRepository<Appointment>, IAppointmen
             .Where(a => startDate == null || a.AppointmentDetails.Any(ad => ad.StartDateTime >= startDate))
             .Where(a => endDate == null || a.AppointmentDetails.Any(ad => ad.EndDateTime <= endDate))
             .Where(a => string.IsNullOrEmpty(status) || a.Status.ToString() == status)
-            .OrderByDescending(a => a.AppointmentDetails.Min(ad => ad.StartDateTime))
+            .OrderByDescending(a => a.CreatedAt)
             .ToListAsync();
     
         return appointments;
