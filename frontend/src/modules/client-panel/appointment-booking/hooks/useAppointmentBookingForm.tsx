@@ -8,6 +8,7 @@ import { GetBarber } from "@/modules/barbers/barbers.type";
 import { getBarbersForSelectedServices } from "../helpers/getBarbersForSelectedServices";
 import { hasServiceSelectionChanged } from "../helpers/hasServiceSelectionChanged";
 import { AppointmentsService } from "@/modules/appointments/appointments.service";
+import { toast } from "sonner";
 
 interface UseAppointmentFormProps {
     barbers: GetBarber[];
@@ -104,8 +105,7 @@ export const useAppointmentBookingForm = ({ barbers }: UseAppointmentFormProps) 
             assignBarberAutomatically: getValues("assignAutomatically"),
         };
 
-        console.log("Formulario enviado:", appointmentToSend);
-        alert("Formulario enviado exitosamente!");
+        toast.success("Cita reservada exitosamente.");
 
         AppointmentsService.create(appointmentToSend);
 
