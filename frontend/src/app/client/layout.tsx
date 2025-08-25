@@ -9,7 +9,7 @@ export default function ClientLayout({ children }: { children: ReactNode }) {
     return (
         <AuthClientProvider>
             <ClientNavbar />
-            <section className='bg-background'>
+            <section className='bg-background mt-[72px]'>
                 <MainContainer>
                     {children}
                 </MainContainer>
