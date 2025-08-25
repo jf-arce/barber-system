@@ -2,7 +2,6 @@
 import { GetService } from "@/modules/services/services.type"
 import { FormProvider } from "react-hook-form"
 import { GetBarber } from "@/modules/barbers/barbers.type";
-import { Button } from "@/core/components/Button";
 import { SummaryPanel } from "@/modules/client-panel/appointment-booking/components/SummaryPanel";
 import { BookingBackButton } from "../components/BookingBackButton";
 import { SelectServices } from "../components/SelectServices";
@@ -13,8 +12,8 @@ import { ArrowLeftIcon } from "@/core/components/Icons";
 import { useAppointmentBookingForm } from "../hooks/useAppointmentBookingForm";
 import { useServiceIdFromParams } from "../hooks/useServiceIdFromParams";
 import { useEffect } from "react";
-import { getDateTimeFormatted } from "@/core/utils/getDateTimeFormatted";
 import { BookingDateTimeSelector } from "../components/BookingDateTimeSelector";
+import { BookingConfirmationPanel } from "../components/BookingConfirmationPanel";
 
 interface AppointmentBookingScreenProps {
   services: GetService[];
@@ -120,40 +119,7 @@ export default function AppointmentBookingScreen({
             )}
 
             {step === 4 && (
-              <div>
-                <h2 className="text-2xl font-bold mb-4">Paso 4: Confirmar cita</h2>
-                <div className="mb-4 p-4 border rounded bg-gray-50">
-                  <h3 className="font-semibold mb-2">Resumen de la cita:</h3>
-                  <ul>
-                    {(watch("services")).map((s) => {
-                      const service = services.find(serv => serv.id === s.serviceId);
-                      const barber = barbers.find(b => b.id === s.barberId);
-                      return (
-                        <li key={s.serviceId}>
-                          <div>
-                            <b>Servicio:</b> {service?.name || '-'}
-                          </div>
-                          <div>
-                            <b>Barbero:</b> {barber?.name || ''}
-                            {watch("assignAutomatically") ? ' (Primero disponible)' : ''}
-                          </div>
-                        </li>
-                      );
-                    })}
-                    <li>
-                      <b>Fecha:</b> 
-                      {getDateTimeFormatted(watch("startDateTime")).date || "-"}
-                      <br />
-                      <b>Hora:</b> {getDateTimeFormatted(watch("startDateTime")).hour || "-"}
-                    </li>
-                  </ul>
-                </div>
-                <Button
-                  type="submit"
-                >
-                  Confirmar cita
-                </Button>
-              </div>
+              <BookingConfirmationPanel services={services} barbers={barbers} />
             )}
           </form>
         </div>

@@ -2,14 +2,12 @@ import { Button } from "@/core/components/Button";
 import { Skeleton } from "@/core/components/Skeleton";
 import { Dialog, DialogTrigger, DialogContent, DialogTitle, DialogFooter, DialogClose } from "@/core/components/Dialog";
 import { Input } from "@/core/components/Input";
-import { useState } from "react";
 import { AppointmentStatus, GetAppointment } from "@/modules/appointments/appointments.type";
 import { AlertCircle, Calendar, CheckCircle, Clock, RotateCcw, User, X } from "lucide-react";
 import { getDateTimeFormatted } from "../../../../core/utils/getDateTimeFormatted";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/core/components/AlertDialog";
-import { AppointmentsService } from "@/modules/appointments/appointments.service";
-import { toast } from 'sonner'
 import { useClientPanelStore } from "../../stores/client-panel.store";
+import { useAppointmentActions } from "@/modules/appointments/hooks/useAppointmentActions";
 
 interface NextAppointmentProps {
     appointment: GetAppointment;
@@ -25,49 +23,14 @@ export const NextAppointment = ({ appointment, onRefresh }: NextAppointmentProps
     const isLoading = useClientPanelStore(state => state.isLoading);
 
     // Estado para dialog de reprogramar
-    const [rescheduleOpen, setRescheduleOpen] = useState(false);
-    const [newDateTime, setNewDateTime] = useState("");
-
-    const handleCancelAppointment = () => {
-        AppointmentsService.cancelAppointment(appointment.id)
-            .then(() => {
-                setTimeout(() => {
-                    toast.success('Cita cancelada con éxito', {
-                        description: 'Tu cita ha sido cancelada.',
-                    });
-                    if (onRefresh) onRefresh();
-                }, 150);
-            })
-            .catch(() => {
-                toast.error('Error al cancelar la cita', {
-                    description: 'Ocurrió un error al cancelar tu cita.',
-                });
-            });
-    };
-
-    const handleRescheduleAppointment = (e: React.FormEvent) => {
-        e.preventDefault();
-        // Convert newDateTime (local) to UTC string
-        const localDate = new Date(newDateTime);
-        const utcDateTime = localDate.toISOString();
-
-        AppointmentsService.rescheduleAppointment({ id: appointment.id, newDateTime: utcDateTime })
-            .then(() => {
-                setTimeout(() => {
-                    toast.success('Cita reprogramada con éxito', {
-                        description: 'Tu cita ha sido reprogramada.',
-                    });
-                    if (onRefresh) onRefresh();
-                }, 150);
-            })
-            .catch(() => {
-                toast.error('Error al reprogramar la cita', {
-                    description: 'Ocurrió un error al reprogramar tu cita.',
-                });
-            });
-        setRescheduleOpen(false);
-        setNewDateTime("");
-    };
+    const {
+        rescheduleOpen,
+        setRescheduleOpen,
+        newDateTime,
+        setNewDateTime,
+        handleCancelAppointment,
+        handleRescheduleAppointment,
+    } = useAppointmentActions(onRefresh);
 
     return (
         <>
@@ -207,8 +170,9 @@ export const NextAppointment = ({ appointment, onRefresh }: NextAppointmentProps
                                             </Button>
                                         </DialogTrigger>
                                         <DialogContent>
-                                            <DialogTitle>Reprogramar cita</DialogTitle>
-                                            <form onSubmit={handleRescheduleAppointment} className="flex flex-col gap-4 mt-2">
+                                            <DialogTitle className="text-foreground">¿Quieres reprogramar la cita?</DialogTitle>
+                                            <p className="text-muted-foreground mb-2">Selecciona la nueva fecha y hora para tu cita.</p>
+                                            <form onSubmit={(e) => handleRescheduleAppointment(e, appointment.id)} className="flex flex-col gap-4 mt-2">
                                                 <Input
                                                     type="datetime-local"
                                                     value={newDateTime}
@@ -224,30 +188,29 @@ export const NextAppointment = ({ appointment, onRefresh }: NextAppointmentProps
                                             </form>
                                         </DialogContent>
                                     </Dialog>
-                                        <AlertDialog>
-                                            <AlertDialogTrigger asChild>
-                                                <Button className="bg-red-700 hover:bg-red-600 text-background">
-                                                    <X className="mr-2 h-4 w-4" />
-                                                    Cancelar
-                                                </Button>
-                                            </AlertDialogTrigger>
-
-                                            <AlertDialogContent>
-                                                <AlertDialogHeader>
-                                                    <AlertDialogTitle>
-                                                        ¿Estás seguro de que deseas cancelar la cita?
-                                                    </AlertDialogTitle>
-                                                    <AlertDialogDescription>
-                                                        Esta acción no se puede deshacer.
-                                                        Una vez cancelada, deberás reservar una nueva cita si lo deseas.
-                                                    </AlertDialogDescription>
-                                                </AlertDialogHeader>
-                                                <AlertDialogFooter>
-                                                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                                                    <AlertDialogAction onClick={handleCancelAppointment}>Continuar</AlertDialogAction>
-                                                </AlertDialogFooter>
-                                            </AlertDialogContent>
-                                        </AlertDialog>
+                                    <AlertDialog>
+                                        <AlertDialogTrigger asChild>
+                                            <Button className="bg-red-700 hover:bg-red-600 text-background">
+                                                <X className="mr-2 h-4 w-4" />
+                                                Cancelar
+                                            </Button>
+                                        </AlertDialogTrigger>
+                                        <AlertDialogContent>
+                                            <AlertDialogHeader>
+                                                <AlertDialogTitle>
+                                                    ¿Estás seguro de que deseas cancelar la cita?
+                                                </AlertDialogTitle>
+                                                <AlertDialogDescription>
+                                                    Esta acción no se puede deshacer.
+                                                    Una vez cancelada, deberás reservar una nueva cita si lo deseas.
+                                                </AlertDialogDescription>
+                                            </AlertDialogHeader>
+                                            <AlertDialogFooter>
+                                                <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                                <AlertDialogAction onClick={() => handleCancelAppointment(appointment.id)}>Continuar</AlertDialogAction>
+                                            </AlertDialogFooter>
+                                        </AlertDialogContent>
+                                    </AlertDialog>
                                 </div>
                             </div>
                         </div>

@@ -12,6 +12,7 @@ import { useAuthStore } from "@/modules/auth/auth.store";
 import ServiceBookingCard from "@/modules/services/components/ServiceBookingCard";
 import { Suspense, useEffect } from "react";
 import { useClientPanelStore } from "../../stores/client-panel.store";
+import { AppointmentStatus } from "@/modules/appointments/appointments.type";
 
 interface ClientDashboardScreenProps {
   services: GetService[]; // Adjust type as necessary
@@ -23,6 +24,11 @@ export const ClientDashboardScreen = ({ services }: ClientDashboardScreenProps) 
   const fetchAppointments = useClientPanelStore((state) => state.fetchAppointments);
   const appointments = useClientPanelStore((state) => state.appointments);
   const abierto = isBarbershopOpen();
+
+  // Filtrar la cita en estado confirmado mas proxima
+  const filteredAppointments = appointments.filter(appointment => appointment.status === AppointmentStatus.CONFIRMED);
+  filteredAppointments.sort((a, b) => new Date(a.appointmentDetails[0].startDateTime).getTime() - new Date(b.appointmentDetails[0].startDateTime).getTime());
+  const latestAppointment = filteredAppointments[0];
 
   useEffect(() => {
     const fetchData = async () => {
@@ -79,7 +85,7 @@ export const ClientDashboardScreen = ({ services }: ClientDashboardScreenProps) 
         <div className="lg:w-1/3 w-full mb-8 lg:mb-0">
           <div className="sticky top-8">
 
-            <NextAppointment appointment={appointments[0]} onRefresh={() => fetchAppointments(userAuthenticated?.id || '')} />
+            <NextAppointment appointment={latestAppointment} onRefresh={() => fetchAppointments(userAuthenticated?.id || '')} />
 
             <AppointmentsHistory appointments={appointments}/>
 
