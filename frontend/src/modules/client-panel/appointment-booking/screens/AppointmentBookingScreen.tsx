@@ -11,6 +11,8 @@ import { BarberPerServiceSelector } from "../components/BarberPerServiceSelector
 import { SelectBarber } from "../components/SelectBarber";
 import { ArrowLeftIcon } from "@/core/components/Icons";
 import { useAppointmentBookingForm } from "../hooks/useAppointmentBookingForm";
+import { useServiceIdFromParams } from "../hooks/useServiceIdFromParams";
+import { useEffect } from "react";
 import { getDateTimeFormatted } from "@/core/utils/getDateTimeFormatted";
 import { BookingDateTimeSelector } from "../components/BookingDateTimeSelector";
 
@@ -24,6 +26,7 @@ export default function AppointmentBookingScreen({
   barbers
 }: AppointmentBookingScreenProps) {
 
+
   const {
     step,
     nextStep,
@@ -33,8 +36,20 @@ export default function AppointmentBookingScreen({
     setIsSelectingBarberPerService,
     formMethods,
     handleSubmitForm,
-    watch
+    watch,
   } = useAppointmentBookingForm({ barbers });
+
+  const serviceIdFromParams = useServiceIdFromParams();
+
+  useEffect(() => {
+    if (serviceIdFromParams && watch("services").length === 0) {
+      const serviceExists = services.some(s => s.id === serviceIdFromParams);
+      if (serviceExists) {
+        formMethods.setValue("services", [{ serviceId: serviceIdFromParams, barberId: "" }], { shouldValidate: true });
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [serviceIdFromParams]);
 
   return (
     <FormProvider {...formMethods}>
