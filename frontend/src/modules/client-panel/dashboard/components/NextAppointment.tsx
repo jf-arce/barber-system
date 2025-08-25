@@ -9,6 +9,7 @@ import { getDateTimeFormatted } from "../../../../core/utils/getDateTimeFormatte
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/core/components/AlertDialog";
 import { AppointmentsService } from "@/modules/appointments/appointments.service";
 import { toast } from 'sonner'
+import { useClientPanelStore } from "../../stores/client-panel.store";
 
 interface NextAppointmentProps {
     appointment: GetAppointment;
@@ -21,6 +22,7 @@ export const NextAppointment = ({ appointment, onRefresh }: NextAppointmentProps
     const totalDuration = appointment?.appointmentDetails?.reduce((sum, ad) => sum + ad.service.duration, 0);
     const totalPrice = appointment?.appointmentDetails?.reduce((sum, ad) => sum + ad.service.price, 0);
     const dateTimeFormated = getDateTimeFormatted(startDateTimeUTC);
+    const isLoading = useClientPanelStore(state => state.isLoading);
 
     // Estado para dialog de reprogramar
     const [rescheduleOpen, setRescheduleOpen] = useState(false);
@@ -69,7 +71,7 @@ export const NextAppointment = ({ appointment, onRefresh }: NextAppointmentProps
 
     return (
         <>
-            {!appointment ? (
+            {isLoading ? (
                 <div className="rounded-md bg-gray-100 shadow-xl p-6">
                     <div className="space-y-6">
                         <div className="flex items-center justify-between">
@@ -95,7 +97,9 @@ export const NextAppointment = ({ appointment, onRefresh }: NextAppointmentProps
                         </div>
                     </div>
                 </div>
-            ) : appointment.status !== AppointmentStatus.COMPLETED && appointment.status !== AppointmentStatus.CANCELLED ? (
+            ) : 
+            appointment && 
+            (appointment.status !== AppointmentStatus.COMPLETED && appointment.status !== AppointmentStatus.CANCELLED) ? (
                 <div className="rounded-md bg-gray-100 shadow-xl animate-fade-up animate-duration-700 animate-ease-out animate-delay-100">
                     <div className="p-6">
                         <div className="space-y-6">

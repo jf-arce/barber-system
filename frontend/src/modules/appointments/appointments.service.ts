@@ -9,7 +9,7 @@ export class AppointmentsService {
             const response = await axios.post<CreateAppointment>(API_ROUTES.APPOINTMENTS, createAppointment, {
                 withCredentials: true
             });
-            if (response.status !== 201 ){
+            if (response.status !== 201) {
                 throw new Error(`Failed to create appointment: ${response.data}`);
             }
             return response.data;
@@ -47,13 +47,14 @@ export class AppointmentsService {
                 withCredentials: true
             });
 
-            if (response.status !== 200) {
-                throw new Error(`Failed to fetch appointments: ${response.data}`);
-            }
-            
             return response.data;
         } catch (error) {
-            console.error("Error fetching appointments:", error);
+            if (axios.isAxiosError(error)) {
+                if (error.response?.status === 404) return [];
+                console.error("Axios error:", error.response?.data);
+            } else {
+                console.error("Unexpected error:", error);
+            }
             return [];
         }
     }
@@ -75,12 +76,12 @@ export class AppointmentsService {
     static async rescheduleAppointment(data: { id: number, newDateTime: string }): Promise<void> {
         try {
             const response = await axios.patch(`${API_ROUTES.APPOINTMENTS}/${data.id}/reschedule`,
-            { 
-                newDateTime: data.newDateTime 
-            }, 
-            {
-                withCredentials: true
-            });
+                {
+                    newDateTime: data.newDateTime
+                },
+                {
+                    withCredentials: true
+                });
             if (response.status !== 200) {
                 throw new Error(`Failed to reschedule appointment: ${response.data}`);
             }
