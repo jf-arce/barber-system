@@ -3,6 +3,7 @@ import { Button } from "@/core/components/Button";
 import { getDateTimeFormatted } from "@/core/utils/getDateTimeFormatted";
 import { AppointmentStatus, GetAppointment } from "@/modules/appointments/appointments.type";
 import { History, Star } from "lucide-react";
+import Link from "next/link";
 
 // const historyData = [
 //   {
@@ -88,8 +89,13 @@ export const AppointmentsHistory = ({ appointments }: AppointmentsHistoryProps) 
                         );
                     })}
                 </div>
-                <Button className="mt-5 !text-black/80">
-                    Ver todo el historial
+                <Button 
+                    asChild
+                    className="mt-5 !text-black/80" 
+                >
+                    <Link href="/client/dashboard/appointments/history">
+                        Ver todo el historial
+                    </Link>
                 </Button>
             </div>
         </div>
