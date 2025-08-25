@@ -1,7 +1,10 @@
 import { Button } from "@/core/components/Button";
 import { AppointmentStatus, GetAppointment } from "@/modules/appointments/appointments.type";
-import { AlertCircle, Calendar, CheckCircle, Clock, Plus, RotateCcw, User, X } from "lucide-react";
+import { AlertCircle, Calendar, CheckCircle, Clock, RotateCcw, User, X } from "lucide-react";
 import { getDateTimeFormatted } from "../../../../core/utils/getDateTimeFormatted";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/core/components/AlertDialog";
+import { AppointmentsService } from "@/modules/appointments/appointments.service";
+import { toast } from 'sonner'
 
 interface NextAppointmentProps {
   appointment: GetAppointment;
@@ -14,9 +17,25 @@ export const NextAppointment = ({ appointment }: NextAppointmentProps) => {
     const totalPrice = appointment?.appointmentDetails?.reduce((sum, ad) => sum + ad.service.price, 0);
     const dateTimeFormated = getDateTimeFormatted(startDateTimeUTC);
 
+    const handleCancelAppointment = () => {
+        AppointmentsService.cancelAppointment(appointment.id)
+            .then(() => {
+                setTimeout(() => {
+                    toast.success('Cita cancelada con éxito', {
+                        description: 'Tu cita ha sido cancelada.',
+                    });
+                }, 150);
+            })
+            .catch(() => {
+                toast.error('Error al cancelar la cita', {
+                    description: 'Ocurrió un error al cancelar tu cita.',
+                });
+            });
+    };
+
     return (
         <>
-            {appointment && appointment.status !== AppointmentStatus.COMPLETED ? (
+            {appointment && appointment.status !== AppointmentStatus.COMPLETED && appointment.status !== AppointmentStatus.CANCELLED ? (
                 <div className="rounded-md bg-gray-100 shadow-xl animate-fade-up animate-duration-700 animate-ease-out animate-delay-100">
                     <div className="p-6">
                         <div className="space-y-6">
@@ -25,12 +44,7 @@ export const NextAppointment = ({ appointment }: NextAppointmentProps) => {
                                     <Calendar className="mr-2 h-5 w-5 text-black" />
                                     Tu Próxima Cita
                                 </h3>
-                                {appointment.status === AppointmentStatus.CONFIRMED && (
-                                    <CheckCircle className="w-7 h-7 text-green-600 flex" />
-                                )}
-                                {appointment.status === AppointmentStatus.CANCELLED && (
-                                    <X className="w-7 h-7 text-red-600 flex" />
-                                )}
+                                <CheckCircle className="w-7 h-7 text-green-600 flex" />
                             </div>
 
                             <div className="space-y-4">
@@ -125,10 +139,30 @@ export const NextAppointment = ({ appointment }: NextAppointmentProps) => {
                                         <RotateCcw className="mr-2 h-4 w-4" />
                                         Reprogramar
                                     </Button>
-                                    <Button className="bg-red-700 hover:bg-red-600 text-background">
-                                        <X className="mr-2 h-4 w-4" />
-                                        Cancelar
-                                    </Button>
+                                        <AlertDialog>
+                                            <AlertDialogTrigger asChild>
+                                                <Button className="bg-red-700 hover:bg-red-600 text-background">
+                                                    <X className="mr-2 h-4 w-4" />
+                                                    Cancelar
+                                                </Button>
+                                            </AlertDialogTrigger>
+
+                                            <AlertDialogContent>
+                                                <AlertDialogHeader>
+                                                    <AlertDialogTitle>
+                                                        ¿Estás seguro de que deseas cancelar la cita?
+                                                    </AlertDialogTitle>
+                                                    <AlertDialogDescription>
+                                                        Esta acción no se puede deshacer.
+                                                        Una vez cancelada, deberás reservar una nueva cita si lo deseas.
+                                                    </AlertDialogDescription>
+                                                </AlertDialogHeader>
+                                                <AlertDialogFooter>
+                                                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                                    <AlertDialogAction onClick={handleCancelAppointment}>Continuar</AlertDialogAction>
+                                                </AlertDialogFooter>
+                                            </AlertDialogContent>
+                                        </AlertDialog>
                                 </div>
                             </div>
                         </div>
@@ -144,10 +178,6 @@ export const NextAppointment = ({ appointment }: NextAppointmentProps) => {
                         <p className="text-gray-600 mb-6">
                             ¡Reserva tu próxima cita y luce increíble!
                         </p>
-                        <Button className="!text-black/80">
-                            <Plus className="mr-2 h-4 w-4" />
-                            Reservar Ahora
-                        </Button>
                     </div>
                 </div>
             )}

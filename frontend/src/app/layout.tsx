@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { DM_Sans } from "next/font/google";
 import "./globals.css";
 import { AuthRefreshProvider } from "@/modules/auth/providers/AuthRefreshProvider";
+import { Toaster } from 'sonner'
 
 const dmSans = DM_Sans({
   weight: ["400", "500", "700"],
@@ -26,6 +27,10 @@ export default function RootLayout({
       >
         <AuthRefreshProvider>
           {children}
+          <Toaster 
+            position="top-center"
+            richColors
+          />
         </AuthRefreshProvider>
       </body>
     </html>

@@ -1,6 +1,7 @@
+import { Badge } from "@/core/components/Badge";
 import { Button } from "@/core/components/Button";
 import { getDateTimeFormatted } from "@/core/utils/getDateTimeFormatted";
-import { GetAppointment } from "@/modules/appointments/appointments.type";
+import { AppointmentStatus, GetAppointment } from "@/modules/appointments/appointments.type";
 import { History, Star } from "lucide-react";
 
 // const historyData = [
@@ -40,7 +41,7 @@ export const AppointmentsHistory = ({ appointments }: AppointmentsHistoryProps) 
                     Historial Reciente
                 </h4>
                 <div className="space-y-3">
-                    {appointments.slice(1, 3).map((item, idx) => {
+                    {appointments.slice(0, 2).map((item, idx) => {
                         const totalPrice = item?.appointmentDetails?.reduce((sum, ad) => sum + ad.service.price, 0);
                         return (
                             <div
@@ -60,6 +61,20 @@ export const AppointmentsHistory = ({ appointments }: AppointmentsHistoryProps) 
                                             ${totalPrice}
                                         </span>
                                     </div>
+                                    <Badge
+                                        className="mt-1"
+                                        variant={
+                                            item.status === AppointmentStatus.CANCELLED
+                                                ? "destructive"
+                                                : item.status === AppointmentStatus.COMPLETED
+                                                ? "success"
+                                                : item.status === AppointmentStatus.CONFIRMED
+                                                ? "warning"
+                                                : "default"
+                                        }
+                                    >
+                                        {item.status}
+                                    </Badge>
                                 </div>
                                 <div className="flex items-center space-x-1">
                                     {Array.from({ length: 5 }).map((_, i) => (
@@ -73,7 +88,7 @@ export const AppointmentsHistory = ({ appointments }: AppointmentsHistoryProps) 
                         );
                     })}
                 </div>
-                <Button className="mt-3 !text-black/80">
+                <Button className="mt-5 !text-black/80">
                     Ver todo el historial
                 </Button>
             </div>

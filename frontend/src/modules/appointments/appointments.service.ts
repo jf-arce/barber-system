@@ -58,4 +58,18 @@ export class AppointmentsService {
         }
     }
 
+    static async cancelAppointment(appointmentId: number): Promise<void> {
+        try {
+            const response = await axios.patch(`${API_ROUTES.APPOINTMENTS}/${appointmentId}/cancel`, {}, {
+                withCredentials: true
+            });
+            if (response.status !== 200) {
+                throw new Error(`Failed to cancel appointment: ${response.data}`);
+            }
+        } catch (error) {
+            console.error("Error canceling appointment:", error);
+            throw new Error(`Error canceling appointment: ${error}`);
+        }
+    }
+
 }
