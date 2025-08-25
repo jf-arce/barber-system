@@ -79,7 +79,7 @@ export const ClientDashboardScreen = ({ services }: ClientDashboardScreenProps) 
         <div className="lg:w-1/3 w-full mb-8 lg:mb-0">
           <div className="sticky top-8">
 
-            <NextAppointment appointment={appointments[0]} />
+            <NextAppointment appointment={appointments[0]} onRefresh={() => fetchAppointments(userAuthenticated?.id || '')} />
 
             <AppointmentsHistory appointments={appointments}/>
 

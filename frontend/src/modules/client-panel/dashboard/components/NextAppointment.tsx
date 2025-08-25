@@ -1,4 +1,8 @@
 import { Button } from "@/core/components/Button";
+import { Skeleton } from "@/core/components/Skeleton";
+import { Dialog, DialogTrigger, DialogContent, DialogTitle, DialogFooter, DialogClose } from "@/core/components/Dialog";
+import { Input } from "@/core/components/Input";
+import { useState } from "react";
 import { AppointmentStatus, GetAppointment } from "@/modules/appointments/appointments.type";
 import { AlertCircle, Calendar, CheckCircle, Clock, RotateCcw, User, X } from "lucide-react";
 import { getDateTimeFormatted } from "../../../../core/utils/getDateTimeFormatted";
@@ -7,15 +11,20 @@ import { AppointmentsService } from "@/modules/appointments/appointments.service
 import { toast } from 'sonner'
 
 interface NextAppointmentProps {
-  appointment: GetAppointment;
+    appointment: GetAppointment;
+    onRefresh?: () => void;
 }
 
-export const NextAppointment = ({ appointment }: NextAppointmentProps) => {
+export const NextAppointment = ({ appointment, onRefresh }: NextAppointmentProps) => {
     
     const startDateTimeUTC = appointment?.appointmentDetails?.[0]?.startDateTime;
     const totalDuration = appointment?.appointmentDetails?.reduce((sum, ad) => sum + ad.service.duration, 0);
     const totalPrice = appointment?.appointmentDetails?.reduce((sum, ad) => sum + ad.service.price, 0);
     const dateTimeFormated = getDateTimeFormatted(startDateTimeUTC);
+
+    // Estado para dialog de reprogramar
+    const [rescheduleOpen, setRescheduleOpen] = useState(false);
+    const [newDateTime, setNewDateTime] = useState("");
 
     const handleCancelAppointment = () => {
         AppointmentsService.cancelAppointment(appointment.id)
@@ -24,6 +33,7 @@ export const NextAppointment = ({ appointment }: NextAppointmentProps) => {
                     toast.success('Cita cancelada con éxito', {
                         description: 'Tu cita ha sido cancelada.',
                     });
+                    if (onRefresh) onRefresh();
                 }, 150);
             })
             .catch(() => {
@@ -33,9 +43,59 @@ export const NextAppointment = ({ appointment }: NextAppointmentProps) => {
             });
     };
 
+    const handleRescheduleAppointment = (e: React.FormEvent) => {
+        e.preventDefault();
+        // Convert newDateTime (local) to UTC string
+        const localDate = new Date(newDateTime);
+        const utcDateTime = localDate.toISOString();
+
+        AppointmentsService.rescheduleAppointment({ id: appointment.id, newDateTime: utcDateTime })
+            .then(() => {
+                setTimeout(() => {
+                    toast.success('Cita reprogramada con éxito', {
+                        description: 'Tu cita ha sido reprogramada.',
+                    });
+                    if (onRefresh) onRefresh();
+                }, 150);
+            })
+            .catch(() => {
+                toast.error('Error al reprogramar la cita', {
+                    description: 'Ocurrió un error al reprogramar tu cita.',
+                });
+            });
+        setRescheduleOpen(false);
+        setNewDateTime("");
+    };
+
     return (
         <>
-            {appointment && appointment.status !== AppointmentStatus.COMPLETED && appointment.status !== AppointmentStatus.CANCELLED ? (
+            {!appointment ? (
+                <div className="rounded-md bg-gray-100 shadow-xl p-6">
+                    <div className="space-y-6">
+                        <div className="flex items-center justify-between">
+                            <Skeleton className="h-6 w-1/3" />
+                            <Skeleton className="h-7 w-7 rounded-full" />
+                        </div>
+                        <div className="space-y-4">
+                            <Skeleton className="h-5 w-2/3 mb-2" />
+                            <Skeleton className="h-4 w-1/2" />
+                            <div className="grid grid-cols-2 gap-4 py-4">
+                                <Skeleton className="h-16 w-full" />
+                                <Skeleton className="h-16 w-full" />
+                            </div>
+                            <div className="flex items-center justify-between">
+                                <Skeleton className="h-6 w-20" />
+                                <Skeleton className="h-6 w-20" />
+                            </div>
+                            <Skeleton className="h-16 w-full" />
+                            <div className="grid grid-cols-2 gap-3 pt-4">
+                                <Skeleton className="h-10 w-full" />
+                                <Skeleton className="h-10 w-full" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            ) : appointment.status !== AppointmentStatus.COMPLETED && appointment.status !== AppointmentStatus.CANCELLED ? (
                 <div className="rounded-md bg-gray-100 shadow-xl animate-fade-up animate-duration-700 animate-ease-out animate-delay-100">
                     <div className="p-6">
                         <div className="space-y-6">
@@ -135,10 +195,31 @@ export const NextAppointment = ({ appointment }: NextAppointmentProps) => {
                                 </div>
 
                                 <div className="grid grid-cols-2 gap-3 pt-4">
-                                    <Button className="bg-neutral-600 text-background hover:bg-neutral-500">
-                                        <RotateCcw className="mr-2 h-4 w-4" />
-                                        Reprogramar
-                                    </Button>
+                                    <Dialog open={rescheduleOpen} onOpenChange={setRescheduleOpen}>
+                                        <DialogTrigger asChild>
+                                            <Button className="bg-neutral-600 text-background hover:bg-neutral-500">
+                                                <RotateCcw className="mr-2 h-4 w-4" />
+                                                Reprogramar
+                                            </Button>
+                                        </DialogTrigger>
+                                        <DialogContent>
+                                            <DialogTitle>Reprogramar cita</DialogTitle>
+                                            <form onSubmit={handleRescheduleAppointment} className="flex flex-col gap-4 mt-2">
+                                                <Input
+                                                    type="datetime-local"
+                                                    value={newDateTime}
+                                                    onChange={e => setNewDateTime(e.target.value)}
+                                                    required
+                                                />
+                                                <DialogFooter>
+                                                    <DialogClose asChild>
+                                                        <Button type="button" variant="outline">Cancelar</Button>
+                                                    </DialogClose>
+                                                    <Button type="submit">Confirmar</Button>
+                                                </DialogFooter>
+                                            </form>
+                                        </DialogContent>
+                                    </Dialog>
                                         <AlertDialog>
                                             <AlertDialogTrigger asChild>
                                                 <Button className="bg-red-700 hover:bg-red-600 text-background">

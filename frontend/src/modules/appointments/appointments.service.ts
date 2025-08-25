@@ -72,4 +72,21 @@ export class AppointmentsService {
         }
     }
 
+    static async rescheduleAppointment(data: { id: number, newDateTime: string }): Promise<void> {
+        try {
+            const response = await axios.patch(`${API_ROUTES.APPOINTMENTS}/${data.id}/reschedule`,
+            { 
+                newDateTime: data.newDateTime 
+            }, 
+            {
+                withCredentials: true
+            });
+            if (response.status !== 200) {
+                throw new Error(`Failed to reschedule appointment: ${response.data}`);
+            }
+        } catch (error) {
+            console.error("Error rescheduling appointment:", error);
+            throw new Error(`Error rescheduling appointment: ${error}`);
+        }
+    }
 }
