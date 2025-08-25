@@ -23,8 +23,8 @@ import { useEffect } from "react"
 import { useAuthStore } from "@/modules/auth/auth.store"
 import { useAppointmentActions } from "@/modules/appointments/hooks/useAppointmentActions"
 import { AppointmentStatus } from "@/modules/appointments/appointments.type";
-import { Input } from "@/core/components/Input";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/core/components/AlertDialog";
+import { DateAndTimePicker } from "@/core/components/DateAndTimePicker"
 
 const getStatusBadge = (status: GetAppointment["status"]) => {
     const variants = {
@@ -68,22 +68,21 @@ const formatDuration = (startDateTime: string | undefined, endDateTime: string |
 
 export function AppointmentsHistoryScreen() {
 
-  const userAuthenticated = useAuthStore().userAuthenticated;
-  const fetchAppointments = useClientPanelStore((state) => state.fetchAppointments);
-  const appointments = useClientPanelStore((state) => state.appointments);
-  const {
-    newDateTime,
-    setNewDateTime,
-    handleCancelAppointment,
-    handleRescheduleAppointment,
-  } = useAppointmentActions(() => fetchAppointments(userAuthenticated?.id || ''));
+    const userAuthenticated = useAuthStore().userAuthenticated;
+    const fetchAppointments = useClientPanelStore((state) => state.fetchAppointments);
+    const appointments = useClientPanelStore((state) => state.appointments);
+    const {
+        setNewDateTime,
+        handleCancelAppointment,
+        handleRescheduleAppointment,
+    } = useAppointmentActions(() => fetchAppointments(userAuthenticated?.id || ''));
 
-  useEffect(() => {
-    const fetchData = async () => {
-      await fetchAppointments(userAuthenticated?.id || '');
-    };
-    fetchData();
-  }, [userAuthenticated?.id]);
+    useEffect(() => {
+        const fetchData = async () => {
+            await fetchAppointments(userAuthenticated?.id || '');
+        };
+        fetchData();
+    }, [userAuthenticated?.id]);
 
     return (
         <div className="pt-5 pb-20 min-h-screen">
@@ -132,158 +131,154 @@ export function AppointmentsHistoryScreen() {
                                             <TableCell className="font-semibold">{formatCurrency(totalPrice)}</TableCell>
                                             <TableCell>{totalDurationFormatted}</TableCell>
                                             <TableCell className="text-right">
-                                              <div className="flex gap-2 justify-end items-center">
-                                                {appointment.status === AppointmentStatus.CONFIRMED && (
-                                                  <>
-                                                    <AlertDialog>
-                                                      <AlertDialogTrigger asChild>
-                                                        <Button variant="outline" size="sm" className="rounded-sm">
-                                                          <RotateCcw className="h-4 w-4" />
-                                                        </Button>
-                                                      </AlertDialogTrigger>
-                                                      <AlertDialogContent>
-                                                        <AlertDialogHeader>
-                                                          <AlertDialogTitle>¿Quieres reprogramar la cita?</AlertDialogTitle>
-                                                          <AlertDialogDescription>
-                                                            Selecciona la nueva fecha y hora para tu cita.
-                                                          </AlertDialogDescription>
-                                                        </AlertDialogHeader>
-                                                        <form onSubmit={(e) => handleRescheduleAppointment(e, appointment.id)} className="flex flex-col gap-4 mt-2">
-                                                          <Input
-                                                            type="datetime-local"
-                                                            value={newDateTime}
-                                                            onChange={e => setNewDateTime(e.target.value)}
-                                                            required
-                                                          />
-                                                          <AlertDialogFooter>
-                                                            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                                                            <AlertDialogAction asChild>
-                                                              <Button type="submit">Confirmar</Button>
-                                                            </AlertDialogAction>
-                                                          </AlertDialogFooter>
-                                                        </form>
-                                                      </AlertDialogContent>
-                                                    </AlertDialog>
-                                                    <AlertDialog>
-                                                      <AlertDialogTrigger asChild>
-                                                        <Button variant="destructive" size="sm" className="rounded-sm">
-                                                          <X className="h-4 w-4" />
-                                                        </Button>
-                                                      </AlertDialogTrigger>
-                                                      <AlertDialogContent>
-                                                        <AlertDialogHeader>
-                                                          <AlertDialogTitle>
-                                                            ¿Estás seguro de que deseas cancelar la cita?
-                                                          </AlertDialogTitle>
-                                                          <AlertDialogDescription>
-                                                            Esta acción no se puede deshacer.
-                                                            Una vez cancelada, deberás reservar una nueva cita si lo deseas.
-                                                          </AlertDialogDescription>
-                                                        </AlertDialogHeader>
-                                                        <AlertDialogFooter>
-                                                          <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                                                          <AlertDialogAction onClick={() => handleCancelAppointment(appointment.id)}>Continuar</AlertDialogAction>
-                                                        </AlertDialogFooter>
-                                                      </AlertDialogContent>
-                                                    </AlertDialog>
-                                                  </>
-                                                )}
-                                                <Dialog>
-                                                  <DialogTrigger asChild>
-                                                    <Button variant="default" size="sm" className="rounded-sm ml-2">
-                                                      Detalles
-                                                    </Button>
-                                                  </DialogTrigger>
-                                                  <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto text-foreground">
-                                                      <DialogHeader>
-                                                          <DialogTitle className="flex items-center gap-2">
-                                                              <Scissors className="h-5 w-5 text-primary" />
-                                                              Detalles de la Cita
-                                                          </DialogTitle>
-                                                          <DialogDescription>Información completa de los servicios solicitados</DialogDescription>
-                                                      </DialogHeader>
+                                                <div className="flex gap-2 justify-end items-center">
+                                                    {appointment.status === AppointmentStatus.CONFIRMED && (
+                                                        <>
+                                                            <AlertDialog>
+                                                                <AlertDialogTrigger asChild>
+                                                                    <Button variant="outline" size="sm" className="rounded-sm">
+                                                                        <RotateCcw className="h-4 w-4" />
+                                                                    </Button>
+                                                                </AlertDialogTrigger>
+                                                                <AlertDialogContent>
+                                                                    <AlertDialogHeader>
+                                                                        <AlertDialogTitle>¿Quieres reprogramar la cita?</AlertDialogTitle>
+                                                                        <AlertDialogDescription>
+                                                                            Selecciona la nueva fecha y hora para tu cita.
+                                                                        </AlertDialogDescription>
+                                                                    </AlertDialogHeader>
+                                                                    <form onSubmit={(e) => handleRescheduleAppointment(e, appointment.id)} className="flex flex-col gap-4 mt-2">
+                                                                        <DateAndTimePicker onChange={dateIsoString => setNewDateTime(dateIsoString)} />
 
-                                                      <div className="space-y-6">
-                                                          {/* Información general */}
-                                                          <div className="grid grid-cols-2 gap-4">
-                                                              <div className="flex items-center gap-2">
-                                                                  <Calendar className="h-4 w-4 text-muted-foreground" />
-                                                                  <span className="text-sm">
-                                                                      {dayjs(appointment.appointmentDetails[0].startDateTime).locale("es").format("DD/MM/YYYY")}
-                                                                  </span>
-                                                              </div>
-                                                              <div className="flex items-center gap-2">
-                                                                  <Clock className="h-4 w-4 text-muted-foreground" />
-                                                                  <span className="text-sm">{dayjs(appointment.appointmentDetails[0].startDateTime).locale("es").format("HH:mm")}</span>
-                                                              </div>
-                                                              <div className="flex items-center gap-2">
-                                                                  <DollarSign className="h-4 w-4 text-muted-foreground" />
-                                                                  <span className="text-sm font-semibold">{formatCurrency(totalPrice)}</span>
-                                                              </div>
-                                                              <div className="flex items-center gap-2">{getStatusBadge(appointment.status)}</div>
-                                                          </div>
+                                                                        <AlertDialogFooter>
+                                                                            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                                                            <AlertDialogAction asChild>
+                                                                                <Button type="submit">Confirmar</Button>
+                                                                            </AlertDialogAction>
+                                                                        </AlertDialogFooter>
+                                                                    </form>
+                                                                </AlertDialogContent>
+                                                            </AlertDialog>
+                                                            <AlertDialog>
+                                                                <AlertDialogTrigger asChild>
+                                                                    <Button variant="destructive" size="sm" className="rounded-sm">
+                                                                        <X className="h-4 w-4" />
+                                                                    </Button>
+                                                                </AlertDialogTrigger>
+                                                                <AlertDialogContent>
+                                                                    <AlertDialogHeader>
+                                                                        <AlertDialogTitle>
+                                                                            ¿Estás seguro de que deseas cancelar la cita?
+                                                                        </AlertDialogTitle>
+                                                                        <AlertDialogDescription>
+                                                                            Esta acción no se puede deshacer.
+                                                                            Una vez cancelada, deberás reservar una nueva cita si lo deseas.
+                                                                        </AlertDialogDescription>
+                                                                    </AlertDialogHeader>
+                                                                    <AlertDialogFooter>
+                                                                        <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                                                        <AlertDialogAction onClick={() => handleCancelAppointment(appointment.id)}>Continuar</AlertDialogAction>
+                                                                    </AlertDialogFooter>
+                                                                </AlertDialogContent>
+                                                            </AlertDialog>
+                                                        </>
+                                                    )}
+                                                    <Dialog>
+                                                        <DialogTrigger asChild>
+                                                            <Button variant="default" size="sm" className="rounded-sm ml-2">
+                                                                Detalles
+                                                            </Button>
+                                                        </DialogTrigger>
+                                                        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto text-foreground">
+                                                            <DialogHeader>
+                                                                <DialogTitle className="flex items-center gap-2">
+                                                                    <Scissors className="h-5 w-5 text-primary" />
+                                                                    Detalles de la Cita
+                                                                </DialogTitle>
+                                                                <DialogDescription>Información completa de los servicios solicitados</DialogDescription>
+                                                            </DialogHeader>
 
-                                                          <Separator />
+                                                            <div className="space-y-6">
+                                                                {/* Información general */}
+                                                                <div className="grid grid-cols-2 gap-4">
+                                                                    <div className="flex items-center gap-2">
+                                                                        <Calendar className="h-4 w-4 text-muted-foreground" />
+                                                                        <span className="text-sm">
+                                                                            {dayjs(appointment.appointmentDetails[0].startDateTime).locale("es").format("DD/MM/YYYY")}
+                                                                        </span>
+                                                                    </div>
+                                                                    <div className="flex items-center gap-2">
+                                                                        <Clock className="h-4 w-4 text-muted-foreground" />
+                                                                        <span className="text-sm">{dayjs(appointment.appointmentDetails[0].startDateTime).locale("es").format("HH:mm")}</span>
+                                                                    </div>
+                                                                    <div className="flex items-center gap-2">
+                                                                        <DollarSign className="h-4 w-4 text-muted-foreground" />
+                                                                        <span className="text-sm font-semibold">{formatCurrency(totalPrice)}</span>
+                                                                    </div>
+                                                                    <div className="flex items-center gap-2">{getStatusBadge(appointment.status)}</div>
+                                                                </div>
 
-                                                          {/* Lista de servicios */}
-                                                          <div>
-                                                              <h4 className="font-semibold mb-4">Servicios Solicitados</h4>
-                                                              <div className="space-y-4">
-                                                                  {appointment.appointmentDetails.map((detail) => (
-                                                                      <Card key={detail.startDateTime + detail.endDateTime + detail.service.name} className="border-l-4 border-l-primary">
-                                                                          <CardContent className="pt-4">
-                                                                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                                                  <div>
-                                                                                      <h5 className="font-semibold text-lg mb-2">{detail.service.name}</h5>
-                                                                                      <div className="space-y-2 text-sm">
-                                                                                          <div className="flex items-center gap-2">
-                                                                                              <User className="h-4 w-4 text-muted-foreground" />
-                                                                                              <span>{detail.barber.name}</span>
-                                                                                          </div>
-                                                                                          <div className="flex items-center gap-2">
-                                                                                              <DollarSign className="h-4 w-4 text-muted-foreground" />
-                                                                                              <span className="font-semibold">{formatCurrency(detail.service.price)}</span>
-                                                                                          </div>
-                                                                                          <div className="flex items-center gap-2">
-                                                                                              <Clock className="h-4 w-4 text-muted-foreground" />
-                                                                                              <span>{formatDuration(detail.startDateTime, detail.endDateTime)}</span>
-                                                                                          </div>
-                                                                                      </div>
-                                                                                  </div>
-                                                                                  <div className="space-y-2">
-                                                                                      <div className="text-sm">
-                                                                                          <span className="font-medium">Hora de inicio:</span>
-                                                                                          <span className="ml-2">{dayjs(detail.startDateTime).locale("es").format("HH:mm")}</span>
-                                                                                      </div>
-                                                                                      <div className="text-sm">
-                                                                                          <span className="font-medium">Hora de fin:</span>
-                                                                                          <span className="ml-2">{dayjs(detail.endDateTime).locale("es").format("HH:mm")}</span>
-                                                                                      </div>
-                                                                                  </div>
-                                                                              </div>
-                                                                          </CardContent>
-                                                                      </Card>
-                                                                  ))}
-                                                              </div>
-                                                          </div>
+                                                                <Separator />
 
-                                                          {/* Resumen */}
-                                                          <Separator />
-                                                          <div className="bg-muted/50 p-4 rounded-lg">
-                                                              <div className="flex justify-between items-center">
-                                                                  <span className="font-semibold">Total de la Cita:</span>
-                                                                  <div className="text-right">
-                                                                      <div className="font-bold text-lg">{formatCurrency(totalPrice)}</div>
-                                                                      <div className="text-sm text-muted-foreground">
-                                                                          Duración: {totalDurationFormatted}
-                                                                      </div>
-                                                                  </div>
-                                                              </div>
-                                                          </div>
-                                                      </div>
-                                                  </DialogContent>
-                                                </Dialog>
-                                              </div>
+                                                                {/* Lista de servicios */}
+                                                                <div>
+                                                                    <h4 className="font-semibold mb-4">Servicios Solicitados</h4>
+                                                                    <div className="space-y-4">
+                                                                        {appointment.appointmentDetails.map((detail) => (
+                                                                            <Card key={detail.startDateTime + detail.endDateTime + detail.service.name} className="border-l-4 border-l-primary">
+                                                                                <CardContent className="pt-4">
+                                                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                                                        <div>
+                                                                                            <h5 className="font-semibold text-lg mb-2">{detail.service.name}</h5>
+                                                                                            <div className="space-y-2 text-sm">
+                                                                                                <div className="flex items-center gap-2">
+                                                                                                    <User className="h-4 w-4 text-muted-foreground" />
+                                                                                                    <span>{detail.barber.name}</span>
+                                                                                                </div>
+                                                                                                <div className="flex items-center gap-2">
+                                                                                                    <DollarSign className="h-4 w-4 text-muted-foreground" />
+                                                                                                    <span className="font-semibold">{formatCurrency(detail.service.price)}</span>
+                                                                                                </div>
+                                                                                                <div className="flex items-center gap-2">
+                                                                                                    <Clock className="h-4 w-4 text-muted-foreground" />
+                                                                                                    <span>{formatDuration(detail.startDateTime, detail.endDateTime)}</span>
+                                                                                                </div>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                        <div className="space-y-2">
+                                                                                            <div className="text-sm">
+                                                                                                <span className="font-medium">Hora de inicio:</span>
+                                                                                                <span className="ml-2">{dayjs(detail.startDateTime).locale("es").format("HH:mm")}</span>
+                                                                                            </div>
+                                                                                            <div className="text-sm">
+                                                                                                <span className="font-medium">Hora de fin:</span>
+                                                                                                <span className="ml-2">{dayjs(detail.endDateTime).locale("es").format("HH:mm")}</span>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </CardContent>
+                                                                            </Card>
+                                                                        ))}
+                                                                    </div>
+                                                                </div>
+
+                                                                {/* Resumen */}
+                                                                <Separator />
+                                                                <div className="bg-muted/50 p-4 rounded-lg">
+                                                                    <div className="flex justify-between items-center">
+                                                                        <span className="font-semibold">Total de la Cita:</span>
+                                                                        <div className="text-right">
+                                                                            <div className="font-bold text-lg">{formatCurrency(totalPrice)}</div>
+                                                                            <div className="text-sm text-muted-foreground">
+                                                                                Duración: {totalDurationFormatted}
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </DialogContent>
+                                                    </Dialog>
+                                                </div>
                                             </TableCell>
                                         </TableRow>
                                     )

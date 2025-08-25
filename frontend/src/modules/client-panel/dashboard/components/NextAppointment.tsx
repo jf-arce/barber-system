@@ -1,13 +1,13 @@
 import { Button } from "@/core/components/Button";
 import { Skeleton } from "@/core/components/Skeleton";
 import { Dialog, DialogTrigger, DialogContent, DialogTitle, DialogFooter, DialogClose } from "@/core/components/Dialog";
-import { Input } from "@/core/components/Input";
 import { AppointmentStatus, GetAppointment } from "@/modules/appointments/appointments.type";
 import { AlertCircle, Calendar, CheckCircle, Clock, RotateCcw, User, X } from "lucide-react";
 import { getDateTimeFormatted } from "../../../../core/utils/getDateTimeFormatted";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/core/components/AlertDialog";
 import { useClientPanelStore } from "../../stores/client-panel.store";
 import { useAppointmentActions } from "@/modules/appointments/hooks/useAppointmentActions";
+import { DateAndTimePicker } from "@/core/components/DateAndTimePicker";
 
 interface NextAppointmentProps {
     appointment: GetAppointment;
@@ -26,7 +26,6 @@ export const NextAppointment = ({ appointment, onRefresh }: NextAppointmentProps
     const {
         rescheduleOpen,
         setRescheduleOpen,
-        newDateTime,
         setNewDateTime,
         handleCancelAppointment,
         handleRescheduleAppointment,
@@ -173,12 +172,7 @@ export const NextAppointment = ({ appointment, onRefresh }: NextAppointmentProps
                                             <DialogTitle className="text-foreground">¿Quieres reprogramar la cita?</DialogTitle>
                                             <p className="text-muted-foreground mb-2">Selecciona la nueva fecha y hora para tu cita.</p>
                                             <form onSubmit={(e) => handleRescheduleAppointment(e, appointment.id)} className="flex flex-col gap-4 mt-2">
-                                                <Input
-                                                    type="datetime-local"
-                                                    value={newDateTime}
-                                                    onChange={e => setNewDateTime(e.target.value)}
-                                                    required
-                                                />
+                                                <DateAndTimePicker onChange={dateIsoString => setNewDateTime(dateIsoString)}/>
                                                 <DialogFooter>
                                                     <DialogClose asChild>
                                                         <Button type="button" variant="outline">Cancelar</Button>

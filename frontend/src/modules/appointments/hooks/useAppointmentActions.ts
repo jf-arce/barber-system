@@ -5,7 +5,7 @@ import { toast } from "sonner";
 export function useAppointmentActions(onRefresh?: () => void) {
   const [loading, setLoading] = useState(false);
   const [rescheduleOpen, setRescheduleOpen] = useState(false);
-  const [newDateTime, setNewDateTime] = useState("");
+  const [newDateTime, setNewDateTime] = useState<string | undefined>("");
 
   const handleCancelAppointment = async (appointmentId: number) => {
     setLoading(true);
@@ -30,8 +30,10 @@ export function useAppointmentActions(onRefresh?: () => void) {
     e.preventDefault();
     setLoading(true);
     try {
+      if (!newDateTime) throw new Error("No date selected");
       const localDate = new Date(newDateTime);
       const utcDateTime = localDate.toISOString();
+
       await AppointmentsService.rescheduleAppointment({ id: appointmentId, newDateTime: utcDateTime });
       setTimeout(() => {
         toast.success("Cita reprogramada con éxito", {
