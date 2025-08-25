@@ -6,11 +6,10 @@ import { UserAuthenticated, UserLogin } from "@/modules/auth/auth.types";
 import { AuthService } from "@/modules/auth/auth.service";
 import { LoaderCircleIcon } from "@/core/components/Icons";
 import { Input } from "@/core/components/Input";
+import { toast } from "sonner";
 
 export const LoginScreen = () => {
     const isLoading = useAuthStore(state => state.isLoading);
-    const error = useAuthStore(state => state.error);
-    const setError = useAuthStore((state) => state.setError);
     const setLoading = useAuthStore((state) => state.setLoading);
     const setUserAuthenticated = useAuthStore(
         (state) => state.setUserAuthenticated
@@ -22,15 +21,14 @@ export const LoginScreen = () => {
         const formData = new FormData(e.currentTarget);
         const formDataObj = Object.fromEntries(formData.entries());
 
-        setError("");
         setLoading(true);
         await AuthService.login(formDataObj as UserLogin)
             .then((res: UserAuthenticated) => {
                 setUserAuthenticated(res);
-                setError("");
+                toast.success("Sesión iniciada correctamente.");
             })
             .catch((error: Error) => {
-                setError(error.message);
+                toast.error(error.message);
             })
             .finally(() => {
                 setLoading(false);
@@ -71,8 +69,6 @@ export const LoginScreen = () => {
                         required
                     />
                 </div>
-
-                {error && <p className="text-red-500 text-sm">{error}</p>}
 
                 <div className="text-sm">
                     <Link href="/forgot-password" className="text-primary hover:underline">

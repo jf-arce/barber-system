@@ -11,6 +11,7 @@ import { LoaderCircleIcon } from "@/core/components/Icons";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/core/components/Form";
 import { Input } from "@/core/components/Input";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/core/components/Select";
+import { toast } from "sonner";
 
 const schema = z.object({
   name: z.string().min(1, "El nombre es obligatorio"),
@@ -27,7 +28,6 @@ type FormData = z.infer<typeof schema>;
 export const RegisterScreen = () => {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
 
   const form = useForm<FormData>({
     resolver: zodResolver(schema),
@@ -43,15 +43,19 @@ export const RegisterScreen = () => {
   });
 
   const onSubmit = async (userData: FormData) => {
-    setError("");
-    console.log(userData)
+    setLoading(true);
     await AuthService.register(userData)
       .then(() => {
-        alert("Usuario registrado con éxito");
+        toast.success(
+          <>
+            Tu cuenta ha sido creada correctamente.<br />
+            Por favor, inicia sesión.
+          </>
+        );
         router.push("/auth/login");
       })
       .catch((error) => {
-        setError(error.message);
+        toast.error(error.message);
       })
       .finally(() => {
         setLoading(false);
@@ -67,13 +71,13 @@ export const RegisterScreen = () => {
           <FormField
             control={form.control}
             name="name"
-            render={({ field }) => 
+            render={({ field }) =>
               <FormItem>
                 <FormLabel className="text-gray-700">Nombre *</FormLabel>
                 <FormControl>
                   <Input {...field} />
                 </FormControl>
-                  <FormMessage />
+                <FormMessage />
               </FormItem>
             }
           />
@@ -87,7 +91,7 @@ export const RegisterScreen = () => {
                 <FormControl>
                   <Input {...field} />
                 </FormControl>
-                  <FormMessage />
+                <FormMessage />
               </FormItem>
             }
           />
@@ -101,7 +105,7 @@ export const RegisterScreen = () => {
                 <FormControl>
                   <Input {...field} />
                 </FormControl>
-                  <FormMessage />
+                <FormMessage />
               </FormItem>
             }
           />
@@ -115,7 +119,7 @@ export const RegisterScreen = () => {
                 <FormControl>
                   <Input {...field} type="password" />
                 </FormControl>
-                  <FormMessage />
+                <FormMessage />
               </FormItem>
             }
           />
@@ -129,7 +133,7 @@ export const RegisterScreen = () => {
                 <FormControl>
                   <Input {...field} type="tel" placeholder="+542213456674" />
                 </FormControl>
-                  <FormMessage />
+                <FormMessage />
               </FormItem>
             }
           />
@@ -141,25 +145,25 @@ export const RegisterScreen = () => {
               <FormItem>
                 <FormLabel className="text-gray-700">Género *</FormLabel>
                 <FormControl>
-                    <Select
-                      value={field.value}
-                      onValueChange={field.onChange}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="--seleccionar--" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectGroup>
-                          {["Hombre", "Mujer", "Otro"].map((option) => (
-                            <SelectItem key={option} value={option}>
-                              {option}
-                            </SelectItem>
-                          ))}
-                        </SelectGroup>
-                      </SelectContent>
-                    </Select>
-                  </FormControl>
-                  <FormMessage />
+                  <Select
+                    value={field.value}
+                    onValueChange={field.onChange}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="--seleccionar--" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        {["Hombre", "Mujer", "Otro"].map((option) => (
+                          <SelectItem key={option} value={option}>
+                            {option}
+                          </SelectItem>
+                        ))}
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
+                </FormControl>
+                <FormMessage />
               </FormItem>
             }
           />
@@ -173,23 +177,21 @@ export const RegisterScreen = () => {
                   <FormControl>
                     <Input {...field} type="date" />
                   </FormControl>
-                    <FormMessage />
+                  <FormMessage />
                 </FormItem>
               }
             />
           </div>
 
-          {error && <p className="text-red-500 text-sm">{error}</p>}
-
-            <Button
-              type="submit"
-              className="col-span-2"
-            >
-              {
-                error && <p className="text-red-500 text-sm">{error}</p>
-              }
-              {loading ? <LoaderCircleIcon className="animate-spin" /> : "Registrarse"}
-            </Button>
+          <Button
+            type="submit"
+            className="col-span-2"
+          >
+            {
+              loading && (<LoaderCircleIcon className="loader animate-spin animate-infinite" />)
+            }
+            Registrarse
+          </Button>
         </form>
       </Form>
 
