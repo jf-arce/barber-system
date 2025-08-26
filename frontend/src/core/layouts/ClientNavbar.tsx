@@ -3,7 +3,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/modules/auth/auth.store";
 import { Bell, LogOut, Settings, Home } from "lucide-react";
-import Image from "next/image";
+// import Image from "next/image";
 
 export const ClientNavbar = () => {
     const userAuthenticated = useAuthStore((state) => state.userAuthenticated);
