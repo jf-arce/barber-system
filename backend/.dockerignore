@@ -1,0 +1,16 @@
+bin/
+obj/
+*.md
+*.user
+*.DotSettings*
+.git/
+.gitignore
+scripts/
+.vscode/
+.idea/
+*.suo
+*.vspscc
+*.vssscc
+*.csproj.user
+Dockerfile
+docker-compose.*
