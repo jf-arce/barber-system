@@ -58,16 +58,16 @@ public class AuthController : ControllerBase
             Response.Cookies.Append("access_token", jwtToken.token, new CookieOptions
             {
                 HttpOnly = true,
-                Secure = true,
-                SameSite = SameSiteMode.None,
+                Secure = false, // Set to true in production with HTTPS
+                SameSite = SameSiteMode.Lax, //Set None if you want cross-site cookies
                 Expires = DateTimeOffset.UtcNow.AddHours(1)
             });
             
             Response.Cookies.Append("refresh_token", jwtToken.refreshToken, new CookieOptions
             {
                 HttpOnly = true,
-                Secure = true,
-                SameSite = SameSiteMode.None,
+                Secure = false, // Set to true in production with HTTPS
+                SameSite = SameSiteMode.Lax, //Set None if you want cross-site cookies
                 Expires = DateTimeOffset.UtcNow.AddDays(7)
             });
             
@@ -113,16 +113,16 @@ public class AuthController : ControllerBase
             Response.Cookies.Append("access_token", newJwtToken.token, new CookieOptions
             {
                 HttpOnly = true,
-                Secure = true,
-                SameSite = SameSiteMode.None,
+                Secure = false, // Set to true in production with HTTPS
+                SameSite = SameSiteMode.Lax, //Set None if you want cross-site cookies
                 Expires = DateTimeOffset.UtcNow.AddHours(7)
             });
             
             Response.Cookies.Append("refresh_token", newJwtToken.refreshToken, new CookieOptions
             {
                 HttpOnly = true,
-                Secure = true,
-                SameSite = SameSiteMode.None,
+                Secure = false, // Set to true in production with HTTPS
+                SameSite = SameSiteMode.Lax, //Set None if you want cross-site cookies
                 Expires = DateTimeOffset.UtcNow.AddDays(30)
             });
             
