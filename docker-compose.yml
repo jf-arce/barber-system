@@ -12,28 +12,22 @@ services:
       - ./.env
 
   backend:
-    build:
-      context: ./backend
+    image: jfarce/barber-backend:latest
     restart: always
     expose:
-      - "8080" # Se expone el puerto internamente para que Nginx pueda comunicarse con él
+      - "8080"   # Puerto expuesto internamente para Nginx
     depends_on:
       - db
     env_file:
       - ./.env
 
   frontend:
-    build:
-      context: ./frontend
-      args:
-        NEXT_PUBLIC_API_BASE_URL: ${NEXT_PUBLIC_API_BASE_URL}
+    image: jfarce/barber-frontend:latest
     restart: always
     expose:
-      - "3000"
+      - "3000"   # Puerto expuesto internamente para Nginx
     depends_on:
       - backend
-    env_file:
-      - ./.env
 
   nginx:
     image: nginx:stable-alpine
